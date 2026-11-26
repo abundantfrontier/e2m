@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E2M technical report 1: harness, compiler-sweep data, and scale-up (living paper) · Abundant Frontier Institute</title>
+<meta name="description" content="Living technical report: an execution harness for model-generated x86-64, compiler-parameter sweeps, and a 3,000-task ExeBench scale-up.">
+<meta name="citation_title" content="Harness, compiler-sweep data, and scale-up">
+<meta name="citation_author" content="Wilson, Boyd">
+<meta name="citation_publication_date" content="2026/11/14">
+<meta name="citation_technical_report_institution" content="Abundant Frontier Institute">
+<meta name="citation_technical_report_number" content="Revision 3">
+<meta name="citation_public_url" content="https://abundantfrontier.org/lab/e2m/report-1/">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<nav class="nav"><div class="nav-in">
+<a class="brand" href="https://abundantfrontier.org/"><span class="e">🌾</span><span>Abundant Frontier Institute</span></a>
+<div class="nav-links"><a href="/lab/">Lab</a><a href="../concept/index.html" >Concept paper</a><a href="../report-1/index.html" class="cur">Technical report 1</a><a href="../report-2/index.html" >Technical report 2</a><a href="../report-3/index.html" >Technical report 3</a><a href="../report-4/index.html" >Technical report 4</a><a href="../report-5/index.html" >Technical report 5</a><span class="badge">Working paper</span></div>
+</div></nav>
+<main class="page">
+<header class="title">
+<div class="kicker">Technical report · first work product</div>
+<h1>Harness, compiler-sweep data, and scale-up</h1>
+<p class="sub">Technical report 1 of the <em>E2M</em> program: an execution harness for model-generated x86-64, compiler-parameter sweeps that turn verified variants into training data, and a 3,000-task scale-up from ExeBench.</p>
+<p class="byline"><strong>Boyd Wilson</strong>, Abundant Frontier Institute and Omnibond Systems</p>
+<p class="meta">Living paper · Revision 3 · Last updated 14 November 2026 · Companion to the <a href="../concept/index.html">E2M concept paper</a> · All results are from one 24 GB RTX 3090 workstation · Code and data: <a href="https://github.com/abundantfrontier/e2m">github.com/abundantfrontier/e2m</a></p>
+</header>
+
+<div class="draftbar"><b>Working paper.</b> You may cite it; see <a href="#cite">How to cite</a>. Numbers are copied from <code>STATUS.md</code>, <code>data/SWEEP_REPORT.md</code> and <code>data/scaled/SWEEP_REPORT.md</code> on the 3090; nothing here is rounded or re-scored. The first LoRA run is marked <span class="tag run">in progress</span> and has no results yet.</div>
+
+<div class="abstract"><h2>Abstract</h2>
+<p>E2M is a program for models that emit machine code from an English specification. Before any training, we needed a way to assemble, run and score generated x86-64 without executing it on the host CPU. This report describes that harness, a compiler-parameter sweep that turns many verified variants of the same function into supervised and preference data, and a scale-up from ExeBench. The harness is a Python package that assembles AT&amp;T, Intel or hex, runs the function under Unicorn with the System&nbsp;V ABI, instruction and time caps, syscall hooks and callee-saved-register checks, and scores pass@k plus size and retired-instruction counts against gcc <code>-O2</code>. A 98-test suite passed; a 10,000-input fuzz run had 0 harness crashes and 0 hangs, at 3,404 runs/s. All 20 starter tasks passed at gcc <code>-O0</code>, <code>-O2</code> and <code>-Os</code>. A full sweep of those 20 tasks over gcc, clang, rustc and random LLVM pipelines recorded 67,640 configs, of which 61,743 passed, collapsing to 721 unique variants, 60 SFT rows and 434 preference pairs. Optimization level was the diversity knob (0.952 of held-fixed groups). The largest loss was Unicorn 2.1.4, which could not run 3,563 AVX2, FMA or non-destructive VEX variants. We then filtered 42,769 ExeBench <code>train_real_simple_io</code> rows down to 7,079 functions the harness can run, and used a local qwen3:14b model to write English specifications for 3,000 of them (3,137&nbsp;s of model time). A reduced gcc and clang sweep of those tasks ran 432,000 configs, of which 389,637 passed, giving 20,123 unique variants, 9,000 SFT rows and 44,432 preference pairs. QEMU 8.2 user-mode was added as an optional second emulator (Unicorn stays the default; 1,399 vs 272 runs/s on a microbenchmark) and recovered 1,212 of 1,542 starter-sweep AVX drops (78.6%). A first LoRA training run on the scaled data, with a held-out HumanEval and MBPP style set and an NL-to-C-to-gcc <code>-O2</code> control, is in progress; this report does not invent numbers for it.</p></div>
+
+<nav class="toc" aria-label="Contents"><div class="toc-title">Contents</div><ol>
+<li><a href="#s1"><span class="n">1</span>Goals recap</a></li>
+<li><a href="#s2"><span class="n">2</span>Execution harness</a></li>
+<li><a href="#s3"><span class="n">3</span>Starter-task compiler sweep</a></li>
+<li><a href="#s4"><span class="n">4</span>Task scale-up from ExeBench</a></li>
+<li><a href="#s5"><span class="n">5</span>Scaled compiler sweep</a></li>
+<li><a href="#s6"><span class="n">6</span>AVX-capable emulator</a></li>
+<li><a href="#s7"><span class="n">7</span>First LoRA run</a></li>
+<li><a href="#s8"><span class="n">8</span>Limitations</a></li>
+<li><a href="#s9"><span class="n">9</span>Next steps</a></li>
+<li><a href="#s10"><span class="n">10</span>Reproducibility</a></li>
+<li><a href="#refs"><span class="n"></span>References</a></li>
+<li><a href="#revhist"><span class="n"></span>Revision history</a></li>
+</ol></nav>
+
+<div class="col">
+
+<h2 id="s1"><span class="n">1</span>Goals recap <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h2>
+<p>The long-range goal, set out in the <a href="../concept/index.html#s1">concept paper (§1)</a>, is a model that takes an English specification of a function, plus its signature and calling convention, and emits machine code that passes tests, respects the ABI, and is competitive with a compiler baseline. The control is the same base model writing C that gcc compiles at <code>-O2</code>. Generated code is never run on the host CPU.</p>
+<p>This report is the first work product on that path. It covers the harness that makes execution and scoring possible, the compiler sweeps that produce training data, the ExeBench scale-up that takes the task set from 20 functions to 3,000, and the choice of a second emulator so vectorized variants are not all dropped. The first LoRA run is underway and is recorded in §7 as in progress, with the results table left pending.</p>
+
+<h2 id="s2"><span class="n">2</span>Execution harness <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h2>
+<h3><span class="n">2.1</span>What was built <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h3>
+<p>A Python 3.12 package <code>e2m</code> assembles model-generated x86-64, runs it inside Unicorn (never on the host CPU), and scores it against JSONL tasks. The v0 work was CPU-only, in a venv at <code>.venv</code> (CPython 3.12.16 via uv), with unicorn 2.1.4, capstone 5.0.9, pyelftools 0.33 and pytest 9.2. No GPU, no sudo and no apt were used for this stage.</p>
+<div class="tw"><table><caption>Table 1. Harness pieces.</caption>
+<thead><tr><th>Piece</th><th>Path</th><th>Role</th></tr></thead><tbody>
+<tr><td>Assemble</td><td><code>e2m/harness/assemble.py</code></td><td>GNU <code>as</code>/<code>ld</code>; AT&amp;T, Intel, hex; reject externals and sections other than <code>.text</code>/<code>.rodata</code></td></tr>
+<tr><td>Emulate</td><td><code>e2m/harness/emu.py</code></td><td>Unicorn x86-64 SysV, sentinel <code>ret</code>, limits, ABI checks, crash reports; later, an optional QEMU backend (§6)</td></tr>
+<tr><td>Tasks</td><td><code>e2m/harness/tasks.py</code>, <code>tasks/starter.jsonl</code></td><td>20 hand-written functions plus a gcc baseline</td></tr>
+<tr><td>Score</td><td><code>python -m e2m.score</code></td><td>pass@k, size, instruction counts vs gcc <code>-O2</code>, JSON and Markdown</td></tr>
+<tr><td>Fuzz</td><td><code>python -m e2m.fuzz</code></td><td>Random and mutated blobs, multiprocessing, per-batch timeout</td></tr>
+<tr><td>Sandbox</td><td><code>e2m/harness/sandbox.py</code></td><td>Stretch: fork, rlimits, and seccomp allowing <code>write</code>, <code>exit</code> and <code>exit_group</code></td></tr>
+</tbody></table></div>
+<p>The emulator maps code RX, a stack RW with guard gaps, and input buffers for pointer arguments. Arguments are placed in rdi, rsi, rdx, rcx, r8, r9 and, for doubles, xmm0–7. A sentinel return address is pushed; execution stops when <code>ret</code> hits it. An instruction-count limit and a wall timeout are enforced. Hooks fail <code>syscall</code>, <code>int</code> and <code>sysenter</code>. Unmapped and permission faults are caught. Callee-saved registers (rbx, rbp, r12–r15, rsp) must be preserved, and the stack must be 16-byte aligned at calls. On a fault the harness returns a structured report (fault address, rip, a Capstone disassembly window, registers) and does not let an exception escape.</p>
+
+<h3><span class="n">2.2</span>Tests and the gcc baseline <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h3>
+<p><code>pytest</code> ran 98 tests and all passed. Coverage included 20 starter tasks times gcc <code>-O0</code> / <code>-O2</code> / <code>-Os</code> (60 baseline runs, all pass); assembly of AT&amp;T, Intel, hex and <code>.rodata</code> strings, with rejection of <code>call foo</code> and <code>.data</code>; emulation of addition, doubles, in-place reverse, blocked syscall/int/sysenter, an instruction cap on <code>jmp $</code>, callee-saved canaries and 16-byte call alignment; a score CLI check (pass@1 = 1.0 on a hex <code>add_i64</code> candidate, and gcc <code>-O2</code> candidates scoring pass@1 = 1.000 on all 20 tasks); and a sandbox check in which a <code>write</code>+<code>exit</code> program printed <code>hello\n</code> and exited 0, while <code>mmap</code> (not allowed) was killed.</p>
+<p>Table 2 is the gcc baseline on the 20 starters. Size is <code>.text</code> bytes. The instruction count <em>n</em> is the sum of Unicorn retired instructions over that task's tests. The same pattern as the concept-note smoke test holds: <code>-Os</code> is smallest, <code>-O0</code> is slowest, and <code>-O2</code> is the size/speed reference for scoring.</p>
+<div class="tw"><table><caption>Table 2. gcc baseline on the 20 starter tasks (size = <code>.text</code> bytes; <em>n</em> = sum of Unicorn instruction counts over the task's tests).</caption>
+<thead><tr><th>task</th><th class="num">O0 sz</th><th class="num">O0 n</th><th class="num">O2 sz</th><th class="num">O2 n</th><th class="num">Os sz</th><th class="num">Os n</th></tr></thead><tbody>
+<tr><td class="cond">add_i64</td><td class="num">25</td><td class="num">45</td><td class="num">5</td><td class="num">10</td><td class="num">5</td><td class="num">10</td></tr>
+<tr><td class="cond">max3_i64</td><td class="num">66</td><td class="num">86</td><td class="num">18</td><td class="num">30</td><td class="num">18</td><td class="num">30</td></tr>
+<tr><td class="cond">abs_i64</td><td class="num">24</td><td class="num">45</td><td class="num">11</td><td class="num">20</td><td class="num">11</td><td class="num">20</td></tr>
+<tr><td class="cond">clamp_i64</td><td class="num">54</td><td class="num">69</td><td class="num">18</td><td class="num">30</td><td class="num">19</td><td class="num">32</td></tr>
+<tr><td class="cond">sum_to</td><td class="num">69</td><td class="num">726</td><td class="num">66</td><td class="num">261</td><td class="num">24</td><td class="num">467</td></tr>
+<tr><td class="cond">is_prime</td><td class="num">108</td><td class="num">150</td><td class="num">86</td><td class="num">111</td><td class="num">70</td><td class="num">122</td></tr>
+<tr><td class="cond">gcd</td><td class="num">67</td><td class="num">135</td><td class="num">62</td><td class="num">87</td><td class="num">32</td><td class="num">84</td></tr>
+<tr><td class="cond">factorial</td><td class="num">74</td><td class="num">238</td><td class="num">89</td><td class="num">117</td><td class="num">30</td><td class="num">155</td></tr>
+<tr><td class="cond">fib</td><td class="num">114</td><td class="num">419</td><td class="num">51</td><td class="num">215</td><td class="num">43</td><td class="num">212</td></tr>
+<tr><td class="cond">array_sum_i32</td><td class="num">78</td><td class="num">197</td><td class="num">35</td><td class="num">88</td><td class="num">25</td><td class="num">102</td></tr>
+<tr><td class="cond">array_max_i32</td><td class="num">115</td><td class="num">167</td><td class="num">90</td><td class="num">79</td><td class="num">33</td><td class="num">84</td></tr>
+<tr><td class="cond">dot_i32</td><td class="num">110</td><td class="num">132</td><td class="num">70</td><td class="num">65</td><td class="num">39</td><td class="num">64</td></tr>
+<tr><td class="cond">reverse_i32</td><td class="num">164</td><td class="num">238</td><td class="num">57</td><td class="num">70</td><td class="num">47</td><td class="num">81</td></tr>
+<tr><td class="cond">count_eq_i32</td><td class="num">85</td><td class="num">182</td><td class="num">59</td><td class="num">106</td><td class="num">28</td><td class="num">99</td></tr>
+<tr><td class="cond">memcpy_u8</td><td class="num">72</td><td class="num">126</td><td class="num">33</td><td class="num">48</td><td class="num">19</td><td class="num">54</td></tr>
+<tr><td class="cond">strlen_u8</td><td class="num">47</td><td class="num">224</td><td class="num">33</td><td class="num">91</td><td class="num">14</td><td class="num">112</td></tr>
+<tr><td class="cond">strcmp_u8</td><td class="num">84</td><td class="num">253</td><td class="num">67</td><td class="num">112</td><td class="num">27</td><td class="num">104</td></tr>
+<tr><td class="cond">count_char</td><td class="num">65</td><td class="num">191</td><td class="num">59</td><td class="num">137</td><td class="num">22</td><td class="num">116</td></tr>
+<tr><td class="cond">add_f64</td><td class="num">26</td><td class="num">32</td><td class="num">5</td><td class="num">8</td><td class="num">5</td><td class="num">8</td></tr>
+<tr><td class="cond">dot_f64</td><td class="num">121</td><td class="num">135</td><td class="num">73</td><td class="num">51</td><td class="num">30</td><td class="num">50</td></tr>
+</tbody></table></div>
+
+<h3><span class="n">2.3</span>Fuzz <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h3>
+<p><code>python -m e2m.fuzz --n 10000</code> ran with multiprocessing, 50-input batches, a 4k instruction cap, a 50&nbsp;ms timeout, and ABI checks off. It completed 10,000 inputs with 0 harness crashes and 0 hangs, at 3,404 runs/s (2.94&nbsp;s elapsed). The parent RSS delta was about 3.6&nbsp;MiB. The typical histogram was: unmapped 5,850, invalid_insn 1,512, ok 654, int 518, no_return 502, io 387, syscall 199, sysenter 190, assemble_error 143, prot 45. An in-process RSS check (200 runs in the pytest worker) stayed under a 64&nbsp;MiB slop budget.</p>
+
+<h3><span class="n">2.4</span>Stretch sandbox <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h3>
+<p>The whole-program sandbox was implemented, not skipped. A child process maps anonymous memory RW, copies bytes, and <code>mprotect</code>s them RX (W^X; Ubuntu 26.04 rejects RWX). Resource limits are CPU 1&nbsp;s, address space 512&nbsp;MiB (set above the Python child's existing VSZ), NOFILE 16, NPROC 8 and CORE 0. It attempts <code>unshare(CLONE_NEWUSER|CLONE_NEWNET)</code>, then <code>prctl(PR_SET_NO_NEW_PRIVS)</code> and a libseccomp allow-list of <code>write=1</code>, <code>exit=60</code> and <code>exit_group=231</code>. Entry is via <code>CFUNCTYPE</code>; there is no <code>execve</code> of a host binary, so the guest cannot spawn <code>/bin/sh</code>. <code>libseccomp.so.2</code> was already present as a runtime library. The Python runtime is still mapped in the child; seccomp is the real fence, and a guest that jumps into libc still cannot make a disallowed syscall.</p>
+
+<h2 id="s3"><span class="n">3</span>Starter-task compiler sweep <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h2>
+<p>The point of the sweep is to turn each task (English specification, tests, C or Rust reference) into many verified machine-code variants, then deduplicate and rank them for training. Generated code ran only inside Unicorn. The work was CPU-only, dated 10 November 2026 in <code>STATUS.md</code>.</p>
+
+<h3><span class="n">3.1</span>Grid and tools <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h3>
+<p>A Rust reference was added for each of the 20 starter tasks: <code>#![no_std]</code>, <code>panic=abort</code>, <code>#[no_mangle] pub extern "C" fn</code> with the same SysV signature, wrapping arithmetic, inline <code>idiv</code> for remainder, and volatile byte loads so LLVM does not emit <code>strlen</code>, <code>memcpy</code> or <code>memcmp</code>. Canonical <code>rustc -C opt-level=2 -C target-cpu=x86-64 -C overflow-checks=off</code> passed every starter test through the harness.</p>
+<p>The cartesian grid (<code>e2m/data/grid.py</code>, 16 worker processes, resumable from a gitignored <code>data/sweep-cache.jsonl</code>) was:</p>
+<ul>
+<li><strong>gcc / clang:</strong> <code>-O0,-O1,-O2,-O3,-Os,-Oz</code> × march <code>x86-64</code>, <code>x86-64-v2</code>, <code>x86-64-v3</code>, <code>znver3</code> × feature bundles (default, <code>-mno-avx -mno-avx2</code>, 128-bit AVX without FMA, plain <code>-mavx2</code>, SSE2-only) × toggles (unroll on/off, vectorize on/off, inline-insns 1 and 1000, no alignment).</li>
+<li><strong>rustc:</strong> <code>opt-level</code> 0, 1, 2, 3, s, z × the same four CPUs × feature bundles (<code>+avx2</code>, <code>-avx,-avx2</code>, <code>+avx2,-fma</code>, SSE2-only, default) × <code>overflow-checks</code> off/on × LLVM args (unroll threshold, inline threshold, vectorize-loops off).</li>
+<li><strong>llvm-opt</strong> (when <code>clang</code>, <code>opt</code> and <code>llc</code> exist): unoptimized IR, then <code>default&lt;O0&gt;</code>…<code>default&lt;O3&gt;</code> and <em>N</em> random new-PM pass pipelines. LLVM 23 has no <code>-Os</code>/<code>-Oz</code> and no <code>default&lt;Os&gt;</code>; size rows are <code>default&lt;O2&gt;</code> plus <code>optsize</code> / <code>minsize</code> function attributes.</li>
+</ul>
+<p>Fixed C flags on every gcc/clang compile: <code>-fno-asynchronous-unwind-tables -fno-unwind-tables -fcf-protection=none -fno-stack-protector -fno-pic -ffreestanding -m64</code>. Tool versions: gcc 15.2.0 (<code>/usr/bin/gcc</code>); clang, opt and llc, LLVM 23.1.5 under <code>tools</code>; rustc 1.99.1 (<code>~/.cargo/bin/rustc</code>).</p>
+
+<h3><span class="n">3.2</span>Results <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h3>
+<p>The full grid finished in about 5 minutes on 16 workers. It recorded 67,640 configs. The current grid is 67,560; 80 extra llvm-opt rows are an earlier <code>llc -O</code> pairing of the same random pipelines (seeds 6–9) and were kept because they passed. <code>goal=default</code> is gcc <code>-O2 -march=x86-64</code> on all 20 tasks. All 721 unique variants were assembled again from the stored assembly and passed that task's tests under Unicorn; the SHA-256 of the function bytes matched the dataset. Examples of the size and instruction-count spread: <code>add_i64</code> is 5–25 bytes and 10–45 retired instructions; <code>sum_to</code> is 22–188 bytes and 32–1,874 instructions. Per-task min/median/max figures are in <code>data/SWEEP_REPORT.md</code>.</p>
+<div class="tw"><table><caption>Table 3. Starter-task sweep totals.</caption>
+<thead><tr><th></th><th class="num">count</th></tr></thead><tbody>
+<tr><td>configs generated</td><td class="num">67,640</td></tr>
+<tr><td>passing</td><td class="num">61,743</td></tr>
+<tr><td>failing</td><td class="num">5,897</td></tr>
+<tr><td>unique variants (task, sha256)</td><td class="num">721</td></tr>
+<tr><td>SFT rows</td><td class="num">60 (20 tasks × size, speed, default)</td></tr>
+<tr><td>preference pairs</td><td class="num">434</td></tr>
+</tbody></table></div>
+<div class="tw"><table><caption>Table 4. Starter-task sweep by compiler.</caption>
+<thead><tr><th>compiler</th><th class="num">generated</th><th class="num">passing</th><th class="num">failing</th><th class="num">unique</th></tr></thead><tbody>
+<tr><td>gcc</td><td class="num">19,200</td><td class="num">18,314</td><td class="num">886</td><td class="num">310</td></tr>
+<tr><td>clang</td><td class="num">19,200</td><td class="num">17,777</td><td class="num">1,423</td><td class="num">179</td></tr>
+<tr><td>rustc</td><td class="num">28,800</td><td class="num">25,212</td><td class="num">3,588</td><td class="num">139</td></tr>
+<tr><td>llvm-opt</td><td class="num">440</td><td class="num">440</td><td class="num">0</td><td class="num">179</td></tr>
+</tbody></table></div>
+<p>Which knob changed the bytes, holding the others fixed, is measured as the fraction of groups (task, compiler, and every other knob) that produced more than one passing SHA-256. Groups where every config failed do not count. Optimization level is the diversity knob. Overflow checks do not change the bytes when the function stays a leaf. With checks on, several Rust loops call <code>core::panicking</code> and are dropped (<code>external_call</code>, 2,280, all rustc).</p>
+<div class="tw"><table><caption>Table 5. Which knobs moved the bytes on the starter sweep.</caption>
+<thead><tr><th>knob</th><th class="num">groups</th><th class="num">groups with &gt;1 sha</th><th class="num">fraction</th><th class="num">mean unique</th><th class="num">max unique</th></tr></thead><tbody>
+<tr><td>opt level</td><td class="num">11,098</td><td class="num">10,565</td><td class="num">0.952</td><td class="num">3.75</td><td class="num">6</td></tr>
+<tr><td>cpu / march</td><td class="num">16,011</td><td class="num">6,329</td><td class="num">0.395</td><td class="num">1.48</td><td class="num">3</td></tr>
+<tr><td>codegen toggles</td><td class="num">9,578</td><td class="num">1,388</td><td class="num">0.145</td><td class="num">1.21</td><td class="num">5</td></tr>
+<tr><td>feature bundle</td><td class="num">13,424</td><td class="num">1,625</td><td class="num">0.121</td><td class="num">1.12</td><td class="num">3</td></tr>
+<tr><td>rustc overflow-checks</td><td class="num">13,626</td><td class="num">0</td><td class="num">0.000</td><td class="num">1.00</td><td class="num">1</td></tr>
+</tbody></table></div>
+<div class="tw"><table><caption>Table 6. Starter-sweep failures.</caption>
+<thead><tr><th>reason</th><th class="num">count</th></tr></thead><tbody>
+<tr><td><code>unsupported_insn</code></td><td class="num">3,563</td></tr>
+<tr><td><code>external_call</code></td><td class="num">2,280</td></tr>
+<tr><td><code>external_reloc</code></td><td class="num">54</td></tr>
+</tbody></table></div>
+<p>Unicorn 2.1.4 rejects 256-bit YMM, FMA and <code>vpbroadcast*</code>. It also ignores <code>VEX.vvvv</code> and computes <code>dest = dest OP rm</code>, so non-destructive AVX is dropped. SSE and BMI2 are kept. Destructive 128-bit AVX (for example <code>vpaddq xmm1, xmm1, xmm0</code>) is kept. The 54 <code>external_reloc</code> failures are gcc <code>sum_to</code> with AVX2 emitting <code>.set .LC2, .LC0+24</code> inside a 32-byte pool; the extractor does not follow <code>.set</code>. That pool is YMM-sized and would have been dropped as <code>unsupported_insn</code> anyway. <code>pytest</code> after the sweep code landed still passed.</p>
+<p>Dedup is by SHA-256 of the linked <code>.text</code> bytes of the extracted function. <code>goal=size</code> prefers fewer bytes, then fewer instructions; <code>goal=speed</code> prefers fewer instructions, then fewer bytes; <code>goal=default</code> is the plain gcc <code>-O2 -march=x86-64</code> variant when it passed. Preference pairs sample the ranked list (best against a spread of worse unique variants), capped at 8 per task per goal. A unique SHA-256 that two compilers both emit counts once in the total and once in each compiler's unique column.</p>
+
+<h2 id="s4"><span class="n">4</span>Task scale-up from ExeBench <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h2>
+<p>The starter set is too small to train on. The scale-up, dated 11 November 2026 in <code>STATUS.md</code>, pulls real functions, keeps only those the harness can run, and asks a local model to write an English specification for each. The GPU was used only through local Ollama (<code>qwen3:14b</code>). Generated and compiled task code ran in Unicorn or QEMU user-mode, never on the host CPU.</p>
+
+<h3><span class="n">4.1</span>Sources <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h3>
+<div class="tw"><table><caption>Table 7. Downloads for the scale-up.</caption>
+<thead><tr><th>artifact</th><th>size</th><th>notes</th></tr></thead><tbody>
+<tr><td>ExeBench <code>train_real_simple_io</code></td><td>34.3 MiB tar, 42,769 rows</td><td>Hugging Face <code>jordiae/exebench</code>, 5 zstd jsonl shards</td></tr>
+<tr><td>AnghaBench sample</td><td>304 <code>.c</code> files, 1.3 MiB</td><td>kilo, c4, beanstalkd, http-parser, hiredis, kcp via the GitHub API (the user-level git has no HTTPS)</td></tr>
+<tr><td>qemu-x86_64 8.2.2 static</td><td>3.6 MiB</td><td>extracted from the Ubuntu <code>qemu-user-static</code> 8.2.2 deb into <code>tools/qemu</code></td></tr>
+</tbody></table></div>
+<p><code>train_synth_simple_io</code> (1.3&nbsp;GiB) was not needed: the real-I/O split already yielded 7,079 verified functions. AnghaBench leaves were too few after the leaf and struct filter; ExeBench filled the quota first, so all 3,000 kept tasks are from ExeBench.</p>
+
+<h3><span class="n">4.2</span>Filters and task counts <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h3>
+<p><code>tasks/scaled.jsonl</code> holds 3,000 verified tasks. 912 of the 3,000 have a <code>for</code> or <code>while</code> in the C. The pipeline (resumable, 16 compile/verify workers) was: cheap-filter 42,769 ExeBench rows → 16,380 cheap-kept → 9,812 compile-as-leaf → 7,079 pass <code>-O0</code>/<code>-O2</code> plus the stub filter. The LLM then wrote specifications for the first 3,000. Expected outputs always come from gcc <code>-O0</code> through the harness. Tests must also pass gcc <code>-O2</code> with the same outputs. Stubs (<code>return 0</code>, <code>return arg0</code>) that pass the tests drop the task. Functions whose names match HumanEval or MBPP were held out (1,244 rows) so those benchmarks stay clean for evaluation.</p>
+<p>Table 8 is the first full scan of rejection reasons. A resume re-counted cheap filters, so these counts describe that first scan, not a later recount.</p>
+<div class="tw"><table><caption>Table 8. Scale-up rejection reasons (first full scan).</caption>
+<thead><tr><th>reason</th><th class="num">count</th></tr></thead><tbody>
+<tr><td><code>trivial_source</code></td><td class="num">12,526</td></tr>
+<tr><td><code>too_few_inputs</code></td><td class="num">4,663</td></tr>
+<tr><td>extract (non-leaf / bad asm)</td><td class="num">4,659</td></tr>
+<tr><td><code>duplicate_body</code></td><td class="num">3,109</td></tr>
+<tr><td><code>stub_passes</code></td><td class="num">2,207</td></tr>
+<tr><td><code>bad_signature</code></td><td class="num">1,590</td></tr>
+<tr><td><code>compile_error</code></td><td class="num">1,531</td></tr>
+<tr><td>heldout (HumanEval/MBPP names)</td><td class="num">1,244</td></tr>
+<tr><td><code>main_or_empty_name</code></td><td class="num">1,100</td></tr>
+<tr><td><code>pointer_return</code></td><td class="num">1,048</td></tr>
+<tr><td><code>struct_or_union</code></td><td class="num">784</td></tr>
+<tr><td><code>capture_fail</code></td><td class="num">386</td></tr>
+<tr><td><code>goto</code></td><td class="num">233</td></tr>
+<tr><td><code>forbidden_call</code></td><td class="num">222</td></tr>
+<tr><td><code>assemble_error</code></td><td class="num">222</td></tr>
+<tr><td><code>external_call</code></td><td class="num">127</td></tr>
+<tr><td><code>o2_mismatch</code></td><td class="num">71</td></tr>
+<tr><td><code>too_many_int_args</code></td><td class="num">63</td></tr>
+<tr><td><code>o0_fail</code></td><td class="num">57</td></tr>
+<tr><td><code>nested_pointer</code></td><td class="num">41</td></tr>
+<tr><td><code>external_reloc</code></td><td class="num">41</td></tr>
+<tr><td><code>too_long</code></td><td class="num">22</td></tr>
+<tr><td><code>too_many_fp_args</code></td><td class="num">21</td></tr>
+</tbody></table></div>
+
+<h3><span class="n">4.3</span>Specification synthesis <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h3>
+<p>Ollama <code>qwen3:14b</code> was called with <code>think: false</code> and JSON format. One call per task asked for an English specification, a short user-style prompt, and an adequacy score from 1 to 5 (drop if 1). Model time was 3,137&nbsp;s (about 52 minutes) for 3,000 specifications. Four replies were malformed JSON or code-like, across both runs. No <code>qwen3:8b</code> fallback was needed except for those four. Expected outputs were never taken from the model.</p>
+
+<h2 id="s5"><span class="n">5</span>Scaled compiler sweep <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h2>
+<p>The scaled sweep was:</p>
+<pre style="font-size:.85rem;overflow:auto;background:#f5f5f4;border:1px solid var(--line);border-radius:8px;padding:.8rem 1rem"><code>python -m e2m.data.sweep --tasks tasks/scaled.jsonl --out data/scaled \
+    --compilers gcc,clang --grid reduced --jobs 16</code></pre>
+<p>The reduced C grid is 4 opt × 2 march × 3 feat × 3 toggle = 72 configs per compiler, 144 per task, and 432,000 configs in total: <code>-O0,-O2,-O3,-Os</code> × march <code>x86-64</code>, <code>x86-64-v3</code> × feature bundles (default, <code>-mno-avx -mno-avx2</code>, <code>-mavx2</code>) × toggles (default, unroll, no-vectorize). rustc was skipped (C sources only). Output went under <code>data/scaled/</code> so the starter <code>data/</code> tree was left untouched. The run took about 37 minutes on 16 workers (about 195 configs/s). The full per-task table is in <code>data/scaled/SWEEP_REPORT.md</code>.</p>
+<div class="tw"><table><caption>Table 9. Scaled-sweep totals.</caption>
+<thead><tr><th></th><th class="num">count</th></tr></thead><tbody>
+<tr><td>configs generated</td><td class="num">432,000</td></tr>
+<tr><td>passing</td><td class="num">389,637</td></tr>
+<tr><td>failing</td><td class="num">42,363</td></tr>
+<tr><td>unique variants</td><td class="num">20,123</td></tr>
+<tr><td>SFT rows</td><td class="num">9,000 (3,000 tasks × size, speed, default)</td></tr>
+<tr><td>preference pairs</td><td class="num">44,432</td></tr>
+</tbody></table></div>
+<div class="tw"><table><caption>Table 10. Scaled sweep by compiler.</caption>
+<thead><tr><th>compiler</th><th class="num">generated</th><th class="num">passing</th><th class="num">failing</th><th class="num">unique</th></tr></thead><tbody>
+<tr><td>gcc</td><td class="num">216,000</td><td class="num">196,471</td><td class="num">19,529</td><td class="num">12,161</td></tr>
+<tr><td>clang</td><td class="num">216,000</td><td class="num">193,166</td><td class="num">22,834</td><td class="num">9,052</td></tr>
+</tbody></table></div>
+<div class="tw"><table><caption>Table 11. Which knobs moved the bytes on the scaled sweep.</caption>
+<thead><tr><th>knob</th><th class="num">groups</th><th class="num">groups with &gt;1 sha</th><th class="num">fraction</th><th class="num">mean unique</th><th class="num">max unique</th></tr></thead><tbody>
+<tr><td>opt level</td><td class="num">102,881</td><td class="num">96,915</td><td class="num">0.942</td><td class="num">2.39</td><td class="num">4</td></tr>
+<tr><td>feature bundle</td><td class="num">142,118</td><td class="num">19,184</td><td class="num">0.135</td><td class="num">1.13</td><td class="num">2</td></tr>
+<tr><td>codegen toggles</td><td class="num">131,958</td><td class="num">15,432</td><td class="num">0.117</td><td class="num">1.13</td><td class="num">3</td></tr>
+<tr><td>cpu / march</td><td class="num">201,709</td><td class="num">22,958</td><td class="num">0.114</td><td class="num">1.11</td><td class="num">2</td></tr>
+</tbody></table></div>
+<div class="tw"><table><caption>Table 12. Scaled-sweep failures.</caption>
+<thead><tr><th>reason</th><th class="num">count</th></tr></thead><tbody>
+<tr><td><code>unsupported_insn</code></td><td class="num">34,520</td></tr>
+<tr><td><code>external_call</code></td><td class="num">4,698</td></tr>
+<tr><td><code>test_fail</code></td><td class="num">2,940</td></tr>
+<tr><td><code>external_reloc</code></td><td class="num">205</td></tr>
+</tbody></table></div>
+<p>Optimization level is still the diversity knob (0.942 of groups). The largest remaining loss is still Unicorn, which could not run the instructions in 34,520 builds. A re-check of those scaled <code>unsupported_insn</code> rows on the QEMU backend is part of the in-progress session in §7 and is not reported here.</p>
+
+<h2 id="s6"><span class="n">6</span>AVX-capable emulator <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h2>
+<p>Unicorn 2.1.4 cannot run AVX2, FMA, YMM, or non-destructive VEX (<code>VEX.vvvv</code>). That is why 3,563 starter variants and 34,520 scaled builds were dropped. Options considered:</p>
+<div class="tw"><table><caption>Table 13. Emulator options.</caption>
+<thead><tr><th>option</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Newer Unicorn</td><td>No release supports AVX2. Upstream TCG is still QEMU 5.x. An AVX/AVX2 port exists as a commit, not a release.</td></tr>
+<tr><td>Intel SDE 10.x</td><td>Free under the Intel Simplified Software License (2023-08-23). User-level use is allowed. Redistribution of the emulator is forbidden (no <code>redist.txt</code> for SDE itself). Not used.</td></tr>
+<tr><td>Native subprocess + seccomp/ptrace</td><td>Allowed only as a note. Not the default backend.</td></tr>
+<tr class="best"><td>QEMU 8.2 user-mode TCG</td><td>Chosen. <code>qemu-x86_64 -cpu max</code> runs AVX2/FMA. A tiny ET_EXEC ELF wrapper dumps the result via <code>write</code>+<code>exit</code>. Guest syscalls are pre-scanned. rlimits and a wall timeout sit on the QEMU process.</td></tr>
+</tbody></table></div>
+<p>The default remains Unicorn. QEMU is selected with <code>emulate(..., backend="qemu")</code> or <code>E2M_EMU_BACKEND=qemu</code>. The binary is QEMU 8.2.2, extracted as a static <code>qemu-x86_64</code> from the Ubuntu <code>qemu-user-static</code> package into <code>tools/qemu</code>.</p>
+<p>Throughput on <code>add_i64</code> <code>-O2</code> (40 runs): Unicorn 1,399 runs/s, QEMU 272 runs/s. Starter gcc <code>-O2</code> tasks all pass on QEMU. An <code>-O3 -march=x86-64-v3 -mavx2</code> <code>array_sum_i32</code> with n=16 is <code>unsupported_insn</code> / <code>invalid_insn</code> on Unicorn and returns 120 on QEMU.</p>
+<p>A re-verify of starter-sweep <code>unsupported_insn</code> rows (gcc and clang only) covered 1,542 unique (task, flags) configs, of which 1,212 pass on QEMU (78.6%). The 330 failures are QEMU timeouts or SIGSEGV on short-array AVX over-reads (<code>dot_f64</code> tests have n≤3; a YMM load reads 32 bytes). rustc AVX drops were not rebuilt. The first LoRA brief includes a harness buffer-padding fix for those 330 cases and a re-check of the scaled 34,520 <code>unsupported_insn</code> rows; those results are not yet in this report.</p>
+
+<h2 id="s7"><span class="n">7</span>First LoRA run <span class="tag run">1.5B and 7B done</span> <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h2>
+<div class="callout"><p><strong>1.5B and 7B QLoRA results in.</strong> The 1.5B LoRA and baselines are reported in §7.2 from <code>STATUS.md</code>. The 7B QLoRA scored 5 of 78 held-out tasks (pass@1 0.064), up from 2 for the 1.5B, still far below the 0.397 of the NL-to-C-to-gcc control. The 7B base-model baseline was cut off at 28 of 78 tasks and is not reported.</p></div>
+
+<h3><span class="n">7.1</span>Method <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h3>
+<p>The brief has three parts, in order:</p>
+<ol>
+<li><strong>Harness fix and QEMU re-check (CPU).</strong> Pad short-array buffers so the 330 AVX over-reads described in §6 are no longer false crashes, while out-of-bounds writes are still detected. Re-verify every scaled-sweep config that failed with <code>unsupported_insn</code> (about 34.5k, 34,520 in Table 12) on the QEMU backend, then merge, re-deduplicate and re-rank <code>data/scaled/</code>.</li>
+<li><strong>Held-out eval set.</strong> Build <code>eval/heldout.jsonl</code> with at least 60 problems from HumanEval and MBPP (for example via MultiPL-E prompts and tests) that fit the harness. Each item gets an English specification, a SysV signature, a C reference, tests, and verification through the harness at gcc <code>-O0</code> and <code>-O2</code>. None may appear in <code>tasks/scaled.jsonl</code> (name and normalized-body near-duplicate check). This set is held out of training.</li>
+<li><strong>First LoRA.</strong> Base model: Qwen2.5-Coder-1.5B-Instruct, falling back to the cached Qwen3-1.7B if needed. LoRA (bf16, PEFT/TRL or Hugging Face Trainer) on <code>data/scaled/sft.jsonl</code> with <code>goal=default</code>: the input is the English specification, signature and goal; the output is assembly text for the function body. A 3% validation split is held out by task. Model output is assembled with GNU <code>as</code> or llvm-mc and run through the harness; anything that does not assemble is a failure. Metrics: pass@1 (greedy) and pass@5 (sampling, T=0.8), plus bytes and dynamic instruction count against gcc <code>-O2</code> for passing solutions, and a breakdown of failures (does not assemble, crash, wrong answer, timeout, ABI violation).</li>
+</ol>
+<p>Baselines on the held-out set, same metrics: the base model without LoRA, and the NL-to-C-to-gcc <code>-O2</code> control (the same model writes C from the specification, compiled with gcc <code>-O2</code>, run through the harness). If time and memory allow after the 1.5B results, a 7B QLoRA (Qwen2.5-Coder-7B-Instruct, 4-bit) may be run with the same evaluation. The session budget is about 10 hours of GPU time. Checkpoints go under <code>runs/lora1/</code>.</p>
+
+<h3><span class="n">7.2</span>Results <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h3>
+<p>Figures are copied from the <code>STATUS.md</code> section "QEMU re-check + first 1.5B LoRA (2026-11-11)". pass@1 is greedy; pass@5 is the fraction of tasks with at least one correct sample out of 5 (T=0.8, top-p 0.95). Size and instruction ratios are means over greedy passes against gcc <code>-O2</code>; n is the number of passing tasks. The 7B QLoRA row is computed from <code>runs/qlora7b/eval.jsonl</code> with the same scoring (it was not yet in <code>STATUS.md</code>); its val split is n=90 (33 greedy passes, pass@1 0.367, pass@5 0.500, size 1.04× and insns 1.02× gcc).</p>
+<div class="tw"><table><caption>Table 14. First LoRA run and baselines.</caption>
+<thead><tr><th>Condition</th><th>Eval set</th><th class="num">pass@1</th><th class="num">pass@5</th><th class="num">size vs gcc -O2</th><th class="num">insns vs gcc -O2</th><th>Notes</th></tr></thead><tbody>
+<tr><td class="cond">Qwen2.5-Coder-1.5B LoRA, AT&amp;T</td><td>scaled val (n=90)</td><td class="num">0.211 (19)</td><td class="num">0.367</td><td class="num">1.033 (n=19)</td><td class="num">1.008 (n=19)</td><td class="small">SFT, <code>goal=default</code></td></tr>
+<tr><td class="cond">Qwen2.5-Coder-1.5B LoRA, AT&amp;T</td><td>held-out HumanEval/MBPP (n=78)</td><td class="num">0.026 (2)</td><td class="num">0.064</td><td class="num">1.030 (n=2)</td><td class="num">1.026 (n=2)</td><td class="small">never trained on</td></tr>
+<tr class="ref"><td class="cond">base 1.5B, AT&amp;T, no LoRA</td><td>held-out HumanEval/MBPP (n=78)</td><td class="num">0.000</td><td class="num">0.000</td><td class="num">—</td><td class="num">—</td><td class="small">same prompt</td></tr>
+<tr class="ref"><td class="cond">NL → C → gcc -O2 (base 1.5B writes C)</td><td>held-out HumanEval/MBPP (n=78)</td><td class="num">0.397 (31)</td><td class="num">0.628</td><td class="num">1.003 (n=31)</td><td class="num">0.989 (n=31)</td><td class="small">same base model writes C</td></tr>
+<tr><td class="cond">Qwen2.5-Coder-7B QLoRA</td><td>held-out HumanEval/MBPP</td><td class="num">0.064 (5)</td><td class="num">0.103</td><td class="num">1.01 (n=5)</td><td class="num">1.15 (n=5)</td><td class="small">4-bit, r=32, 3 epochs; 37 wrong answer, 17 no assemble, 11 timeout, 8 crash</td></tr>
+</tbody></table></div>
+
+<p><strong>Training.</strong> LoRA r=32, alpha=64, dropout 0.05 on q/k/v/o/gate/up/down (36,929,536 of 1,580,643,840 parameters, 2.34%); AdamW, lr 2e-4, cosine, 16 warmup steps; bf16; batch 2 × accumulation 8; max 1,472 tokens (29 longer rows dropped, 2,881 trained); 3 epochs, 543 steps, 1,452 s. Train loss 0.239; eval loss by epoch 0.220, 0.184, 0.183. Val split: 90 of 3,000 task ids. Target syntax is the full gcc <code>-S</code> function in AT&amp;T.</p>
+<p><strong>QEMU re-check.</strong> 34,520 configs re-run on QEMU (<code>-cpu max</code>): 28,653 recovered, 5,867 still failing (all <code>test_fail</code>, float mismatches). Unique variants 20,123 → 24,142 (4,019 new); passing configs 389,637 → 418,290; preference pairs 44,432 → 46,472; SFT rows unchanged at 9,000. The held-out set has 78 tasks (HumanEval 55, MBPP 23); one near-duplicate (<code>he41_car_race_collision</code>) was dropped.</p>
+<table><caption>Table 15. Greedy failure counts.</caption><thead><tr><th>Model</th><th>Set</th><th class="num">pass</th><th class="num">wrong_answer</th><th class="num">doesnt_assemble</th><th class="num">crash</th><th class="num">timeout</th><th class="num">abi</th></tr></thead><tbody>
+<tr><td>LoRA asm</td><td>val</td><td class="num">19</td><td class="num">60</td><td class="num">5</td><td class="num">2</td><td class="num">4</td><td class="num">0</td></tr>
+<tr><td>LoRA asm</td><td>held-out</td><td class="num">2</td><td class="num">40</td><td class="num">20</td><td class="num">9</td><td class="num">7</td><td class="num">0</td></tr>
+<tr><td>base asm</td><td>held-out</td><td class="num">0</td><td class="num">0</td><td class="num">78</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+<tr><td>base C</td><td>held-out</td><td class="num">31</td><td class="num">24</td><td class="num">23</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+</tbody></table>
+<p><strong>Reading.</strong> The 1.5B LoRA learned in-distribution gcc <code>-O2</code> shape (val pass@1 0.211, size and instructions about 1.0× gcc) but not held-out HumanEval/MBPP assembly (pass@1 0.026). The same base model writing C and compiled at <code>-O2</code> reaches 0.397 on that set, so the tasks are solvable. The base model alone does not emit assemblable AT&amp;T (366 of 390 samples did not assemble). Examples include passing <code>mbpp234_cube_volume</code> and <code>he23_strlen</code>; failures include a <code>sarq</code> with a 32-bit register, a crash from an unset <code>%r8</code>, and a non-terminating loop. Next step per <code>STATUS.md</code>: 7B QLoRA on the same target and eval, and rejection sampling over held-out-like tasks aimed at <code>wrong_answer</code>.</p>
+
+<h2 id="s8"><span class="n">8</span>Limitations <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h2>
+<ul>
+<li>The Unicorn path is function-level only. There is no libc, no <code>FILE*</code>, and no SIMD beyond SSE2 in the original v0 starters, other than what later sweeps emitted and QEMU can now run.</li>
+<li>Unicorn cannot enforce sub-page bounds. Buffers are page-granularity with a right-align trick and a guard page. An off-by-one inside the same page still succeeds. The 330 short-array AVX failures on QEMU are the same family of problem; a padding fix is in the in-progress brief and is not claimed as done here.</li>
+<li>Stack arguments beyond the six integer and eight SSE registers are not implemented.</li>
+<li>Instruction counts are emulator retire counts, not <code>perf</code> cycles. Native cycles remain future work.</li>
+<li>Equivalence checking (STOKE / Alive2) is not in this version. Every pass in this report is tests-only.</li>
+<li>The stretch sandbox still has the Python runtime mapped in the child. Seccomp is the fence.</li>
+<li>AnghaBench did not contribute tasks after the leaf and struct filter. Volume came from ExeBench only.</li>
+<li>Specifications were written by qwen3:14b. Four replies were malformed and were retried. A systematic human review of specification adequacy has not been done. Expected outputs do not come from the model, but a fluent specification can still omit behavior the tests miss.</li>
+<li>ExeBench and AnghaBench come from GitHub. Licenses have not been cleared for a public release of the derived tasks.</li>
+<li>Supervised data is compiler output. A model trained on it may imitate gcc rather than beat it. Preference pairs exist for a later stage; they have not been used yet.</li>
+</ul>
+
+<h2 id="s9"><span class="n">9</span>Next steps <span class="upd" title="Section last changed">updated 14 Nov 2026</span></h2>
+<ol>
+<li><ins class="rev" data-rev="3" data-date="2026-11-14"><strong>Repair loop and rejection sampling: done as a first pass.</strong> Results are in <a href="../report-2/index.html">technical report 2</a>.</ins></li>
+<li><strong>Run rejection sampling</strong> over held-out-like tasks (see §7.2).</li>
+<li><strong>Read the 1.5B result against the NL-to-C-to-gcc control.</strong> If it is close on pass@k, or ahead on size at equal pass rate, consider the 7B QLoRA. If it is far behind, the interesting next step is the repair loop (best-of-<em>n</em>, test feedback), not a larger imitation run.</li>
+<li><strong>Human check of a sample of specifications</strong>, as the concept paper asked, because a passing test on a bad specification is not a result.</li>
+<li><strong>Past imitation:</strong> train on the preference pairs, then a correctness-plus-size-or-speed reward, with equivalence checking where the code is loop-free or bounded.</li>
+<li><strong>aarch64 and whole programs</strong>, using the QEMU user-mode path already in the harness.</li>
+</ol>
+
+<h2 id="s10"><span class="n">10</span>Reproducibility <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h2>
+<p>All of this work lives in a local repository on the 3090 at <code>~/e2m</code>, branch <code>main</code>. Nothing has been pushed, and nothing here is public. The environment is a user-level CPython 3.12.16 venv via uv, on one 24&nbsp;GB RTX 3090 workstation. Tool versions used in the sweeps: gcc 15.2.0, LLVM 23.1.5 (clang, opt, llc under <code>tools</code>), rustc 1.99.1, unicorn 2.1.4, capstone 5.0.9, a static qemu-x86_64 8.2.2 under <code>tools/qemu</code>, and Ollama <code>qwen3:14b</code> for specification writing only.</p>
+<p>Commands that reproduce the reported stages, from <code>STATUS.md</code>:</p>
+<pre style="font-size:.85rem;overflow:auto;background:#f5f5f4;border:1px solid var(--line);border-radius:8px;padding:.8rem 1rem"><code>source .venv/bin/activate
+python -m pytest
+python -m e2m.fuzz --n 10000
+python -m e2m.score --tasks tasks/starter.jsonl --candidates tasks/gcc-O2-cands.jsonl --baseline O2
+python -m e2m.data.sweep --tasks tasks/starter.jsonl --out data --jobs 16 --llvm-seeds 12
+python -m e2m.scale --target 3000 --jobs 16
+python -m e2m.data.sweep --tasks tasks/scaled.jsonl --out data/scaled \
+    --compilers gcc,clang --grid reduced --jobs 16 --llvm-seeds 0
+python -m e2m.scale --avx-recover --jobs 8</code></pre>
+<p>Sweep caches (<code>sweep-cache.jsonl</code>) are gitignored; the JSONL datasets and the Markdown reports are the citable local artifacts for the numbers in this paper. A later LoRA run will add its own reproduction notes; they are not available yet.</p>
+
+<h2 id="cite">How to cite</h2>
+<p>This is a working paper. It is shared so others can read, discuss and cite it, and it is updated as the work moves forward. Please cite the revision you read, give its date, and say when you accessed the page. Earlier revisions are listed in the revision history. Results here have not been peer reviewed.</p>
+<p class="cite-ref">Wilson, B. (2026). <em>Harness, compiler-sweep data, and scale-up</em> (Working paper, Revision 3, 14 November 2026). Abundant Frontier Institute. <a href="https://abundantfrontier.org/lab/e2m/report-1/">https://abundantfrontier.org/lab/e2m/report-1/</a></p>
+<pre class="cite-bib"><code>@techreport{wilson2026e2mreport1,
+  author      = {Wilson, Boyd},
+  title       = {Harness, compiler-sweep data, and scale-up},
+  institution = {Abundant Frontier Institute},
+  type        = {Working paper},
+  number      = {Revision 3},
+  year        = {2026},
+  month       = {nov},
+  url         = {https://abundantfrontier.org/lab/e2m/report-1/},
+  note        = {Living document; last updated 14 November 2026. Accessed YYYY-MM-DD}
+}</code></pre>
+
+<h2 id="refs">References</h2>
+<ol class="refs">
+<li>The design this report implements is the <a href="../concept/index.html">E2M concept paper</a>, condensed from <code>docs/concept-note.md</code> (v0.1, 10 November 2026).</li>
+<li>Jordi Armengol-Estapé, Jackson Woodruff, Alexander Brauckmann, José Wesley de Souza Magalhães and Michael F. P. O'Boyle. <em>ExeBench: An ML-Scale Dataset of Executable C Functions.</em> MAPS 2022. <a href="https://dl.acm.org/doi/10.1145/3520312.3534867">doi:10.1145/3520312.3534867</a>. Data: <a href="https://huggingface.co/datasets/jordiae/exebench">jordiae/exebench</a>.</li>
+<li>AnghaBench. <a href="https://github.com/brenocfg/AnghaBench">github.com/brenocfg/AnghaBench</a>.</li>
+<li>Mark Chen et al. <em>Evaluating Large Language Models Trained on Code.</em> 2021. <a href="https://arxiv.org/abs/2107.03374">arXiv:2107.03374</a>. Pass@k uses the unbiased estimator from this paper.</li>
+<li>Jacob Austin et al. <em>Program Synthesis with Large Language Models.</em> 2021. <a href="https://arxiv.org/abs/2108.07732">arXiv:2108.07732</a>. MBPP is a source for the planned held-out set.</li>
+<li>Federico Cassano et al. <em>MultiPL-E: A Scalable and Polyglot Approach to Benchmarking Neural Code Generation.</em> 2022. <a href="https://arxiv.org/abs/2208.08227">arXiv:2208.08227</a>.</li>
+<li>Binyuan Hui et al. <em>Qwen2.5-Coder Technical Report.</em> 2024. <a href="https://arxiv.org/abs/2409.12186">arXiv:2409.12186</a>. Planned 1.5B and optional 7B bases for §7.</li>
+<li>Edward J. Hu et al. <em>LoRA: Low-Rank Adaptation of Large Language Models.</em> 2021. <a href="https://arxiv.org/abs/2106.09685">arXiv:2106.09685</a>.</li>
+<li>Tim Dettmers et al. <em>QLoRA: Efficient Finetuning of Quantized LLMs.</em> 2023. <a href="https://arxiv.org/abs/2305.14314">arXiv:2305.14314</a>.</li>
+<li>Unicorn Engine 2.1.4. <a href="https://www.unicorn-engine.org/">unicorn-engine.org</a>.</li>
+<li>QEMU user mode, version 8.2.2 in this work. <a href="https://www.qemu.org/docs/master/user/main.html">qemu.org/docs/master/user/main.html</a>.</li>
+<li>Capstone 5.0.9, used for crash-report disassembly. <a href="https://www.capstone-engine.org/">capstone-engine.org</a>.</li>
+</ol>
+
+<section class="revhist" id="revhist">
+<h2>Revision history</h2>
+<ol>
+<li><b>Revision 3</b> <span class="when">14 November 2026 (America/Los_Angeles)</span><br>Added a pointer to <a href="../report-2/index.html">technical report 2</a> in §9 (Next steps). No numbers changed.</li>
+<li><b>Revision 2</b> <span class="when">11 November 2026 (America/Los_Angeles)</span><br>Filled §7 and Table 14 with the first 1.5B LoRA results, baselines, failure counts and QEMU re-check from <code>STATUS.md</code>; added Table 15. Added the 7B QLoRA row (held-out pass@1 0.064, pass@5 0.103; val pass@1 0.367); the 7B base-model baseline was interrupted and is not reported.</li>
+<li><b>Revision 1</b> <span class="when">11 November 2026 (America/Los_Angeles)</span><br>First living-paper draft of technical report 1. Numbers copied from <code>STATUS.md</code>, <code>data/SWEEP_REPORT.md</code> and <code>data/scaled/SWEEP_REPORT.md</code>. Section 7 records the planned first LoRA run with Table 14 left pending. A QEMU re-check of the 34,520 scaled <code>unsupported_insn</code> rows was in progress on the machine at the time of writing and is not reported.</li>
+</ol>
+</section>
+
+<footer>Living paper · Revision 3 · Last updated 14 November 2026 · Abundant Frontier Institute Lab · Working paper · <a href="../concept/index.html">Concept paper</a></footer>
+</div>
+
+</main>
+</body>
+</html>

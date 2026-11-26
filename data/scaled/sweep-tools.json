@@ -1,0 +1,4 @@
+{
+  "gcc": "gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0 (/usr/bin/gcc)",
+  "clang": "clang version 23.1.5 (https://github.com/llvm/llvm-project 392dfff97d29b59d77e5cac6d4b6ef2585fe7117) (tools/LLVM-23.1.5-Linux-X64/bin/clang)"
+}

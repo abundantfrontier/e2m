@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E2M technical report 4: preference training with a supervised term, and C then assembly (living paper) · Abundant Frontier Institute</title>
+<meta name="description" content="Living technical report: a second DPO run with a supervised term and a collapse guard, and a 7B model trained to write C before assembly, scored on held-out tasks against the NL-to-C-to-gcc control.">
+<meta name="citation_title" content="A stable preference run, and a model that writes good C but loses it in assembly">
+<meta name="citation_author" content="Wilson, Boyd">
+<meta name="citation_publication_date" content="2026/11/18">
+<meta name="citation_technical_report_institution" content="Abundant Frontier Institute">
+<meta name="citation_technical_report_number" content="Revision 1">
+<meta name="citation_public_url" content="https://abundantfrontier.org/lab/e2m/report-4/">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<nav class="nav"><div class="nav-in">
+<a class="brand" href="https://abundantfrontier.org/"><span class="e">🌾</span><span>Abundant Frontier Institute</span></a>
+<div class="nav-links"><a href="/lab/">Lab</a><a href="../concept/index.html" >Concept paper</a><a href="../report-1/index.html" >Technical report 1</a><a href="../report-2/index.html" >Technical report 2</a><a href="../report-3/index.html" >Technical report 3</a><a href="../report-4/index.html" class="cur">Technical report 4</a><a href="../report-5/index.html" >Technical report 5</a><span class="badge">Working paper</span></div>
+</div></nav>
+<main class="page">
+<header class="title">
+<div class="kicker">Technical report · fourth work product</div>
+<h1>A stable preference run, and a model that writes good C but loses it in assembly</h1>
+<p class="sub">Technical report 4 of the <em>E2M</em> program: DPO from lora2 again, this time with a supervised term, goal-consistent prompts and a collapse guard; and a 7B QLoRA that writes the C function first and then the assembly, with both halves scored on the same tests.</p>
+<p class="byline"><strong>Boyd Wilson</strong>, Abundant Frontier Institute and Omnibond Systems</p>
+<p class="meta">Living paper · Revision 1 · Last updated 18 November 2026 · Companion to the <a href="../concept/index.html">E2M concept paper</a> and technical reports <a href="../report-1/index.html">1</a>, <a href="../report-2/index.html">2</a> and <a href="../report-3/index.html">3</a> · All results are from one 24 GB RTX 3090 workstation · Code and data: <a href="https://github.com/abundantfrontier/e2m">github.com/abundantfrontier/e2m</a></p>
+</header>
+
+<div class="draftbar"><b>Working paper.</b> You may cite it; see <a href="#cite">How to cite</a>. Numbers are copied from <code>runs/round3/SUMMARY.md</code>, <code>runs/round3/RESULTS.json</code>, <code>logs/round3.done</code>, the training files under <code>runs/dpo2</code> and <code>runs/c-then-asm</code>, <code>runs/loop-c-then-asm-heldout/summary.json</code>, and (for older rows) <code>runs/round2b</code>, <code>runs/round2</code>, <code>STATUS.md</code> and Report 3, all on the 3090; nothing here is re-scored. Counts that are not in those summaries were tallied from the raw files (<code>eval.jsonl</code>, <code>loss.jsonl</code>, <code>loop.jsonl</code>, <code>sft_c_then_asm.jsonl</code>) and are marked "tally" where they appear.</div>
+
+<div class="abstract"><h2>Abstract</h2>
+<p>Report 3 found that DPO from lora2 collapsed and that every assembly model scores far lower on held-out tasks than the NL-to-C-to-gcc control. Round 3 tested one fix for each. <strong>Part A</strong> repeated DPO from lora2 with a supervised (RPO-style) term of weight 1.0 on the chosen response, beta 0.2, learning rate 5e-6, 1,500 steps, each pair's real goal in the prompt, and a guard that checked every 250 steps how many of 30 fixed validation tasks still assemble. It did not collapse: the guard read 29, 25, 25, 28, 27, 26 and 26 of 30 against a stop threshold of 0.773, and the final model scores 26/90 greedy and 43/90 at pass@5 on validation and 2/78 on held-out (both measures). That is below lora2 (38/90 and 45/90; 4/78 and 5/78), so the held-out repair loop was skipped by its gate. The supervised term prevents the collapse, but preference training on these pairs does not yet help. <strong>Part B</strong> trained a 7B QLoRA to write the C function, then the assembly. Its assembly half scores 40/90 and 54/90 on validation and 7/78 and 9/78 on held-out, close to qlora7b-v2 (41/90 and 52/90; 5/78 and 12/78). Its C half, compiled by gcc <code>-O2</code> in the same harness, passes <strong>63/90</strong> on validation and <strong>48/78</strong> on held-out, against 31/78 greedy for the untrained 1.5B C control. On held-out, 42 tasks have passing C and failing assembly, and one has the reverse. The fine-tuned model's C is strong, and the loss is in its own lowering to assembly. A held-out repair loop for the new model stopped at its 10-hour cap after 59 of 78 tasks, passing 15 of those 59. Round 3 used 18.60 of its 30 GPU hours.</p></div>
+
+<nav class="toc" aria-label="Contents"><div class="toc-title">Contents</div><ol>
+<li><a href="#s1"><span class="n">1</span>Goals recap</a></li>
+<li><a href="#s2"><span class="n">2</span>Part A: DPO with a supervised term (dpo2)</a></li>
+<li><a href="#s3"><span class="n">3</span>Part B: C then assembly (c-then-asm)</a></li>
+<li><a href="#s4"><span class="n">4</span>The incomplete held-out loop</a></li>
+<li><a href="#s5"><span class="n">5</span>All models compared</a></li>
+<li><a href="#s6"><span class="n">6</span>Compute used</a></li>
+<li><a href="#s7"><span class="n">7</span>Limitations and caveats</a></li>
+<li><a href="#s8"><span class="n">8</span>Proposed next steps</a></li>
+<li><a href="#refs"><span class="n"></span>References</a></li>
+<li><a href="#revhist"><span class="n"></span>Revision history</a></li>
+</ol></nav>
+
+<div class="col">
+
+<h2 id="s1"><span class="n">1</span>Goals recap <span class="upd" title="Section last changed">updated 18 Nov 2026</span></h2>
+<p><a href="../report-3/index.html">Report 3</a> ended with two open problems. First, DPO from lora2 reached a pair accuracy of 0.902 while its generation collapsed (83 of 90 validation outputs did not assemble), and Report 3 listed untested causes, among them the missing supervised term, the mismatch between pair goals and the <code>Goal: default</code> prompt, and aggressive settings. Second, the best assembly models pass 5 to 12 of the 78 held-out tasks, while the same family of model asked for C and compiled by gcc passes 31/78 greedy and 44/78 with a repair loop.</p>
+<p>Round 3 (<code>BRIEF-round3.md</code>, <code>e2m/loop/round3.py</code>) ran two experiments on a 30 GPU-hour budget with no calendar deadline, in the order A then B. Part A asks whether preference training is worth keeping once the known collapse risks are removed. Part B asks whether making the model write C first closes the held-out gap. The pipeline started on 17 November 2026 and wrote <code>logs/round3.done</code> at 14:01 Pacific time on 18 November. Terms follow Reports 1 to 3: pass@1 is greedy, pass@5 is the fraction of tasks with at least one passing sample out of five (T = 0.8), the validation set is 90 scaled tasks from the training distribution, and the held-out set is 78 HumanEval and MBPP tasks. A repair loop samples <em>k</em> candidates and repairs for up to <em>R</em> rounds using the visible tests only; scoring uses the full tests.</p>
+
+<h2 id="s2"><span class="n">2</span>Part A: DPO with a supervised term (dpo2) <span class="upd" title="Section last changed">updated 18 Nov 2026</span></h2>
+
+<h3 id="s2-1"><span class="n">2.1</span>Setup <span class="upd" title="Section last changed">updated 18 Nov 2026</span></h3>
+<p>The pairs are the same 46,472 compiler preference pairs as in Report 3 (16,303 <code>default</code>, 15,104 <code>size</code> and 15,065 <code>speed</code>). Three things changed. <strong>Goals in the prompt:</strong> the assembly prompt already has a goal line (<code>Goal: default|size|speed</code>, from <code>user_asm</code> in <code>e2m/train/format.py</code>), so each pair is now trained with its own goal in that line instead of <code>Goal: default</code> for all of them (<code>pairs_meta.json</code>: choice <code>pair_goal_in_prompt</code>). All pairs were kept. <strong>A supervised term:</strong> the loss is the DPO preference loss plus 1.0 times the negative log-likelihood of the chosen response, per token (<code>dpo_loss</code> in <code>e2m/train/dpo.py</code>, an RPO-style objective). <strong>Gentler settings and a guard:</strong> a learning rate ten times smaller, a larger beta, a 1,500-step cap, and a collapse check every 250 steps. The reference log-probabilities come from the model with the policy adapter disabled, as in Report 3.</p>
+<div class="tw"><table><caption>Table 1. dpo2 training configuration against the round 2 run (<code>runs/dpo2/summary.json</code>; round 2 from Report 3, Table 2).</caption>
+<thead><tr><th>setting</th><th>dpo2 (round 3)</th><th>dpo (round 2)</th></tr></thead><tbody>
+<tr><td>base model, initial adapter</td><td><code>Qwen2.5-Coder-1.5B-Instruct</code>, lora2</td><td>same</td></tr>
+<tr><td>pairs loaded / train / eval</td><td class="num">46,472 / 44,848 / 256</td><td class="num">46,472 / 44,592 / 512</td></tr>
+<tr><td>goal in prompt</td><td>each pair's own goal</td><td><code>Goal: default</code> for all</td></tr>
+<tr><td>supervised term on chosen</td><td class="num">weight 1.0</td><td class="num">none</td></tr>
+<tr><td>beta</td><td class="num">0.2</td><td class="num">0.1</td></tr>
+<tr><td>learning rate</td><td class="num">5e-6</td><td class="num">5e-5</td></tr>
+<tr><td>steps</td><td class="num">1,500 (45 warmup); cap 0.5 epoch or 1,500 steps</td><td class="num">5,574 (1 epoch)</td></tr>
+<tr><td>LoRA, batch, max length</td><td>r = 32, alpha = 64, dropout 0.05; 1 × accumulation 8; 768 tokens</td><td>same</td></tr>
+<tr><td>collapse guard</td><td>every 250 steps, 30 validation tasks, stop below 0.773</td><td>none</td></tr>
+<tr><td>training time</td><td class="num">8,309.96 s (stage: 2.31 GPU hours)</td><td class="num">27,015.48 s (7.51 GPU hours)</td></tr>
+</tbody></table></div>
+<p>The step cap bound first: the training log ends at epoch 0.268, so the run saw about a quarter of the training pairs once (<code>runs/dpo2/loss.jsonl</code>, last step).</p>
+
+<h3 id="s2-2"><span class="n">2.2</span>The collapse guard <span class="upd" title="Section last changed">updated 18 Nov 2026</span></h3>
+<p>Before training, lora2 assembles 29 of the 30 guard tasks (0.967). The guard threshold is 80% of that rate, 0.773, so the run would have stopped at any check where 23 or fewer of the 30 assembled. The guard tasks are a fixed subset of the 90 validation tasks (all 30 ids appear in the validation split; a tally of <code>pairs_meta.json</code> against <code>eval.jsonl</code>). Every check passed, and the run kept its final checkpoint (<code>last_good_step</code> 1,500, <code>stop_reason</code> completed).</p>
+<div class="tw"><table><caption>Table 2. Collapse guard: greedy outputs on the 30 guard tasks that assemble, by training step (<code>runs/dpo2/collapse.jsonl</code>; threshold 0.773).</caption>
+<thead><tr><th class="num">step</th><th class="num">0</th><th class="num">250</th><th class="num">500</th><th class="num">750</th><th class="num">1,000</th><th class="num">1,250</th><th class="num">1,500</th></tr></thead><tbody>
+<tr><td>assemble</td><td class="num">29/30</td><td class="num">25/30</td><td class="num">25/30</td><td class="num">28/30</td><td class="num">27/30</td><td class="num">26/30</td><td class="num">26/30</td></tr>
+<tr><td>rate</td><td class="num">0.967</td><td class="num">0.833</td><td class="num">0.833</td><td class="num">0.933</td><td class="num">0.900</td><td class="num">0.867</td><td class="num">0.867</td></tr>
+</tbody></table></div>
+<p>The guard measures only whether the text assembles, not whether it passes. It stayed between 25 and 29 of 30 throughout, so generation never broke in the way it did in round 2; but as §2.4 shows, the share of correct programs fell.</p>
+
+<h3 id="s2-3"><span class="n">2.3</span>Training signal <span class="upd" title="Section last changed">updated 18 Nov 2026</span></h3>
+<p>The preference signal is much weaker than in round 2. On the 256 held-out pairs at step 1,500 the pair accuracy is <strong>0.684</strong>, the eval loss 0.575 and the mean reward margin 3.35 (<code>summary.json</code>). The same eval at step 500 gave 0.680, 0.658 and 0.96, and at step 1,000 0.684, 0.579 and 3.23 (<code>loss.jsonl</code>). Round 2 reached 0.902 on 512 held-out pairs, but with a different eval pair set and without the supervised term in the loss, so the two eval losses are not comparable. Table 3 averages the per-step log.</p>
+<div class="tw"><table><caption>Table 3. dpo2 training log, mean of the per-step values in each range (<code>runs/dpo2/loss.jsonl</code>; a tally of the file). "Preference loss" is the DPO part; "chosen NLL" is the per-token negative log-likelihood of the chosen response.</caption>
+<thead><tr><th>steps</th><th class="num">preference loss</th><th class="num">chosen NLL</th><th class="num">reward margin</th><th class="num">pair accuracy</th></tr></thead><tbody>
+<tr><td>1–100</td><td class="num">0.693</td><td class="num">0.476</td><td class="num">0.00</td><td class="num">0.390</td></tr>
+<tr><td>101–250</td><td class="num">0.702</td><td class="num">0.260</td><td class="num">−0.01</td><td class="num">0.420</td></tr>
+<tr><td>251–500</td><td class="num">0.605</td><td class="num">0.217</td><td class="num">0.27</td><td class="num">0.604</td></tr>
+<tr><td>501–750</td><td class="num">0.416</td><td class="num">0.194</td><td class="num">2.05</td><td class="num">0.676</td></tr>
+<tr><td>751–1,000</td><td class="num">0.426</td><td class="num">0.174</td><td class="num">2.92</td><td class="num">0.672</td></tr>
+<tr><td>1,001–1,250</td><td class="num">0.429</td><td class="num">0.163</td><td class="num">3.02</td><td class="num">0.660</td></tr>
+<tr><td>1,251–1,500</td><td class="num">0.434</td><td class="num">0.170</td><td class="num">3.06</td><td class="num">0.640</td></tr>
+</tbody></table></div>
+<p>The chosen-response NLL falls from 0.476 to about 0.17 and stays there, which is what the supervised term is meant to do: it keeps the likelihood of the chosen programs up while the preference term works on the margin. The preference loss plateaus near 0.43 after step 500, and pair accuracy on training batches stays between about 0.64 and 0.68.</p>
+
+<h3 id="s2-4"><span class="n">2.4</span>Results <span class="upd" title="Section last changed">updated 18 Nov 2026</span></h3>
+<div class="tw"><table><caption>Table 4. dpo2 against its starting point (lora2) and the round 2 DPO model (<code>runs/round3/SUMMARY.md</code>). Ratios are means over greedy passes against gcc <code>-O2</code>.</caption>
+<thead><tr><th>model</th><th>set</th><th class="num">pass@1</th><th class="num">pass@5</th><th class="num">size / gcc -O2</th><th class="num">insn / gcc -O2</th></tr></thead><tbody>
+<tr><td>lora2</td><td>val</td><td class="num">0.422 (38/90)</td><td class="num">0.500 (45/90)</td><td class="num">1.111 (n=38)</td><td class="num">1.044 (n=38)</td></tr>
+<tr><td>dpo (round 2)</td><td>val</td><td class="num">0.033 (3/90)</td><td class="num">0.044 (4/90)</td><td class="num">1.000 (n=3)</td><td class="num">1.000 (n=3)</td></tr>
+<tr><td><b>dpo2</b></td><td>val</td><td class="num"><b>0.289 (26/90)</b></td><td class="num"><b>0.478 (43/90)</b></td><td class="num">1.121 (n=26)</td><td class="num">1.366 (n=26)</td></tr>
+<tr><td>lora2</td><td>held-out</td><td class="num">0.051 (4/78)</td><td class="num">0.064 (5/78)</td><td class="num">1.100 (n=4)</td><td class="num">1.310 (n=4)</td></tr>
+<tr><td>dpo (round 2)</td><td>held-out</td><td class="num">0.000 (0/78)</td><td class="num">0.000 (0/78)</td><td class="num">—</td><td class="num">—</td></tr>
+<tr><td><b>dpo2</b></td><td>held-out</td><td class="num"><b>0.026 (2/78)</b></td><td class="num"><b>0.026 (2/78)</b></td><td class="num">0.727 (n=2)</td><td class="num">1.079 (n=2)</td></tr>
+</tbody></table></div>
+<div class="tw"><table><caption>Table 5. Greedy failure counts (<code>greedy_categories</code> in <code>runs/round3/RESULTS.json</code>).</caption>
+<thead><tr><th>model</th><th>set</th><th class="num">pass</th><th class="num">wrong_answer</th><th class="num">doesnt_assemble</th><th class="num">crash</th><th class="num">timeout</th></tr></thead><tbody>
+<tr><td>lora2</td><td>val</td><td class="num">38</td><td class="num">49</td><td class="num">3</td><td class="num">0</td><td class="num">0</td></tr>
+<tr><td>dpo (round 2)</td><td>val</td><td class="num">3</td><td class="num">3</td><td class="num">83</td><td class="num">1</td><td class="num">0</td></tr>
+<tr><td>dpo2</td><td>val</td><td class="num">26</td><td class="num">54</td><td class="num">8</td><td class="num">1</td><td class="num">1</td></tr>
+<tr><td>lora2</td><td>held-out</td><td class="num">4</td><td class="num">33</td><td class="num">21</td><td class="num">10</td><td class="num">10</td></tr>
+<tr><td>dpo (round 2)</td><td>held-out</td><td class="num">0</td><td class="num">2</td><td class="num">76</td><td class="num">0</td><td class="num">0</td></tr>
+<tr><td>dpo2</td><td>held-out</td><td class="num">2</td><td class="num">35</td><td class="num">28</td><td class="num">5</td><td class="num">8</td></tr>
+</tbody></table></div>
+<p>dpo2 is a working model, not a collapsed one: 8 of 90 validation and 28 of 78 held-out greedy outputs fail to assemble, against 83 and 76 for the round 2 DPO model. None of the dpo2 greedy outputs contains the run of stray <code>%</code> tokens that marked the round 2 collapse (0 of 90 and 0 of 78; substring tally of <code>runs/dpo2/eval.jsonl</code>, as in Report 3, §3.3). Among the five samples per task, 97 of 450 validation and 182 of 390 held-out samples do not assemble, against 45 of 450 and 132 of 390 for lora2 (<code>sample_categories</code>). But dpo2 is worse than lora2 on every measure in Table 4: 12 fewer validation tasks greedy and 2 fewer at pass@5, and 2 fewer held-out tasks greedy and 3 fewer at pass@5. It fails more often by wrong answer on validation (54 against 49) and more often by not assembling on held-out (28 against 21).</p>
+<p>The pipeline ran the held-out repair loop for dpo2 only if its validation pass@1 reached lora2's 38/90. At 26/90 it did not, and the stage was recorded as skipped (<code>loop-dpo2-heldout</code>: "val pass@1 26/90 &lt; lora2 38/90").</p>
+
+<h3 id="s2-5"><span class="n">2.5</span>Reading <span class="upd" title="Section last changed">updated 18 Nov 2026</span></h3>
+<div class="callout"><p><strong>The supervised term prevents the collapse, but preference training on these pairs does not yet help.</strong> With the NLL term, goal-consistent prompts and a learning rate of 5e-6, the model kept producing assembly at every checkpoint, and none of the round 2 failure text appeared. It still ended below lora2 on validation and held-out.</p></div>
+<p>Round 3 changed several things at once (supervised term, goal in the prompt, beta, learning rate, step count), so it does not say which change prevented the collapse. It is consistent with Report 3's first and fifth hypotheses (likelihood displacement and aggressive settings), which these changes target. It does not test the sixth: the pairs still rank two verified programs by size or instruction count, and none was built with a failing program on the rejected side. (The RPO-style objective comes from work where the winner of each pair has a correct answer and the loser a wrong one; Pang et al., 2024.) A preference objective of that kind can teach the model which correct program is smaller or faster; it gives no direct signal toward correctness on unfamiliar tasks, which is where the held-out set is weak. We take this as a reason to park preference training on these pairs, not as evidence that preference training cannot help (§8).</p>
+
+<h2 id="s3"><span class="n">3</span>Part B: C then assembly (c-then-asm) <span class="upd" title="Section last changed">updated 18 Nov 2026</span></h2>
+
+<h3 id="s3-1"><span class="n">3.1</span>Setup <span class="upd" title="Section last changed">updated 18 Nov 2026</span></h3>
+<p>The training set keeps lora2's task mix (<code>sft_lora2.jsonl</code>, 6,781 rows) and changes only the response. Each response is the task's C function followed by the assembly, in one reply with two delimiters, <code>===C===</code> and then <code>===ASM===</code> (<code>e2m/train/c_then_asm.py</code>, <code>e2m/train/format.py</code>). The C is the task's reference C from the scaled and starter task files. All 6,781 rows found a C source (<code>n_missing_c</code> 0; 3,020 C sources, 2,930 unique task ids). The assembly is the row's existing assembly from the lora2 mix. In a tally of <code>data/scaled/sft_c_then_asm.jsonl</code>, 5,661 rows carry gcc <code>-O2</code> output and 6 carry gcc <code>-O1</code> output, and 1,114 rows (source <code>reject_loop</code>) carry a program found by the round 1 rejection-sampling loop, which is not a compilation of the C half shown above it.</p>
+<p>The model is a QLoRA on <code>Qwen2.5-Coder-7B-Instruct</code> with the qlora7b-v2 settings (Table 6). At inference the prompt asks for both parts; scoring extracts the assembly half and runs it in the harness as for every other assembly model. Separately, the C half is extracted, compiled with gcc <code>-O2</code> and run on the same tests (<code>_score_c</code> in <code>e2m/train/eval_generate.py</code>; a compile failure counts as <code>doesnt_assemble</code>, as for the C control). pass@1 and pass@5 for this model refer to the assembly half only.</p>
+<div class="tw"><table><caption>Table 6. c-then-asm training against qlora7b-v2 (<code>runs/c-then-asm/summary.json</code>; qlora7b-v2 from Report 3, Table 4).</caption>
+<thead><tr><th>setting</th><th>c-then-asm</th><th>qlora7b-v2</th></tr></thead><tbody>
+<tr><td>base model</td><td><code>Qwen2.5-Coder-7B-Instruct</code>, 4-bit</td><td>same</td></tr>
+<tr><td>LoRA, optimizer</td><td>r = 32, alpha = 64, dropout 0.05; lr 2e-4, 3 epochs, batch 1 × accumulation 16</td><td>same</td></tr>
+<tr><td>data</td><td>6,781 rows; 6,725 examples after dropping 56 over the p99 length (1,674 tokens); max length 2,048; token p50 373, p90 659</td><td>6,781 rows; 6,713 examples; max length 1,344; token p50 291, p90 518</td></tr>
+<tr><td>steps, train loss</td><td class="num">1,263 steps, 0.1264</td><td class="num">1,260 steps, 0.1185</td></tr>
+<tr><td>time</td><td class="num">12,699.1 s (stage: 3.53 GPU hours)</td><td class="num">10,699.0 s (2.98 GPU hours)</td></tr>
+<tr><td>in-training eval</td><td>none (<code>val_tasks=0</code>)</td><td>none</td></tr>
+</tbody></table></div>
+
+<h3 id="s3-2"><span class="n">3.2</span>The assembly half <span class="upd" title="Section last changed">updated 18 Nov 2026</span></h3>
+<div class="tw"><table><caption>Table 7. Assembly half of c-then-asm against qlora7b-v2 and the C control (<code>runs/round3/SUMMARY.md</code>). Ratios are means over greedy passes against gcc <code>-O2</code>; <em>n</em> is the number of passing tasks. Instruction counts are emulator retire counts.</caption>
+<thead><tr><th>model</th><th>set</th><th class="num">pass@1</th><th class="num">pass@5</th><th class="num">size / gcc -O2</th><th class="num">insn / gcc -O2</th></tr></thead><tbody>
+<tr><td>qlora7b-v2</td><td>val</td><td class="num">0.456 (41/90)</td><td class="num">0.578 (52/90)</td><td class="num">1.019 (n=41)</td><td class="num">0.989 (n=41)</td></tr>
+<tr><td><b>c-then-asm, asm half</b></td><td>val</td><td class="num"><b>0.444 (40/90)</b></td><td class="num"><b>0.600 (54/90)</b></td><td class="num">1.055 (n=40)</td><td class="num">0.935 (n=40)</td></tr>
+<tr><td>qlora7b-v2</td><td>held-out</td><td class="num">0.064 (5/78)</td><td class="num">0.154 (12/78)</td><td class="num">0.960 (n=5)</td><td class="num">1.011 (n=5)</td></tr>
+<tr><td><b>c-then-asm, asm half</b></td><td>held-out</td><td class="num"><b>0.090 (7/78)</b></td><td class="num"><b>0.115 (9/78)</b></td><td class="num">1.132 (n=7)</td><td class="num">3.584 (n=7)</td></tr>
+<tr><td>base 1.5B, C → gcc -O2 (control)</td><td>held-out</td><td class="num">0.397 (31/78)</td><td class="num">0.628 (49/78)</td><td class="num">1.003 (n=31)</td><td class="num">0.989 (n=31)</td></tr>
+</tbody></table></div>
+<p>Writing C first did not move the assembly result much. On validation the asm half is one task below qlora7b-v2 greedy (40 against 41) and two above at pass@5 (54 against 52). On held-out it is two tasks above greedy (7 against 5) and three below at pass@5 (9 against 12). On 78 tasks these differences are within a few tasks either way. Its greedy held-out failures are 36 wrong answers, 15 crashes, 13 timeouts and 7 that do not assemble (qlora7b-v2: 40, 8, 14 and 11).</p>
+
+<h3 id="s3-3"><span class="n">3.3</span>The held-out instruction ratio of 3.584 <span class="upd" title="Section last changed">updated 18 Nov 2026</span></h3>
+<p>The held-out instruction ratio of 3.584 is a mean over seven passing tasks, and one task dominates it. Table 8 lists the seven (a tally of <code>runs/c-then-asm/eval.jsonl</code>; the mean of the seven per-task ratios is 3.584).</p>
+<div class="tw"><table><caption>Table 8. The seven held-out greedy passes of the c-then-asm assembly half: size and emulator instruction count against gcc <code>-O2</code> on the reference C (a tally of <code>runs/c-then-asm/eval.jsonl</code>).</caption>
+<thead><tr><th>task</th><th class="num">asm size</th><th class="num">gcc size</th><th class="num">asm insn</th><th class="num">gcc insn</th><th class="num">insn ratio</th></tr></thead><tbody>
+<tr><td><code>he60_sum_to_n</code></td><td class="num">51</td><td class="num">19</td><td class="num">780</td><td class="num">39</td><td class="num">20.000</td></tr>
+<tr><td><code>mbpp224_count_set_bits</code></td><td class="num">8</td><td class="num">31</td><td class="num">15</td><td class="num">104</td><td class="num">0.144</td></tr>
+<tr><td><code>he13_gcd</code></td><td class="num">62</td><td class="num">63</td><td class="num">111</td><td class="num">118</td><td class="num">0.941</td></tr>
+<tr><td><code>mbpp14_prism_volume</code></td><td class="num">22</td><td class="num">22</td><td class="num">21</td><td class="num">21</td><td class="num">1.000</td></tr>
+<tr><td><code>mbpp234_cube_volume</code></td><td class="num">12</td><td class="num">12</td><td class="num">20</td><td class="num">20</td><td class="num">1.000</td></tr>
+<tr><td><code>he23_strlen</code></td><td class="num">33</td><td class="num">33</td><td class="num">38</td><td class="num">38</td><td class="num">1.000</td></tr>
+<tr><td><code>he45_triangle_area</code></td><td class="num">13</td><td class="num">13</td><td class="num">12</td><td class="num">12</td><td class="num">1.000</td></tr>
+</tbody></table></div>
+<p>For <code>he60_sum_to_n</code> ("Return the sum of the integers from 1 through n inclusive"), the reference C uses the closed form <code>n * (n + 1) / 2</code>. The model's C half instead loops from 1 to n, and its assembly half is a plain scalar version of that loop, so it retires 20 times as many instructions on the tests. (The model's own C, compiled by gcc <code>-O2</code>, retires 348 instructions, 66 bytes; the model's hand lowering is slower than gcc's lowering of the same algorithm.) At the other end, for <code>mbpp224_count_set_bits</code> the reference C loops over the bits while the model's assembly uses a single <code>popcntq</code>, giving 0.144. That output passes the tests although it counts only the low 32 bits of the argument (it copies <code>%edi</code> before the <code>popcntq</code>). The other five tasks are at 0.941 to 1.000. The ratio therefore reflects the algorithm the model chose more than the quality of its lowering, and with n = 7 it should not be read as a property of the model.</p>
+
+<h3 id="s3-4"><span class="n">3.4</span>The C half and agreement <span class="upd" title="Section last changed">updated 18 Nov 2026</span></h3>
+<div class="tw"><table><caption>Table 9. Greedy C half of c-then-asm, compiled with gcc <code>-O2</code> in the harness, and its agreement with the assembly half (<code>runs/round3/SUMMARY.md</code>, <code>c_pass_n</code>, <code>c_and_asm_pass</code>, <code>c_only_pass</code>, <code>asm_only_pass</code>, <code>c_asm_agree_n</code>). "Agree" means both halves pass or both fail; "neither" is the remainder.</caption>
+<thead><tr><th>set</th><th class="num">C pass</th><th class="num">asm pass</th><th class="num">both pass</th><th class="num">C only</th><th class="num">asm only</th><th class="num">neither</th><th class="num">agree</th></tr></thead><tbody>
+<tr><td>val (90)</td><td class="num">63/90 (0.700)</td><td class="num">40/90</td><td class="num">38</td><td class="num">25</td><td class="num">2</td><td class="num">25</td><td class="num">63/90</td></tr>
+<tr><td>held-out (78)</td><td class="num"><b>48/78 (0.615)</b></td><td class="num">7/78</td><td class="num">6</td><td class="num">42</td><td class="num">1</td><td class="num">29</td><td class="num">35/78</td></tr>
+</tbody></table></div>
+<p>The C half is far stronger than the assembly half, and the gap is largest on held-out: 48 of 78 C halves pass against 7 assembly halves. On 42 held-out tasks the model wrote C that passes every test and then assembly that does not. The reverse happens once (<code>mbpp224_count_set_bits</code>, §3.3; its C half calls <code>__builtin_popcount</code>, and the compiled object references the global offset table, which the harness rejects). On validation the same pattern is smaller: 25 C-only against 2 asm-only. (The validation agreement count, 63, equals the validation C pass count by coincidence: 38 both plus 25 neither.)</p>
+<p>The following counts are not in the summaries; they are tallies of <code>runs/c-then-asm/eval.jsonl</code>. Counting a task as passed if any of its five sampled C halves passes, the C half reaches <strong>61/78</strong> on held-out and 70/90 on validation (for the assembly half the same count gives 9/78 and 54/90, which matches its pass@5). The greedy C halves that fail on held-out are 27 wrong answers, 2 compile failures and 1 crash. Where the C passes and the assembly fails, the assembly fails by wrong answer in 23 of the 42 held-out tasks, by crash in 9, by timeout in 9 and by not assembling in 1 (validation: 23 wrong answers, 1 crash and 1 non-assembling out of 25). Over the 48 passing held-out C halves, size is 1.031 and instruction count 1.877 of gcc <code>-O2</code> on the reference C (validation: 1.049 and 1.177, n = 63), so where the model's C is correct it tends to use a slower algorithm than the reference, as in §3.3.</p>
+<div class="tw"><table><caption>Table 10. Held-out C pass, fine-tuned 7B C half against the untrained 1.5B C control. Both are compiled with gcc <code>-O2</code> and scored in the same harness. The C control row is from <code>runs/round3/SUMMARY.md</code> (<code>base-c</code>); the any-of-five count for c-then-asm is a tally.</caption>
+<thead><tr><th>C source</th><th class="num">greedy</th><th class="num">any of 5 samples</th></tr></thead><tbody>
+<tr><td>base 1.5B, untrained (C control)</td><td class="num">31/78 (0.397)</td><td class="num">49/78 (0.628, pass@5)</td></tr>
+<tr><td>c-then-asm 7B, C half</td><td class="num">48/78 (0.615)</td><td class="num">61/78 (tally)</td></tr>
+</tbody></table></div>
+<p>The C control is the 1.5B base model with no adapter, not the 7B. The difference between 31/78 and 48/78 therefore mixes model size with fine-tuning; we have not run the 7B base model in C mode.</p>
+
+<h3 id="s3-5"><span class="n">3.5</span>Reading: where the loss is <span class="upd" title="Section last changed">updated 18 Nov 2026</span></h3>
+<div class="callout"><p><strong>The fine-tuned model's C is strong, and the loss is in its own lowering to assembly.</strong> On held-out, its greedy C passes 48 of 78 tasks, above the C control's 31 greedy. The same replies' assembly passes 7. In 42 tasks the model had a correct program in hand and lost it when it wrote the assembly.</p></div>
+<p>Writing C first did help the model plan: its C is correct far more often than any assembly model's output. It did not make the assembly follow the C. Two observations from this round bear on why, though neither has been tested. The training data never required the assembly to be a lowering of the C above it: the C is the task's reference C, and 1,114 of 6,781 assembly halves are rejection-sampled programs not compiled from that C (§3.1). And the held-out C halves are often not the reference algorithm (instruction ratio 1.877 against the reference, §3.4). The model has seen gcc's lowering of the reference C, not of its own C, so on unfamiliar tasks it is asked to lower a program it has not seen lowered. Since gcc already lowers the model's C correctly whenever the C is correct, the direct route to the held-out gap is to let gcc do the lowering (§8).</p>
+
+<h2 id="s4"><span class="n">4</span>The incomplete held-out loop <span class="upd" title="Section last changed">updated 18 Nov 2026</span></h2>
+<p>With budget left after the evaluations, the pipeline ran the held-out repair loop for c-then-asm (<code>loop-c-then-asm-heldout</code>, k = 8, R = 3, T = 0.8, scoring the assembly half). It stopped at its 10-hour stage cap (10.07 GPU hours, exit code 3, "max-hours") after <strong>59 of the 78 tasks</strong>. On those 59 tasks it passes <strong>15/59 on the full tests</strong> and 21/59 on the visible tests only, with a mean of 24.7 calls per task. The result covers 59 tasks and cannot be stated as a fraction of 78.</p>
+<div class="tw"><table><caption>Table 11. c-then-asm held-out repair loop on the 59 tasks it reached: first pass within <em>m</em> model calls (<code>runs/loop-c-then-asm-heldout/summary.json</code>, <code>budget_full</code> and <code>budget_visible</code>; fractions times 59).</caption>
+<thead><tr><th>tests</th><th class="num">n</th><th class="num">@1</th><th class="num">@4</th><th class="num">@8</th><th class="num">@16</th><th class="num">@32</th></tr></thead><tbody>
+<tr><td>full</td><td class="num">59</td><td class="num">6/59</td><td class="num">11/59</td><td class="num">13/59</td><td class="num">14/59</td><td class="num">15/59</td></tr>
+<tr><td>visible only</td><td class="num">59</td><td class="num">6/59</td><td class="num">12/59</td><td class="num">16/59</td><td class="num">19/59</td><td class="num">21/59</td></tr>
+</tbody></table></div>
+<p>The final attempts on the 59 tasks are 15 pass, 23 wrong answer, 9 crash, 8 do not assemble and 4 timeout. Passing programs are 0.969 of gcc <code>-O2</code> in size and 1.888 in instruction count (n = 15). The loop works through the held-out tasks in a fixed order, so the 19 tasks it did not reach are not a random sample: they are all HumanEval tasks (<code>he102_choose_num</code> to <code>he163_generate_integers</code>; a tally of <code>loop.jsonl</code> against <code>eval.jsonl</code>).</p>
+<p>For a like-for-like view, the following are tallies of the per-task <code>loop.jsonl</code> files restricted to the same 59 tasks: the qlora7b-v2 loop passes 11 of them, the lora2 loop 9 and the C control loop (k = 4, R = 2) 34. The c-then-asm loop's 15 is therefore a few tasks above the best assembly loop on the same tasks, and far below the C loop. On the same 59 tasks the c-then-asm model's greedy C half passes 40.</p>
+
+<h2 id="s5"><span class="n">5</span>All models compared <span class="upd" title="Section last changed">updated 18 Nov 2026</span></h2>
+<p><strong>Single-try and loop results are not comparable.</strong> Table 12 reports a single greedy try or five independent samples per task. Table 13 reports repair loops with up to 32 model calls per task and feedback from the visible tests; the C control loop uses a smaller budget (k = 4, R = 2), and the c-then-asm loop covers only 59 tasks. Compare models within a table.</p>
+<div class="tw"><table><caption>Table 12. Greedy pass@1 and sampled pass@5 (n = 5, T = 0.8), all models. Rows for lora2, qlora7b-v2, dpo, dpo2, c-then-asm and the C control are from <code>runs/round3/SUMMARY.md</code>; lora1, qlora7b, base7b and base 1.5B AT&amp;T are copied from Report 3, Table 6. Size and instruction ratios are means over greedy passes against gcc <code>-O2</code>. The C-half rows are compiled by gcc, not written as assembly by the model.</caption>
+<thead><tr><th>model</th><th>eval set</th><th class="num">n</th><th class="num">pass@1</th><th class="num">pass@5</th><th class="num">size / gcc -O2</th><th class="num">insn / gcc -O2</th></tr></thead><tbody>
+<tr><td>LoRA 1.5B (lora1)</td><td>scaled val</td><td class="num">90</td><td class="num">0.211 (19/90)</td><td class="num">0.367 (33/90)</td><td class="num">1.033 (n=19)</td><td class="num">1.008 (n=19)</td></tr>
+<tr><td>LoRA 1.5B (lora1)</td><td>held-out</td><td class="num">78</td><td class="num">0.026 (2/78)</td><td class="num">0.064 (5/78)</td><td class="num">1.030 (n=2)</td><td class="num">1.026 (n=2)</td></tr>
+<tr><td>QLoRA 7B (qlora7b)</td><td>scaled val</td><td class="num">90</td><td class="num">0.367 (33/90)</td><td class="num">0.500 (45/90)</td><td class="num">1.037 (n=33)</td><td class="num">1.018 (n=33)</td></tr>
+<tr><td>QLoRA 7B (qlora7b)</td><td>held-out</td><td class="num">78</td><td class="num">0.064 (5/78)</td><td class="num">0.103 (8/78)</td><td class="num">1.008 (n=5)</td><td class="num">1.151 (n=5)</td></tr>
+<tr><td>LoRA 1.5B (lora2)</td><td>scaled val</td><td class="num">90</td><td class="num">0.422 (38/90)</td><td class="num">0.500 (45/90)</td><td class="num">1.111 (n=38)</td><td class="num">1.044 (n=38)</td></tr>
+<tr><td>LoRA 1.5B (lora2)</td><td>held-out</td><td class="num">78</td><td class="num">0.051 (4/78)</td><td class="num">0.064 (5/78)</td><td class="num">1.100 (n=4)</td><td class="num">1.310 (n=4)</td></tr>
+<tr><td>DPO from lora2 (dpo)</td><td>scaled val</td><td class="num">90</td><td class="num">0.033 (3/90)</td><td class="num">0.044 (4/90)</td><td class="num">1.000 (n=3)</td><td class="num">1.000 (n=3)</td></tr>
+<tr><td>DPO from lora2 (dpo)</td><td>held-out</td><td class="num">78</td><td class="num">0.000 (0/78)</td><td class="num">0.000 (0/78)</td><td class="num">—</td><td class="num">—</td></tr>
+<tr><td>DPO + SFT term from lora2 (dpo2)</td><td>scaled val</td><td class="num">90</td><td class="num">0.289 (26/90)</td><td class="num">0.478 (43/90)</td><td class="num">1.121 (n=26)</td><td class="num">1.366 (n=26)</td></tr>
+<tr><td>DPO + SFT term from lora2 (dpo2)</td><td>held-out</td><td class="num">78</td><td class="num">0.026 (2/78)</td><td class="num">0.026 (2/78)</td><td class="num">0.727 (n=2)</td><td class="num">1.079 (n=2)</td></tr>
+<tr><td>base 7B, AT&amp;T, no adapter (base7b)</td><td>held-out</td><td class="num">78</td><td class="num">0.000 (0/78)</td><td class="num">0.038 (3/78)</td><td class="num">—</td><td class="num">—</td></tr>
+<tr><td>QLoRA 7B v2 (qlora7b-v2)</td><td>scaled val</td><td class="num">90</td><td class="num">0.456 (41/90)</td><td class="num">0.578 (52/90)</td><td class="num">1.019 (n=41)</td><td class="num">0.989 (n=41)</td></tr>
+<tr><td>QLoRA 7B v2 (qlora7b-v2)</td><td>held-out</td><td class="num">78</td><td class="num">0.064 (5/78)</td><td class="num">0.154 (12/78)</td><td class="num">0.960 (n=5)</td><td class="num">1.011 (n=5)</td></tr>
+<tr><td>QLoRA 7B C then asm, asm half (c-then-asm)</td><td>scaled val</td><td class="num">90</td><td class="num">0.444 (40/90)</td><td class="num">0.600 (54/90)</td><td class="num">1.055 (n=40)</td><td class="num">0.935 (n=40)</td></tr>
+<tr><td>QLoRA 7B C then asm, asm half (c-then-asm)</td><td>held-out</td><td class="num">78</td><td class="num">0.090 (7/78)</td><td class="num">0.115 (9/78)</td><td class="num">1.132 (n=7)</td><td class="num">3.584 (n=7)</td></tr>
+<tr><td>base 1.5B, AT&amp;T</td><td>held-out</td><td class="num">78</td><td class="num">0.000 (0/78)</td><td class="num">0.000 (0/78)</td><td class="num">—</td><td class="num">—</td></tr>
+<tr><td>QLoRA 7B C then asm, C half → gcc -O2</td><td>scaled val</td><td class="num">90</td><td class="num">0.700 (63/90)</td><td class="num">70/90 any of 5 (tally)</td><td class="num">1.049 (n=63, tally)</td><td class="num">1.177 (n=63, tally)</td></tr>
+<tr><td>QLoRA 7B C then asm, C half → gcc -O2</td><td>held-out</td><td class="num">78</td><td class="num">0.615 (48/78)</td><td class="num">61/78 any of 5 (tally)</td><td class="num">1.031 (n=48, tally)</td><td class="num">1.877 (n=48, tally)</td></tr>
+<tr><td>base 1.5B, C → gcc -O2 (control)</td><td>held-out</td><td class="num">78</td><td class="num">0.397 (31/78)</td><td class="num">0.628 (49/78)</td><td class="num">1.003 (n=31)</td><td class="num">0.989 (n=31)</td></tr>
+</tbody></table></div>
+<div class="tw"><table><caption>Table 13. Repair loops (full-test pass, visible-only feedback), k = 8, R = 3, T = 0.8 unless noted (<code>runs/round3/SUMMARY.md</code> and <code>RESULTS.json</code>; lora1 and dpo rows from Report 3, Table 8). The dpo and c-then-asm loops are incomplete and have different denominators.</caption>
+<thead><tr><th>run</th><th class="num">n</th><th class="num">pass_full</th><th class="num">pass_visible</th><th class="num">mean calls</th><th class="num">size / gcc -O2</th><th class="num">insn / gcc -O2</th></tr></thead><tbody>
+<tr><td>loop-lora1-val</td><td class="num">90</td><td class="num">49/90</td><td class="num">51/90</td><td class="num">18.3</td><td class="num">0.916 (n=49)</td><td class="num">1.509 (n=49)</td></tr>
+<tr><td>loop-lora2-val</td><td class="num">90</td><td class="num">60/90</td><td class="num">60/90</td><td class="num">13.9</td><td class="num">1.069 (n=60)</td><td class="num">1.269 (n=60)</td></tr>
+<tr><td>loop-lora1-heldout</td><td class="num">78</td><td class="num">6/78</td><td class="num">10/78</td><td class="num">30.4</td><td class="num">1.241 (n=6)</td><td class="num">1.117 (n=6)</td></tr>
+<tr><td>loop-lora2-heldout</td><td class="num">78</td><td class="num">10/78</td><td class="num">15/78</td><td class="num">29.2</td><td class="num">1.007 (n=10)</td><td class="num">1.128 (n=10)</td></tr>
+<tr><td>loop-qlora7b-v2-heldout</td><td class="num">78</td><td class="num">12/78</td><td class="num">17/78</td><td class="num">27.8</td><td class="num">1.172 (n=12)</td><td class="num">1.658 (n=12)</td></tr>
+<tr><td>loop-dpo-heldout (incomplete)</td><td class="num">62</td><td class="num">0/62</td><td class="num">0/62</td><td class="num">32.0</td><td class="num">—</td><td class="num">—</td></tr>
+<tr><td>loop-dpo2-heldout</td><td class="num">—</td><td colspan="5">skipped by gate (val pass@1 26/90 &lt; 38/90)</td></tr>
+<tr><td>loop-c-then-asm-heldout (incomplete)</td><td class="num">59</td><td class="num">15/59</td><td class="num">21/59</td><td class="num">24.7</td><td class="num">0.969 (n=15)</td><td class="num">1.888 (n=15)</td></tr>
+<tr><td>loop-base-c-heldout (k=4, R=2)</td><td class="num">78</td><td class="num">44/78</td><td class="num">48/78</td><td class="num">6.6</td><td class="num">1.093 (n=44)</td><td class="num">1.028 (n=44)</td></tr>
+</tbody></table></div>
+<p><strong>Reading.</strong> On held-out single tries, the assembly models remain between 0 and 7 of 78 greedy and at most 12 of 78 at pass@5; c-then-asm's asm half (7/78) is the highest greedy number but within two tasks of qlora7b-v2 and qlora7b. The two C rows are in a different league: the C control at 31/78 and the fine-tuned model's own C at 48/78. dpo2 sits between lora1 and lora2 on validation; on held-out it ties lora1 greedy (2/78) and is below the other trained assembly models except the round 2 DPO model. Size and instruction ratios on held-out cover n = 2 to 15 passes and should not be compared across rows (§3.3).</p>
+
+<h2 id="s6"><span class="n">6</span>Compute used <span class="upd" title="Section last changed">updated 18 Nov 2026</span></h2>
+<p>Round 3 used <strong>18.60 of its 30 GPU hours</strong> (<code>gpu_hours_used</code> 18.6033 in <code>runs/round3/RESULTS.json</code> and <code>logs/round3.done</code>). The incomplete held-out loop is more than half of it.</p>
+<div class="tw"><table><caption>Table 14. Round 3 GPU hours by stage (<code>runs/round3/SUMMARY.md</code>, <code>gpu_hours.jsonl</code>).</caption>
+<thead><tr><th>stage</th><th class="num">seconds</th><th class="num">hours</th><th>ok</th></tr></thead><tbody>
+<tr><td>dpo-pairs</td><td class="num">5.19</td><td class="num">0.00</td><td>yes</td></tr>
+<tr><td>dpo2-train</td><td class="num">8321.18</td><td class="num">2.31</td><td>yes</td></tr>
+<tr><td>dpo2-eval-val</td><td class="num">895.61</td><td class="num">0.25</td><td>yes</td></tr>
+<tr><td>dpo2-eval-heldout</td><td class="num">1445.80</td><td class="num">0.40</td><td>yes</td></tr>
+<tr><td>c-then-asm-data</td><td class="num">0.19</td><td class="num">0.00</td><td>yes</td></tr>
+<tr><td>c-then-asm-train</td><td class="num">12713.01</td><td class="num">3.53</td><td>yes</td></tr>
+<tr><td>c-then-asm-eval-val</td><td class="num">2898.80</td><td class="num">0.81</td><td>yes</td></tr>
+<tr><td>c-then-asm-eval-heldout</td><td class="num">4445.09</td><td class="num">1.23</td><td>yes</td></tr>
+<tr><td>loop-c-then-asm-heldout</td><td class="num">36246.91</td><td class="num">10.07</td><td>no (stage cap, 59 of 78 tasks)</td></tr>
+<tr><td colspan="2"><b>total</b></td><td class="num"><b>18.60</b></td><td></td></tr>
+</tbody></table></div>
+<p>Across the pipelines that record a GPU-hour total, the program has used 46.45 hours in round 1 (Report 2; <code>STATUS.md</code>), 40.68 in rounds 2 and 2b (Report 3; <code>runs/round2b/RESULTS.json</code>) and 18.60 in round 3, <strong>105.73 GPU hours</strong> in all (46.45 + 40.6764 + 18.6033). This excludes the sweeps, the first LoRA and QLoRA runs and other work in Report 1, for which no single total is recorded.</p>
+
+<h2 id="s7"><span class="n">7</span>Limitations and caveats <span class="upd" title="Section last changed">updated 18 Nov 2026</span></h2>
+<ol>
+<li><strong>Small held-out set.</strong> At 78 tasks, differences of two or three tasks (7/78 against 5/78, 9/78 against 12/78) are not differences. No confidence intervals are reported and no run was repeated with another seed.</li>
+<li><strong>The C comparison is not matched.</strong> The C control is the untrained 1.5B model; the C half comes from a fine-tuned 7B. The step from 31/78 to 48/78 mixes model size, fine-tuning and the C-then-asm prompt. The 7B base model has not been run in C mode.</li>
+<li><strong>One configuration per part, several changes at once.</strong> dpo2 changed the supervised term, prompt goals, beta, learning rate and step count together, so the cause of the stability is not isolated. c-then-asm is one training run.</li>
+<li><strong>Pair accuracy is not comparable across rounds.</strong> dpo2's 0.684 is on 256 eval pairs with a loss that includes the supervised term; round 2's 0.902 was on 512 pairs without it.</li>
+<li><strong>The collapse guard checks assembly, not correctness,</strong> on 30 validation tasks. dpo2 passed the guard while losing correct programs.</li>
+<li><strong>Training log.</strong> In <code>runs/dpo2/loss.jsonl</code> the logged total loss on a row does not equal the logged preference loss plus the chosen NLL on the same row (for example step 1,500: 0.484 against 0.004 and 0.076). We did not check why (they may come from different micro-batches of the accumulation step). Table 3 therefore reports the two parts, not the total.</li>
+<li><strong>The c-then-asm loop is incomplete.</strong> It covers 59 of 78 tasks, stopped by its 10-hour cap, and the 19 missing tasks are all from the end of the HumanEval list, not a random subset. Its 15/59 is not a fraction of 78.</li>
+<li><strong>Loop budgets are not matched.</strong> The C loop uses k = 4, R = 2; the assembly loops use k = 8, R = 3. Loop and single-try results answer different questions (§5).</li>
+<li><strong>Ratios over few passes.</strong> Size and instruction ratios are means over passing tasks only; the held-out ones cover 2 to 15 tasks, and the 3.584 instruction ratio is dominated by one task (§3.3).</li>
+<li><strong>The C-then-asm training data does not tie the assembly to the C.</strong> The C is the task's reference C, and 1,114 rows carry assembly that was not compiled from it (§3.1). This is a property of how the set was built, recorded here because it may bear on the lowering result.</li>
+<li><strong>C-half scoring depends on the harness.</strong> The C half is compiled as a leaf function; an object that references the global offset table is rejected (one held-out case, §3.4).</li>
+<li><strong>Tallies computed for this report.</strong> The dpo2 log averages (Table 3), the stray-<code>%</code> count, the guard-subset check, Table 8, the any-of-five C counts, the C-half failure categories and ratios, the asm categories for C-only tasks, the source and compiler counts of the training rows, the list of tasks the loop did not reach, and the same-59-task loop comparisons are tallies of <code>eval.jsonl</code>, <code>loss.jsonl</code>, <code>loop.jsonl</code> and <code>sft_c_then_asm.jsonl</code>, not figures in the summaries.</li>
+<li><strong>Other.</strong> <code>STATUS.md</code> has no round 3 section; the round 3 files are the source. The pytest suite was not re-run for this report, and the human check of a sample of rewritten specifications is still outstanding (Reports 1 to 3).</li>
+</ol>
+
+<h2 id="s8"><span class="n">8</span>Proposed next steps <span class="upd" title="Section last changed">updated 18 Nov 2026</span></h2>
+<p><span class="tag plan">proposed</span> None of the following has been started. Each is a proposal for discussion, and none is a commitment.</p>
+<ol>
+<li><strong>Score the model's own C halves as a system (no GPU).</strong> The evaluation already compiles each greedy and sampled C half with gcc <code>-O2</code> and runs it on the tests (§3.4), so no new generation is needed. What is left is to make it a first-class result: a row in the pipeline's results with pass@1, pass@5 and size and instruction ratios from the existing <code>runs/c-then-asm/eval.jsonl</code>, and a check of the C halves that fail for harness reasons (such as the global-offset-table case) rather than wrong logic.</li>
+<li><strong>A hybrid route: the model writes C, gcc lowers it, and the model optionally optimizes the result.</strong> Take the C half, compile it with gcc <code>-O2</code>, and give the model the gcc assembly to improve for the stated goal, keeping gcc's version whenever the edit fails the tests. The floor is the C-half result (48/78 greedy on held-out); the question is whether the model can then beat gcc on size or speed without losing correctness. Measure on held-out first.</li>
+<li><strong>Finish the c-then-asm held-out loop</strong> with a larger stage cap or by resuming at task 60, so that it has a 78-task result comparable to the other loops.</li>
+<li><strong>Data diversity.</strong> Add training tasks closer to the held-out style (short algorithmic functions), checked for overlap with HumanEval and MBPP, and pair each C half with gcc's lowering of that same C, so that the training data teaches lowering of the C actually written. Validation keeps improving while held-out does not, so more of the current mix is unlikely to help.</li>
+<li><strong>A matched C control:</strong> the 7B base model in C mode, to separate the effect of model size from fine-tuning in Table 10.</li>
+<li><strong>Park preference training on the current pairs.</strong> Revisit it only with pairs whose rejected side fails (does not assemble or gives a wrong answer), which would test Report 3's sixth hypothesis.</li>
+<li><strong>A larger or fresher held-out set with confidence intervals,</strong> and repeated seeds for the headline rows.</li>
+</ol>
+
+<h2 id="cite">How to cite</h2>
+<p>This is a working paper. It is shared so others can read, discuss and cite it, and it is updated as the work moves forward. Please cite the revision you read, give its date, and say when you accessed the page. Earlier revisions are listed in the revision history. Results here have not been peer reviewed.</p>
+<p class="cite-ref">Wilson, B. (2026). <em>A stable preference run, and a model that writes good C but loses it in assembly</em> (Working paper, Revision 1, 18 November 2026). Abundant Frontier Institute. <a href="https://abundantfrontier.org/lab/e2m/report-4/">https://abundantfrontier.org/lab/e2m/report-4/</a></p>
+<pre class="cite-bib"><code>@techreport{wilson2026e2mreport4,
+  author      = {Wilson, Boyd},
+  title       = {A stable preference run, and a model that writes good C but loses it in assembly},
+  institution = {Abundant Frontier Institute},
+  type        = {Working paper},
+  number      = {Revision 1},
+  year        = {2026},
+  month       = {nov},
+  url         = {https://abundantfrontier.org/lab/e2m/report-4/},
+  note        = {Living document; last updated 18 November 2026. Accessed YYYY-MM-DD}
+}</code></pre>
+
+<h2 id="refs">References</h2>
+<ol class="refs">
+<li><a href="../report-3/index.html">E2M technical report 3</a>: DPO collapse, qlora7b-v2 and the validation and held-out gap (baselines for this report).</li>
+<li><a href="../report-2/index.html">E2M technical report 2</a>: repair loop, rejection sampling and lora2.</li>
+<li><a href="../report-1/index.html">E2M technical report 1</a>: harness, sweeps, scale-up and the first LoRA results.</li>
+<li><a href="../concept/index.html">E2M concept paper</a>.</li>
+<li>Rafael Rafailov et al. <em>Direct Preference Optimization: Your Language Model Is Secretly a Reward Model.</em> 2023. <a href="https://arxiv.org/abs/2305.18290">arXiv:2305.18290</a>.</li>
+<li>Richard Yuanzhe Pang et al. <em>Iterative Reasoning Preference Optimization.</em> 2024. <a href="https://arxiv.org/abs/2404.19733">arXiv:2404.19733</a>. Adds a negative log-likelihood term on the chosen response to the DPO loss.</li>
+<li>Mark Chen et al. <em>Evaluating Large Language Models Trained on Code.</em> 2021. <a href="https://arxiv.org/abs/2107.03374">arXiv:2107.03374</a>. Pass@k uses the unbiased estimator from this paper.</li>
+<li>Binyuan Hui et al. <em>Qwen2.5-Coder Technical Report.</em> 2024. <a href="https://arxiv.org/abs/2409.12186">arXiv:2409.12186</a>.</li>
+<li>Tim Dettmers et al. <em>QLoRA: Efficient Finetuning of Quantized LLMs.</em> 2023. <a href="https://arxiv.org/abs/2305.14314">arXiv:2305.14314</a>.</li>
+</ol>
+
+<section class="revhist" id="revhist">
+<h2>Revision history</h2>
+<ol>
+<li><b>Revision 1</b> <span class="when">18 November 2026 (America/Los_Angeles)</span><br>First draft of technical report 4: round 3 Part A (dpo2, DPO from lora2 with a supervised term, goal-consistent prompts and a collapse guard) and Part B (c-then-asm, a 7B QLoRA that writes C then assembly, with C-half and agreement scores), the incomplete c-then-asm held-out loop (15/59), the all-model comparison, compute (18.60 GPU hours), caveats and proposed next steps. Numbers copied from <code>runs/round3/SUMMARY.md</code>, <code>RESULTS.json</code>, <code>logs/round3.done</code> and the files under <code>runs/dpo2</code>, <code>runs/c-then-asm</code> and <code>runs/loop-c-then-asm-heldout</code>; some counts are tallies of raw files, marked in the text.</li>
+</ol>
+</section>
+
+<footer>Living paper · Revision 1 · Last updated 18 November 2026 · Abundant Frontier Institute Lab · Working paper · <a href="../report-3/index.html">Technical report 3</a> · <a href="../report-2/index.html">Technical report 2</a> · <a href="../report-1/index.html">Technical report 1</a> · <a href="../concept/index.html">Concept paper</a></footer>
+</div>
+</main>
+</body>
+</html>

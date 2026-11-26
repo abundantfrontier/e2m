@@ -1,0 +1,11 @@
+{
+  "n_gcc_default": 2930,
+  "n_rewritten_gcc": 2737,
+  "n_reject": 1114,
+  "n_mixed": 6781,
+  "n_blocked": 168,
+  "n_rewritten_skip": 86,
+  "n_reject_skip": 0,
+  "out": "data/scaled/sft_lora2.jsonl",
+  "unique_task_ids": 2930
+}

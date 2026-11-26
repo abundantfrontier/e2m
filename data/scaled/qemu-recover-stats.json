@@ -1,0 +1,13 @@
+{
+  "variants": 24142,
+  "sft": 9000,
+  "pairs": 46472,
+  "rows": 432000,
+  "passed": 418290,
+  "recovered_configs": 34520,
+  "recovered_pass": 28653,
+  "insn_counts": 4019,
+  "insn_unknown_rows": 0,
+  "default_sft_unchanged": true,
+  "default_sft_digest": "2f24afaee6fc1117e992883894121a2aea9b4edbbfcdf41fe6b95b81b124f42b"
+}

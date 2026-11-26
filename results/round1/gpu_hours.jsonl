@@ -1,0 +1,10 @@
+{"name": "rewrite", "seconds": 10114.07, "ok": true, "ts": "2026-11-12T03:03:17.855311-08:00"}
+{"name": "loop-lora1-heldout", "seconds": 35009.61, "ok": true, "ts": "2026-11-12T12:46:47.467174-08:00"}
+{"name": "loop-lora1-val", "seconds": 15683.29, "ok": true, "ts": "2026-11-12T17:08:10.752724-08:00"}
+{"name": "loop-base-c-heldout", "seconds": 1660.63, "ok": true, "ts": "2026-11-12T17:35:51.383752-08:00"}
+{"name": "loop-reject-train", "seconds": 43215.35, "ok": true, "ts": "2026-11-13T05:36:06.729381-08:00"}
+{"name": "loop-reject-rewritten", "seconds": 21660.12, "ok": true, "ts": "2026-11-13T11:37:06.850574-08:00"}
+{"name": "lora2-train", "seconds": 3237.48, "ok": true, "ts": "2026-11-13T12:31:07.037689-08:00"}
+{"name": "lora2-eval-val", "seconds": 1482.77, "ok": true, "ts": "2026-11-13T12:55:49.813144-08:00"}
+{"name": "lora2-eval-heldout", "seconds": 2973.24, "ok": true, "ts": "2026-11-13T13:45:23.058321-08:00"}
+{"name": "loop-lora2-heldout", "seconds": 32188.87, "ok": true, "ts": "2026-11-13T22:41:51.930067-08:00"}

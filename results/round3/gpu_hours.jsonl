@@ -1,0 +1,9 @@
+{"name": "dpo-pairs", "seconds": 5.19, "ok": true, "ts": "2026-11-17T19:25:27.235180-08:00"}
+{"name": "dpo2-train", "seconds": 8321.18, "ok": true, "ts": "2026-11-17T21:44:08.415021-08:00"}
+{"name": "dpo2-eval-val", "seconds": 895.61, "ok": true, "ts": "2026-11-17T21:59:04.056486-08:00"}
+{"name": "dpo2-eval-heldout", "seconds": 1445.8, "ok": true, "ts": "2026-11-17T22:23:09.858929-08:00"}
+{"name": "c-then-asm-data", "seconds": 0.19, "ok": true, "ts": "2026-11-17T22:23:10.055158-08:00"}
+{"name": "c-then-asm-train", "seconds": 12713.01, "ok": true, "ts": "2026-11-18T01:55:03.069009-08:00"}
+{"name": "c-then-asm-eval-val", "seconds": 2898.8, "ok": true, "ts": "2026-11-18T02:43:21.866140-08:00"}
+{"name": "c-then-asm-eval-heldout", "seconds": 4445.09, "ok": true, "ts": "2026-11-18T03:57:26.954692-08:00"}
+{"name": "loop-c-then-asm-heldout", "seconds": 36246.91, "ok": false, "ts": "2026-11-18T14:01:33.865837-08:00"}

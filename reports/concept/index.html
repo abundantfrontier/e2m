@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E2M: English to machine code, concept paper (living paper) · Abundant Frontier Institute</title>
+<meta name="description" content="Living concept paper: a research program for models that emit executable machine code from an English specification, judged by running the output.">
+<meta name="citation_title" content="E2M: English to machine code">
+<meta name="citation_author" content="Wilson, Boyd">
+<meta name="citation_publication_date" content="2026/11/14">
+<meta name="citation_technical_report_institution" content="Abundant Frontier Institute">
+<meta name="citation_technical_report_number" content="Revision 3">
+<meta name="citation_public_url" content="https://abundantfrontier.org/lab/e2m/concept/">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<nav class="nav"><div class="nav-in">
+<a class="brand" href="https://abundantfrontier.org/"><span class="e">🌾</span><span>Abundant Frontier Institute</span></a>
+<div class="nav-links"><a href="/lab/">Lab</a><a href="../concept/index.html" class="cur">Concept paper</a><a href="../report-1/index.html" >Technical report 1</a><a href="../report-2/index.html" >Technical report 2</a><a href="../report-3/index.html" >Technical report 3</a><a href="../report-4/index.html" >Technical report 4</a><a href="../report-5/index.html" >Technical report 5</a><span class="badge">Working paper</span></div>
+</div></nav>
+<main class="page">
+<header class="title">
+<div class="kicker">Concept paper</div>
+<h1>E2M: English to machine code</h1>
+<p class="sub">A research program for models that take an English specification of a function and emit executable machine code, judged by running that code, not by matching a compiler's text.</p>
+<p class="byline"><strong>Boyd Wilson</strong>, Abundant Frontier Institute and Omnibond Systems</p>
+<p class="meta">Living paper · Revision 3 · Last updated 14 November 2026 · First work product: the <a href="../report-1/index.html">harness, sweep and scale-up report</a> · Work so far is on one 24 GB RTX 3090 workstation · Code and data: <a href="https://github.com/abundantfrontier/e2m">github.com/abundantfrontier/e2m</a></p>
+</header>
+
+<div class="draftbar"><b>Working paper.</b> You may cite it; see <a href="#cite">How to cite</a>. This page condenses the author's internal concept note (v0.1, 10 November 2026) and the design of the harness, data and evaluation. Sections marked <span class="tag plan">planned</span> describe intent, not results. Nothing here has been published.</div>
+
+<div class="abstract"><h2>Abstract</h2>
+<p>Code models are usually asked to write a high-level language, which a compiler then turns into machine code. E2M asks a different question: can a model go from an English specification, plus a function signature and calling convention, straight to machine code for a target ISA, without a human-visible source language in the loop? The output must pass tests, respect the ABI, stay memory-safe under the harness, and be competitive in size or speed with a compiler baseline. We treat the obvious control — the same base model writing C that gcc or clang compiles at <code>-O2</code> — as the baseline to beat, not as a straw man. For general programming that baseline should dominate for the foreseeable future. The niches we take seriously are small hot kernels where search can beat the compiler, targets that have no compiler, and research on the compiler itself as a learned component. The working method is hybrid: the model proposes assembly, tools assemble and run it in an emulator, and only passing variants are kept. This paper states the goals, the case for and against skipping source, the approach, the safety rule that generated code is never run on the host CPU, the evaluation plan, and the open questions. The first experiments — an execution harness, compiler-parameter sweeps, and a 3,000-task scale-up from ExeBench — are reported separately.</p></div>
+
+<nav class="toc" aria-label="Contents"><div class="toc-title">Contents</div><ol>
+<li><a href="#s1"><span class="n">1</span>Goals and vision</a></li>
+<li><a href="#s2"><span class="n">2</span>Direct versus via source</a></li>
+<li><a href="#s3"><span class="n">3</span>Approach</a></li>
+<li><a href="#s4"><span class="n">4</span>Related work</a></li>
+<li><a href="#s5"><span class="n">5</span>Safety</a></li>
+<li><a href="#s6"><span class="n">6</span>Evaluation</a></li>
+<li><a href="#s7"><span class="n">7</span>Roadmap</a></li>
+<li><a href="#s8"><span class="n">8</span>Open questions</a></li>
+<li><a href="#refs"><span class="n"></span>References</a></li>
+<li><a href="#revhist"><span class="n"></span>Revision history</a></li>
+</ol></nav>
+
+<div class="col">
+
+<h2 id="s1"><span class="n">1</span>Goals and vision <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h2>
+<p>These are the long-range goals this research works toward. They are the reason for the design in the rest of the paper and for the experiments in the technical report.</p>
+
+<div class="grid">
+<div class="card"><h4><span class="tag">1.1</span>English in, machine code out</h4><p>Given an English specification of a function, its signature and the calling convention, emit machine code — executable bytes, or assembly that a plain assembler turns into bytes — for a stated ISA. The first target is x86-64 System&nbsp;V. The output has to pass tests, restore callee-saved state, and stay competitive in size or speed.</p></div>
+<div class="card"><h4><span class="tag">1.2</span>Correctness by execution</h4><p>A candidate is correct if it assembles, runs in the harness, and matches the reference on the tests, including ABI checks. Matching a particular compiler's assembly text is not the goal. Weak tests will reward wrong code, so the suite has to be strong enough that a stub cannot pass.</p></div>
+<div class="card"><h4><span class="tag">1.3</span>Beat, or honestly lose to, the compiler path</h4><p>The control is the same base model writing C that gcc or clang compiles at <code>-O2</code>. Every claim about direct generation is compared with that path. A win on at least one axis — <code>.text</code> size, retired instructions or cycles, or "works with no toolchain on the target" — at equal pass rate is what would count as success.</p></div>
+<div class="card"><h4><span class="tag">1.4</span>Model proposes, tools verify</h4><p>The promising shape is a loop: sample candidates, assemble them, run tests in an emulator, and feed errors back. Supervised imitation of compiler output is a starting point. Beating the compiler on size or speed will need search or a reward that includes those measures.</p></div>
+<div class="card"><h4><span class="tag">1.5</span>Safe to run on a shared machine</h4><p>Generated machine code is executable content. Every run stays inside an emulator or a tightly limited sandbox. The host CPU is not the execution engine. Instruction caps, wall-time caps and a syscall deny-list are part of the design, not optional hardening.</p></div>
+<div class="card"><h4><span class="tag">1.6</span>Self-hosted and modest hardware</h4><p>Training and evaluation should run on one consumer GPU with open models and no subscription. The first prototype is sized for a 24&nbsp;GB RTX 3090: a small code model with LoRA or QLoRA, a local assembler, and the harness.</p></div>
+</div>
+
+<h3><span class="n">1.7</span>How the first work steps toward these goals <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h3>
+<p>We start at function level on x86-64, with tests and a C reference for each task, because that is the smallest setting in which execution, ABI checks and a compiler baseline can all be measured. If a model can emit leaf functions that pass the harness and come close to gcc <code>-O2</code> on held-out tasks, later work can add search, other ISAs and whole programs. The first work product is the harness, the compiler-parameter sweep that turns many verified variants into training data, and a scale-up to 3,000 ExeBench tasks, reported in the <a href="../report-1/index.html">technical report</a>.</p>
+<div class="tw"><table><caption>Table 1. Goals and what the first work product tests.</caption>
+<thead><tr><th>Goal</th><th>What the first work tests</th><th>Status</th></tr></thead><tbody>
+<tr><td>1.1 English to machine code</td><td>A task format of English spec, signature, tests and a C reference, with gcc/clang/rustc assembly as the first targets to imitate</td><td><span class="tag">written</span> 3,000 scaled tasks plus 20 starters</td></tr>
+<tr><td>1.2 Correctness by execution</td><td>Assemble, emulate under Unicorn (QEMU optional), score pass@k, reject stubs</td><td><span class="tag">written</span> see <a href="../report-1/index.html#s2">report §2</a></td></tr>
+<tr><td>1.3 Compiler-path control</td><td>Same base model writes C, compiled gcc <code>-O2</code>, run through the same harness on held-out HumanEval and MBPP style tasks</td><td><span class="tag run">in progress</span> with the first LoRA run</td></tr>
+<tr><td>1.4 Propose and verify</td><td>Compiler sweeps produce unique verified variants, SFT rows and preference pairs; a later loop would sample and repair model output</td><td><span class="tag">written</span> sweep data; model-in-the-loop later</td></tr>
+<tr><td>1.5 Safe execution</td><td>Unicorn default, QEMU user-mode as a second backend, syscall hooks, caps, a stretch seccomp sandbox; no native run of generated code</td><td><span class="tag">written</span> see <a href="../report-1/index.html#s2">report §2</a> and <a href="../report-1/index.html#s6">§6</a></td></tr>
+<tr><td>1.6 Modest hardware</td><td>LoRA of a 1.5B code model, then optional 7B QLoRA, on one 24&nbsp;GB 3090</td><td><span class="tag run">in progress</span> see <a href="../report-1/index.html#s7">report §7</a></td></tr>
+</tbody></table></div>
+
+<h2 id="s2"><span class="n">2</span>Direct versus via source <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h2>
+<h3><span class="n">2.1</span>Claim <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h3>
+<div class="callout"><p>For general "write me a program" work, English to C to a compiler should dominate for the foreseeable future. E2M treats that path as the baseline to beat. Direct generation is worth studying in niches where a toolchain is missing, where search over machine code can beat the compiler on a small kernel, or where the compiler itself is the object of research. The method is the same in every case: the model proposes, and an assembler, an emulator and tests judge the proposal.</p></div>
+
+<h3><span class="n">2.2</span>The case for going through source <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h3>
+<p>This is the strong default, and the reasons are ordinary rather than ideological:</p>
+<ul>
+<li><strong>Data.</strong> Code models are trained on huge amounts of source — The Stack is 3&nbsp;TB of permissively licensed code [6] — and on comparatively little assembly.</li>
+<li><strong>Review.</strong> A human can read C. Intent review happens at the C level, which is the cheapest place to catch an ambiguous specification.</li>
+<li><strong>Optimization for free.</strong> Mature compilers give semantics-preserving optimization, and CompCert shows that this can be proved for a C subset [16].</li>
+<li><strong>Retargeting.</strong> A new ISA is a compiler flag. Direct generation needs training data per ISA.</li>
+<li><strong>Length.</strong> Assembly is much longer than the source that produced it. In a five-function smoke test by the author (concept note, 10 November 2026), 449 characters of C became 1,429 to 3,588 characters of gcc assembly, depending on the <code>-O</code> level, and <code>.text</code> size varied 4.5× across those levels. Tokens are only a rough proxy, but the direction is clear.</li>
+<li><strong>Published neural compilation is mixed.</strong> Armengol-Estapé and O'Boyle (2021) call their C-to-x86 results "relatively weak" [7]. The 2025 CompilerEval (LaaC) paper reports basic ability but low compilation success rates [12]. NeuComBack reports 44% x86-64 correctness for a baseline workflow [11]. LLM Compiler reports 45% disassembly round trip and 14% exact match [8].</li>
+</ul>
+
+<h3><span class="n">2.3</span>The case for going direct <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h3>
+<ul>
+<li><strong>No toolchain on the target.</strong> This matters for new or odd ISAs, firmware and embedded systems.</li>
+<li><strong>Search can beat the compiler on small kernels.</strong> STOKE matched or beat gcc <code>-O3</code> and icc <code>-O3</code> on small loop-free x86-64 kernels [14]. AlphaDev found sorting routines for 3 to 5 elements that were merged into LLVM libc++ [15]. SuperCoder reports an RL-tuned 7B model reaching 96.0% correctness and 1.47× average speedup over gcc <code>-O3</code> on a benchmark of 8,072 assembly programs [13].</li>
+<li><strong>Joint trade-offs.</strong> A single model could trade size, speed and the specification together, instead of only through compiler flags.</li>
+<li><strong>It is a self-hosted research question</strong> that can be studied on one workstation.</li>
+</ul>
+
+<h3><span class="n">2.4</span>What would make the claim wrong <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h3>
+<ul>
+<li>If direct generation stays well behind the NL-to-C-to-gcc control on pass rate and never wins on size or speed, the program collapses to "use the compiler."</li>
+<li>If supervised fine-tuning only imitates gcc, and search or reinforcement learning cannot be made to work on this hardware, there is no path past the imitation ceiling.</li>
+<li>If specifications stay ambiguous and tests stay weak, passing the harness will not mean the code does what was asked.</li>
+</ul>
+<p>The first LoRA run, now in progress, tests a slice of the first of these at small scale (<a href="../report-1/index.html#s7">report §7</a>).</p>
+
+<h2 id="s3"><span class="n">3</span>Approach <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h2>
+<h3><span class="n">3.1</span>Four routes <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h3>
+<div class="tw"><table><caption>Table 2. Candidate architectures. Every claim about A–C is compared with D.</caption>
+<thead><tr><th>Route</th><th>What it does</th><th>Role</th></tr></thead><tbody>
+<tr><td>A. Direct assembly</td><td>Specification and signature to x86-64 assembly text, then <code>as</code>, then tests</td><td>Simplest; assembler gives cheap syntax feedback; long outputs and easy ABI mistakes</td></tr>
+<tr><td>B. Via LLVM IR</td><td>Specification to LLVM IR, then <code>llc</code></td><td>Typed SSA and retargeting; Alive2 can check IR transformations [18]; starts to look like a compiler front end</td></tr>
+<tr><td>C. Hybrid loop</td><td>Generate <em>N</em> candidates (A or B), assemble, run tests, feed errors back; optional superoptimization with equivalence checking; optional RL on correctness plus size or speed</td><td>The intended mature shape, following Self-Debug, compiler-feedback training, NeuComBack and SuperCoder [11, 13, 22, 23]</td></tr>
+<tr><td>D. Control</td><td>Same base model, English to C to gcc or clang <code>-O2</code>, scored on the same harness</td><td>The baseline every other route must beat or lose to honestly</td></tr>
+</tbody></table></div>
+<p>The recommendation is to build D and A on the same harness first, then add the C loop. Route B is reserved for the case where A struggles with the ABI or with retargeting.</p>
+
+<h3><span class="n">3.2</span>Data <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h3>
+<p>No public dataset pairs English specifications with machine code, so the English side has to be synthesized. The plan, now partly executed (<a href="../report-1/index.html#s4">report §4–5</a>), is:</p>
+<ol>
+<li><strong>Seed functions</strong> from ExeBench executable splits [19] and, if they pass the filters, AnghaBench [20]. HumanEval-C and MBPP-C style tasks are held out of training.</li>
+<li><strong>Specifications</strong> written by a local open model from the C, keeping the signature. Expected outputs always come from running the reference, never from the model. Tasks where a stub such as <code>return 0</code> would pass are dropped.</li>
+<li><strong>A compiler sweep</strong> over gcc, clang and, where a Rust reference exists, rustc, across optimization levels, <code>-march</code> and CPU, feature bundles and codegen toggles, with optional random LLVM pass orderings. Variants are executed in the harness, deduplicated by SHA-256 of the function bytes, and ranked by size and instruction count to build an SFT set and preference pairs.</li>
+</ol>
+<p>Licensing of the underlying GitHub-derived functions has to be checked before any release. The Stack is filtered for permissive licenses [6]; ExeBench and AnghaBench are not, function by function, in the same way.</p>
+
+<h3><span class="n">3.3</span>First prototype <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h3>
+<p>The first training run is a LoRA fine-tune of a small open code model — starting with Qwen2.5-Coder-1.5B [25], with Qwen3-1.7B as a cached fallback — from English specification and signature to assembly text. That text is assembled and run through the harness; anything that does not assemble is a failure. The run is scored on pass@1 and pass@5, and on size and instruction count against gcc <code>-O2</code>, on a held-out HumanEval and MBPP style set, next to two baselines: the base model with no LoRA, and route D. A 7B QLoRA [26] is the next increment if the 1.5B run is promising and memory allows. Sequence length is the binding constraint, because assembly is long.</p>
+
+<h2 id="s4"><span class="n">4</span>Related work <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h2>
+<p>This is a short orientation, not a survey. Numbers below are taken from the cited abstracts or from the concept note, which opened those papers on 10 November 2026. They are not re-scored here. Compare numbers only within one paper: evaluation setups differ.</p>
+
+<h3><span class="n">4.1</span>Natural language to code <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h3>
+<p>Codex and HumanEval showed that repeated sampling plus tests is a strong lever: 28.8% pass@1, and 70.2% with 100 samples per problem [1]. MBPP has 974 entry-level Python tasks; a 137B few-shot model solved 59.6% [2]. AlphaCode reached the top 54.3% on average in Codeforces contests with 5,000-plus participants by sampling at large scale, filtering and clustering [3]. StarCoder, trained on The Stack, reached about 40% pass@1 on HumanEval when prompted [4]. We do not quote later leaderboard numbers that we have not opened. EvalPlus showed that HumanEval-style benchmarks have false positives and added many more tests [5]. Multilingual ports (MultiPL-E, HumanEval-X, MBXP) give English specifications with tests in C-family languages [21, 27]. The implication for E2M is twofold: natural language to a high-level language is solved well enough at small scale that skipping it needs a stated reason (§2), and the same sample-and-filter loop transfers directly, because assembly can be tested by running it.</p>
+
+<h3><span class="n">4.2</span>Neural compilation and assembly generation <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h3>
+<p>Armengol-Estapé and O'Boyle ran an early Transformer experiment on C to x86 and called the results relatively weak, with data and code released [7]. Meta's LLM Compiler continued-trains Code Llama on 546B tokens of LLVM IR and assembly (7B and 13B, under a bespoke commercial license); fine-tuned variants reach 77% of an autotuner's code-size gains, 45% disassembly round trip and 14% exact match [8]. Related work trains models to predict optimization passes or to use compiler-generated feedback [9, 23]. LEGO-Compiler decomposes programs into blocks, checks each with external tests, and reports over 99% on ExeBench and 97.9% on AnsiBench — with heavy scaffolding [10]. QiMeng-NeuComBack is an IR-to-assembly benchmark (200 ExeBench cases plus 151 TSVC cases) on which a self-evolving prompt method raises x86-64 correctness from 44% to 64% and aarch64 from 36% to 58%; 14 of 16 correct x86-64 programs beat clang <code>-O3</code> [11]. CompilerEval (LaaC) finds that mainstream models have a basic ability to emit assembly but low success rates, and argues that targeted training and prompting help [12]. IRCoder and TransCoder-IR show that training on compiler IR helps multilingual code models and translation [28, 29]. The pattern is consistent: models can produce assembly, but reliable results come from scaffolding (decompose, test, retry), not from one-shot generation.</p>
+
+<h3><span class="n">4.3</span>Neural decompilation <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h3>
+<p>The inverse problem is a source of methods and of (source, binary) pairs. LLM4Decompile (open 1.3B to 33B models) reports large relative gains in re-executability over GPT-4o and Ghidra on HumanEval and ExeBench [30]. Nova is an assembly-specialized model with hierarchical attention, motivated by assembly's low information density and by optimization diversity [31]. SLaDe is a small Transformer decompiler evaluated on more than 4,000 ExeBench functions on two ISAs and two <code>-O</code> levels, and reports up to 6× the accuracy of Ghidra [32]. Guess &amp; Sketch guides transpilation with a language model and a symbolic repair step [33]. LLM4Decompile and Nova report different numbers for the same model family because their evaluation setups differ. For E2M, the useful residue is how to build paired data at scale and how to tokenise assembly.</p>
+
+<h3><span class="n">4.4</span>Superoptimization <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h3>
+<p>STOKE used MCMC search over loop-free x86-64, with correctness and speed in the cost function and with equivalence checking, and matched or beat gcc <code>-O3</code> and icc <code>-O3</code>, sometimes expert assembly [14]. Souper is a synthesizing superoptimizer for LLVM IR that finds missed peephole optimizations [34]. A 2016 paper learned a neural proposal distribution for that kind of search [35]. AlphaDev trained reinforcement learning on an "AssemblyGame" and produced sort-3, sort-4 and sort-5 routines that were adopted into LLVM libc++; the paper reports up to 70% faster for short sequences and about 1.7% for sequences over 250,000 elements [15]. SuperCoder treats language models as assembly superoptimizers, with an RL reward of correctness plus speed; Qwen2.5-Coder-7B-Instruct went from 61.4% correctness and 1.10× speedup to 96.0% and 1.47×, averaged over gcc <code>-O3</code>, on 8,072 programs, against a strongest zero-shot baseline in that paper of 51.5% test pass and 1.43× [13]. LLM-Vectorizer writes SIMD code with test feedback (1.1× to 9.4× speedups) and used Alive2 to verify 38.2% of vectorizations as correct on TSVC [36]. Source-level relatives include PIE (performance-improving edits) and Supersonic [37, 38]. This is the strongest evidence for E2M's value: a model proposes, tools verify, on small kernels.</p>
+
+<h3><span class="n">4.5</span>Program synthesis and verified compilation <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h3>
+<p>CompCert is a machine-checked proof that compiled code preserves C semantics [16]. That is the gold standard, but it is a proof about a compiler, not about a neural model. Translation validation — do not prove the compiler, validate each run — is the right pattern for a neural compiler [17]. Alive2 does bounded translation validation for LLVM IR with an SMT solver and found 47 bugs in LLVM's own tests, 28 of them later fixed [18]. STOKE includes x86-64 equivalence checking that can go from tests to bounded checks to full verification on loop-free code [14]. Tests give confidence; translation validation gives guarantees for a subset (loop-free or bounded loops). E2M should report which tier each result reached: tests only, fuzzed, or proved. The first prototype reports only the tests-only tier.</p>
+
+<h3><span class="n">4.6</span>Datasets <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h3>
+<p>ExeBench has 4.5M compilable and 700k executable real C functions with I/O examples; the v1.01 splits include <code>train_real_simple_io</code> (43.8k), synthetic I/O splits, and <code>test_real</code> (2.1k) [19]. AnghaBench has over a million compilable C functions mined from public repositories [20]. ComPile is a 182B-token LLVM-IR dataset from production Rust, Swift, Julia and C/C++ [39]. The Stack and The Stack v2 supply permissively licensed source [6, 40]. HumanEval-X, HumanEval-Decompile, MBPP, MBXP, MultiPL-E and EvalPlus supply specifications and tests for evaluation [1, 2, 5, 21, 27, 30]. SuperCoder's 8,072-program set is the nearest ready-made assembly optimization benchmark; its provenance and license should be checked before use. The gap is the same in all of these: none pair English specifications with machine code.</p>
+
+<h2 id="s5"><span class="n">5</span>Safety <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h2>
+<div class="callout"><p>Generated machine code is never executed on the host CPU. The only execution path is an emulator (Unicorn by default [41], QEMU user-mode as an optional second backend [42]) or, for a stretch whole-program runner, a child process with resource limits and a seccomp allow-list. That rule is part of the research design, not only a property of one machine.</p></div>
+<p>The function-level harness maps code, stack and data pages, pushes a sentinel return address, and stops when <code>ret</code> hits it. It enforces an instruction cap and a wall-time cap, hooks and rejects <code>syscall</code>, <code>int</code> and <code>sysenter</code>, and treats unmapped or permission faults as failures. Callee-saved registers (rbx, rbp, r12–r15, rsp) must be restored, and the stack must be 16-byte aligned at calls. Out-of-bounds writes are flagged through memory hooks; control flow must not jump outside the function, modify its own code, or take an indirect call to an unmapped address. A crash report (fault address, rip, a disassembly window, registers) is recorded; an exception must not escape the harness.</p>
+<p>Unicorn cannot enforce sub-page bounds faithfully, so buffers use page granularity and a guard page; an off-by-one that stays on the same page can still succeed. That is a known limitation, not a solved problem. QEMU user-mode is used where Unicorn cannot run a variant faithfully (in particular AVX2, FMA and non-destructive VEX). Native execution under seccomp and ptrace is noted as a possible option and is not the default backend. For any future native path, the same isolation rules would apply.</p>
+
+<h2 id="s6"><span class="n">6</span>Evaluation <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h2>
+<p>Functional correctness is pass@k with the unbiased estimator from the Codex paper [1]: sample <em>n</em> ≥ <em>k</em>, count correct <em>c</em>, and report at least pass@1 and pass@5 (the concept note also asked for pass@10). Anything that does not assemble is a failure. Metrics are reported against gcc <code>-O2</code> as the size and speed reference, and also against <code>-Os</code> for size:</p>
+<ul>
+<li>Assembles, and passes the tests, including ABI checks.</li>
+<li>Code size in <code>.text</code> bytes, relative to the compiler baseline.</li>
+<li>Dynamic instruction count in the emulator, summed over the task's tests. This is a retire-count proxy, not <code>perf</code> cycles; native cycles are future work.</li>
+<li>Failure categories: does not assemble, crash, wrong answer, timeout, ABI violation, unsupported instruction.</li>
+</ul>
+<p>The strongest control is route D on the same held-out set. HumanEval-C and MBPP-C style tasks are held out of training and decontaminated by name and by normalized body. A passing test on a bad specification means nothing, so a sample of specifications should be checked by a person. Differential fuzzing against the reference, with more inputs than the training tests, follows the EvalPlus lesson [5]. Equivalence checking (STOKE-style or Alive2 on IR) is the strongest tier and is not in the first prototype; when it is added, each pass should be labeled tests-only, fuzzed, or proved.</p>
+
+<h2 id="s7"><span class="n">7</span>Roadmap <span class="upd" title="Section last changed">updated 14 Nov 2026</span></h2>
+<div class="tw"><table><caption>Table 3. Roadmap and status as of 11 November 2026.</caption>
+<thead><tr><th>Step</th><th>What</th><th>Status</th></tr></thead><tbody>
+<tr><td>7.1 Execution harness</td><td>Assemble AT&amp;T, Intel or hex; Unicorn x86-64 SysV runner with caps, ABI checks and crash reports; pass@k scorer; fuzz; stretch seccomp sandbox</td><td><span class="tag">written</span> see <a href="../report-1/index.html#s2">report §2</a></td></tr>
+<tr><td>7.2 Starter-task sweep</td><td>Twenty hand-written functions, swept through gcc, clang, rustc and random LLVM pipelines, then deduplicated and ranked</td><td><span class="tag">written</span> see <a href="../report-1/index.html#s3">report §3</a></td></tr>
+<tr><td>7.3 Scale-up</td><td>ExeBench functions filtered through the harness; English specifications from a local qwen3:14b; a reduced gcc/clang sweep</td><td><span class="tag">written</span> 3,000 tasks; see <a href="../report-1/index.html#s4">report §4–5</a></td></tr>
+<tr><td>7.4 AVX-capable emulator</td><td>A second backend so vectorized variants are not dropped; Unicorn stays the default</td><td><span class="tag">written</span> QEMU 8.2 user-mode; see <a href="../report-1/index.html#s6">report §6</a></td></tr>
+<tr><td>7.5 First LoRA</td><td>Qwen2.5-Coder-1.5B (or cached Qwen3-1.7B) on the scaled SFT set; evaluate on held-out HumanEval and MBPP style tasks against the base model and the NL-to-C-to-gcc <code>-O2</code> control; optional 7B QLoRA</td><td><span class="tag run">in progress</span> no results yet; see <a href="../report-1/index.html#s7">report §7</a></td></tr>
+<tr><td>7.6 Repair loop</td><td>Best-of-<em>n</em> sampling, test filtering, and a loop that feeds assemble errors and test failures back</td><td><ins class="rev" data-rev="3" data-date="2026-11-14"><span class="tag run">in progress</span> first results in <a href="../report-2/index.html">technical report 2</a></ins></td></tr>
+<tr><td>7.7 Size and speed beyond imitation</td><td>Train on preference pairs, then a SuperCoder-style reward of correctness plus size or speed, with equivalence checking where it applies</td><td><span class="tag plan">planned</span></td></tr>
+<tr><td>7.8 aarch64 and whole programs</td><td>Retarget the harness; QEMU user-mode already points at a path for a second ISA and for whole programs</td><td><span class="tag plan">planned</span></td></tr>
+</tbody></table></div>
+
+<h2 id="s8"><span class="n">8</span>Open questions <span class="upd" title="Section last changed">updated 11 Nov 2026</span></h2>
+<ol>
+<li><strong>Does direct generation ever beat the compiler path?</strong> On pass rate, on size, on speed, or only on targets with no compiler?</li>
+<li><strong>Imitation ceiling.</strong> Supervised training on compiler output teaches the model to imitate gcc. What reward, search or verification is enough to go past that, on one 24&nbsp;GB GPU?</li>
+<li><strong>Specification adequacy.</strong> How should we detect a specification that omits behavior the tests do not cover, other than by occasional human review?</li>
+<li><strong>Undefined behavior in C seeds.</strong> A compiler may exploit it, so the "right" assembly is not unique. Sanitizer-clean seeds are a start; they are not a proof.</li>
+<li><strong>ABI and calling convention.</strong> Tests on a single harness can miss clobbers and alignment bugs that surface on a different caller.</li>
+<li><strong>Long functions.</strong> Assembly is long. Is block decomposition (as in LEGO-Compiler) necessary, or will short leaf functions be enough to learn a useful prior?</li>
+<li><strong>Emulator fidelity.</strong> Unicorn 2.1.4 cannot run AVX2, FMA or non-destructive VEX faithfully. QEMU is slower. How should a training set weigh coverage against throughput?</li>
+<li><strong>Equivalence versus tests.</strong> When is "passed the tests" enough, and when should a result be withheld until translation validation?</li>
+<li><strong>Contamination and licensing.</strong> Held-out HumanEval and MBPP tasks may already be in the base model's pretraining. ExeBench and AnghaBench come from GitHub; what can be released?</li>
+<li><strong>Is E2M a tool or a probe?</strong> If it is only a probe, a clear loss to the C baseline is still a result. If it is a tool, that loss is a stop.</li>
+</ol>
+
+<h2 id="cite">How to cite</h2>
+<p>This is a working paper. It is shared so others can read, discuss and cite it, and it is updated as the work moves forward. Please cite the revision you read, give its date, and say when you accessed the page. Earlier revisions are listed in the revision history. Results here have not been peer reviewed.</p>
+<p class="cite-ref">Wilson, B. (2026). <em>E2M: English to machine code</em> (Working paper, Revision 3, 14 November 2026). Abundant Frontier Institute. <a href="https://abundantfrontier.org/lab/e2m/concept/">https://abundantfrontier.org/lab/e2m/concept/</a></p>
+<pre class="cite-bib"><code>@techreport{wilson2026e2mconcept,
+  author      = {Wilson, Boyd},
+  title       = {E2M: English to machine code},
+  institution = {Abundant Frontier Institute},
+  type        = {Working paper},
+  number      = {Revision 3},
+  year        = {2026},
+  month       = {nov},
+  url         = {https://abundantfrontier.org/lab/e2m/concept/},
+  note        = {Living document; last updated 14 November 2026. Accessed YYYY-MM-DD}
+}</code></pre>
+
+<h2 id="refs">References</h2>
+<ol class="refs">
+<li>Mark Chen et al. <em>Evaluating Large Language Models Trained on Code.</em> 2021. <a href="https://arxiv.org/abs/2107.03374">arXiv:2107.03374</a>.</li>
+<li>Jacob Austin et al. <em>Program Synthesis with Large Language Models.</em> 2021. <a href="https://arxiv.org/abs/2108.07732">arXiv:2108.07732</a>.</li>
+<li>Yujia Li et al. <em>Competition-Level Code Generation with AlphaCode.</em> 2022. <a href="https://arxiv.org/abs/2203.07814">arXiv:2203.07814</a>.</li>
+<li>Raymond Li et al. <em>StarCoder: may the source be with you!</em> 2023. <a href="https://arxiv.org/abs/2305.06161">arXiv:2305.06161</a>.</li>
+<li>Jiawei Liu et al. <em>Is Your Code Generated by ChatGPT Really Correct? Rigorous Evaluation of Large Language Models for Code Generation</em> (EvalPlus). 2023. <a href="https://arxiv.org/abs/2305.01210">arXiv:2305.01210</a>.</li>
+<li>Denis Kocetkov et al. <em>The Stack: 3 TB of permissively licensed source code.</em> 2022. <a href="https://arxiv.org/abs/2211.15533">arXiv:2211.15533</a>.</li>
+<li>Jordi Armengol-Estapé and Michael F. P. O'Boyle. <em>Learning C to x86 Translation.</em> 2021. <a href="https://arxiv.org/abs/2108.07639">arXiv:2108.07639</a>.</li>
+<li>Chris Cummins et al. <em>Meta Large Language Model Compiler: Foundation Models of Compiler Optimization.</em> 2024. <a href="https://arxiv.org/abs/2407.02524">arXiv:2407.02524</a>.</li>
+<li>Chris Cummins et al. <em>Large Language Models for Compiler Optimization.</em> 2023. <a href="https://arxiv.org/abs/2309.07062">arXiv:2309.07062</a>.</li>
+<li>Shuoming Zhang et al. <em>LEGO-Compiler: Enhancing Neural Compilation Through Translation Composability.</em> 2025. <a href="https://arxiv.org/abs/2505.20356">arXiv:2505.20356</a>.</li>
+<li>Hainan Fang et al. <em>QiMeng-NeuComBack: Self-Evolving Translation from IR to Assembly Code.</em> 2025. <a href="https://arxiv.org/abs/2511.01183">arXiv:2511.01183</a>.</li>
+<li>Hongbin Zhang et al. <em>Exploring the Feasibility of End-to-End Large Language Model as a Compiler</em> (CompilerEval / LaaC). 2025. <a href="https://arxiv.org/abs/2511.04132">arXiv:2511.04132</a>.</li>
+<li>Anjiang Wei et al. <em>SuperCoder: Assembly Program Superoptimization with Large Language Models.</em> 2025. <a href="https://arxiv.org/abs/2505.11480">arXiv:2505.11480</a>.</li>
+<li>Eric Schkufza, Rahul Sharma and Alex Aiken. <em>Stochastic Superoptimization.</em> ASPLOS 2013. <a href="https://dl.acm.org/doi/10.1145/2451116.2451150">doi:10.1145/2451116.2451150</a>. Code: <a href="https://github.com/StanfordPL/stoke">StanfordPL/stoke</a>.</li>
+<li>Daniel J. Mankowitz et al. <em>Faster sorting algorithms discovered using deep reinforcement learning</em> (AlphaDev). <em>Nature</em> 618, 2023. <a href="https://www.nature.com/articles/s41586-023-06004-9">doi:10.1038/s41586-023-06004-9</a>.</li>
+<li>Xavier Leroy. <em>Formal verification of a realistic compiler</em> (CompCert). <em>Communications of the ACM</em> 52(7), 2009. <a href="https://cacm.acm.org/research/formal-verification-of-a-realistic-compiler/">CACM</a>. Project: <a href="https://compcert.org/">compcert.org</a>.</li>
+<li>Amir Pnueli, Michael Siegel and Eli Singerman. <em>Translation Validation.</em> TACAS 1998. <a href="https://doi.org/10.1007/BFb0054170">doi:10.1007/BFb0054170</a>.</li>
+<li>Nuno P. Lopes et al. <em>Alive2: Bounded Translation Validation for LLVM.</em> PLDI 2021. <a href="https://dl.acm.org/doi/10.1145/3453483.3454030">doi:10.1145/3453483.3454030</a>. Code: <a href="https://github.com/AliveToolkit/alive2">AliveToolkit/alive2</a>.</li>
+<li>Jordi Armengol-Estapé, Jackson Woodruff, Alexander Brauckmann, José Wesley de Souza Magalhães and Michael F. P. O'Boyle. <em>ExeBench: An ML-Scale Dataset of Executable C Functions.</em> MAPS 2022. <a href="https://dl.acm.org/doi/10.1145/3520312.3534867">doi:10.1145/3520312.3534867</a>. Data: <a href="https://huggingface.co/datasets/jordiae/exebench">jordiae/exebench</a>.</li>
+<li>AnghaBench. <a href="https://github.com/brenocfg/AnghaBench">github.com/brenocfg/AnghaBench</a>.</li>
+<li>Federico Cassano et al. <em>MultiPL-E: A Scalable and Polyglot Approach to Benchmarking Neural Code Generation.</em> 2022. <a href="https://arxiv.org/abs/2208.08227">arXiv:2208.08227</a>.</li>
+<li>Xinyun Chen et al. <em>Teaching Large Language Models to Self-Debug.</em> 2023. <a href="https://arxiv.org/abs/2304.05128">arXiv:2304.05128</a>.</li>
+<li><em>Compiler Generated Feedback for LLMs.</em> 2024. <a href="https://arxiv.org/abs/2403.14714">arXiv:2403.14714</a>.</li>
+<li>Edward J. Hu et al. <em>LoRA: Low-Rank Adaptation of Large Language Models.</em> 2021. <a href="https://arxiv.org/abs/2106.09685">arXiv:2106.09685</a>.</li>
+<li>Binyuan Hui et al. <em>Qwen2.5-Coder Technical Report.</em> 2024. <a href="https://arxiv.org/abs/2409.12186">arXiv:2409.12186</a>.</li>
+<li>Tim Dettmers et al. <em>QLoRA: Efficient Finetuning of Quantized LLMs.</em> 2023. <a href="https://arxiv.org/abs/2305.14314">arXiv:2305.14314</a>.</li>
+<li>Qinkai Zheng et al. <em>CodeGeeX: A Pre-Trained Model for Code Generation with Multilingual Benchmarking on HumanEval-X.</em> 2023. <a href="https://arxiv.org/abs/2303.17568">arXiv:2303.17568</a>.</li>
+<li><em>IRCoder: Intermediate Representations Make Language Models Robust Multilingual Code Generators.</em> 2024. <a href="https://arxiv.org/abs/2403.03894">arXiv:2403.03894</a>.</li>
+<li><em>Code Translation with Compiler Representations</em> (TransCoder-IR). 2022. <a href="https://arxiv.org/abs/2207.03578">arXiv:2207.03578</a>.</li>
+<li><em>LLM4Decompile: Decompiling Binary Code with Large Language Models.</em> 2024. <a href="https://arxiv.org/abs/2403.05286">arXiv:2403.05286</a>. Code: <a href="https://github.com/albertan017/LLM4Decompile">albertan017/LLM4Decompile</a>.</li>
+<li><em>Nova: Generative Language Models for Assembly Code with Hierarchical Attention and Contrastive Learning.</em> 2023. <a href="https://arxiv.org/abs/2311.13721">arXiv:2311.13721</a>.</li>
+<li><em>SLaDe: A Portable Small Language Model Decompiler for Optimized Assembly.</em> 2023. <a href="https://arxiv.org/abs/2305.12520">arXiv:2305.12520</a>.</li>
+<li><em>Guess &amp; Sketch: Language Model Guided Transpilation.</em> 2023. <a href="https://arxiv.org/abs/2309.14396">arXiv:2309.14396</a>.</li>
+<li><em>Souper: A Synthesizing Superoptimizer.</em> 2017. <a href="https://arxiv.org/abs/1711.04422">arXiv:1711.04422</a>. Code: <a href="https://github.com/google/souper">google/souper</a>.</li>
+<li><em>Learning to Superoptimize Programs.</em> 2016. <a href="https://arxiv.org/abs/1611.01787">arXiv:1611.01787</a>.</li>
+<li><em>LLM-Vectorizer: LLM-based Verified Loop Vectorizer.</em> 2024. <a href="https://arxiv.org/abs/2406.04693">arXiv:2406.04693</a>.</li>
+<li><em>Learning Performance-Improving Code Edits</em> (PIE). 2023. <a href="https://arxiv.org/abs/2302.07867">arXiv:2302.07867</a>.</li>
+<li><em>Supersonic: Learning to Generate Source Code Optimizations in C/C++.</em> 2023. <a href="https://arxiv.org/abs/2309.14846">arXiv:2309.14846</a>.</li>
+<li><em>ComPile: A Large IR Dataset from Production Sources.</em> 2023. <a href="https://arxiv.org/abs/2309.15432">arXiv:2309.15432</a>.</li>
+<li>Anton Lozhkov et al. <em>StarCoder 2 and The Stack v2: The Next Generation.</em> 2024. <a href="https://arxiv.org/abs/2402.19173">arXiv:2402.19173</a>.</li>
+<li>Unicorn Engine. <a href="https://www.unicorn-engine.org/">unicorn-engine.org</a>.</li>
+<li>QEMU user mode. <a href="https://www.qemu.org/docs/master/user/main.html">qemu.org/docs/master/user/main.html</a>.</li>
+</ol>
+<p class="small">Related tooling mentioned in the text: <a href="https://llvm.org/docs/CommandGuide/llc.html"><code>llc</code></a>, <a href="https://github.com/huggingface/peft">PEFT</a>. Guaranteed Guess (assembly-to-assembly translation inside a testing framework, 2025) is adjacent work: <a href="https://arxiv.org/abs/2506.14606">arXiv:2506.14606</a>.</p>
+
+<section class="revhist" id="revhist">
+<h2>Revision history</h2>
+<ol>
+<li><b>Revision 3</b> <span class="when">14 November 2026 (America/Los_Angeles)</span><br>Roadmap row 7.6 (repair loop) now links to <a href="../report-2/index.html">technical report 2</a> and is marked in progress. No other change.</li>
+<li><b>Revision 2</b> <span class="when">11 November 2026 (America/Los_Angeles)</span><br>Corrected SuperCoder figures in §2.3 and §4.4 to 96.0% correctness and 1.47× speedup, per the latest arXiv version of arXiv:2505.11480 (earlier version reported 95.0% and 1.46×). Byline now leads with Abundant Frontier Institute. US spelling throughout.</li>
+<li><b>Revision 1</b> <span class="when">11 November 2026 (America/Los_Angeles)</span><br>First living-paper draft of the E2M concept note, in the Abundant Frontier Institute page format. No experimental results are claimed here; numbers quoted from prior work are those opened in the 10 November 2026 concept note, plus title and author checks of the cited preprints. Points to technical report 1 for the harness, sweeps and scale-up.</li>
+</ol>
+</section>
+
+<footer>Living paper · Revision 3 · Last updated 14 November 2026 · Abundant Frontier Institute Lab · Working paper · <a href="../report-1/index.html">Technical report 1</a></footer>
+</div>
+
+</main>
+</body>
+</html>

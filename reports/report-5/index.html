@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E2M technical report 5: a matched C control, a gcc hybrid, and where the model's assembly goes wrong (living paper) · Abundant Frontier Institute</title>
+<meta name="description" content="Living technical report: a matched 7B C-only control, a hybrid in which the model writes C and gcc lowers it, the completed C-then-assembly held-out repair loop, and a classification of the 42 held-out tasks whose C passes and whose assembly fails.">
+<meta name="citation_title" content="Let gcc do the lowering: a matched C control, a gcc hybrid, and where the model's assembly goes wrong">
+<meta name="citation_author" content="Wilson, Boyd">
+<meta name="citation_publication_date" content="2026/11/21">
+<meta name="citation_technical_report_institution" content="Abundant Frontier Institute">
+<meta name="citation_technical_report_number" content="Revision 1">
+<meta name="citation_public_url" content="https://abundantfrontier.org/lab/e2m/report-5/">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<nav class="nav"><div class="nav-in">
+<a class="brand" href="https://abundantfrontier.org/"><span class="e">🌾</span><span>Abundant Frontier Institute</span></a>
+<div class="nav-links"><a href="/lab/">Lab</a><a href="../concept/index.html" >Concept paper</a><a href="../report-1/index.html" >Technical report 1</a><a href="../report-2/index.html" >Technical report 2</a><a href="../report-3/index.html" >Technical report 3</a><a href="../report-4/index.html" >Technical report 4</a><a href="../report-5/index.html" class="cur">Technical report 5</a><span class="badge">Working paper</span></div>
+</div></nav>
+<main class="page">
+<header class="title">
+<div class="kicker">Technical report · fifth work product</div>
+<h1>Let gcc do the lowering: a matched C control, a gcc hybrid, and where the model's assembly goes wrong</h1>
+<p class="sub">Technical report 5 of the <em>E2M</em> program: a 7B QLoRA trained to write C only, matched to the C-then-assembly model; a hybrid in which the model writes C and gcc lowers it; the completed C-then-assembly held-out repair loop; and a classification of the held-out tasks where the model's C passes and its own assembly fails.</p>
+<p class="byline"><strong>Boyd Wilson</strong>, Abundant Frontier Institute and Omnibond Systems</p>
+<p class="meta">Living paper · Revision 1 · Last updated 21 November 2026 · Companion to the <a href="../concept/index.html">E2M concept paper</a> and technical reports <a href="../report-1/index.html">1</a>, <a href="../report-2/index.html">2</a>, <a href="../report-3/index.html">3</a> and <a href="../report-4/index.html">4</a> · All results are from one 24 GB RTX 3090 workstation · Code and data: <a href="https://github.com/abundantfrontier/e2m">github.com/abundantfrontier/e2m</a></p>
+</header>
+
+<div class="draftbar"><b>Working paper.</b> You may cite it; see <a href="#cite">How to cite</a>. Numbers are copied from <code>runs/round4/SUMMARY.md</code>, <code>runs/round4/RESULTS.json</code>, <code>runs/round4/failure_analysis.md</code> and <code>failure_tally.json</code>, <code>logs/round4.done</code>, <code>runs/c-only-7b/summary.json</code> and <code>runs/loop-c-then-asm-heldout/summary.json</code>, and (for older rows) Report 4, all on the 3090; rows for lora2, qlora7b-v2, c-then-asm and the 1.5B C control were copied by the pipeline from <code>runs/round3/RESULTS.json</code> and were not re-scored. Counts that are not in those summaries were tallied from the raw files (<code>runs/round4/hybrid.jsonl</code>, <code>runs/c-then-asm/eval.jsonl</code>, the loop <code>loop.jsonl</code> files) and are marked "tally" where they appear.</div>
+
+<div class="abstract"><h2>Abstract</h2>
+<p>Report 4 found that a 7B model trained to write C and then assembly writes correct C for 48 of the 78 held-out tasks but correct assembly for only 7, and that the comparison with the C control mixed model size with fine-tuning. Round 4 ran four parts on a 30 GPU-hour budget and used 7.81 hours. <strong>Part A</strong> trained the same 7B base on the same tasks with C as the only target. Compiled by gcc <code>-O2</code>, its C passes <strong>46/78</strong> greedy and 56/78 at pass@5 on held-out (62/90 and 72/90 on validation), close to the C-then-asm model's C half (48/78 and 61/78; 63/90 and 70/90). Training on the assembly target therefore neither helps nor hurts the C, and the step up from the untrained 1.5B C control (31/78) comes from the fine-tuned 7B, not from the assembly half. <strong>Part B</strong> scored the hybrid "the model writes C, gcc lowers it" against the model's own assembly: on held-out, 48/78 against 7/78 greedy for the C-then-asm model. Compiling the same C with <code>-Os</code> passes exactly the same tasks at 0.691 of the reference's <code>-O2</code> size. The hybrid's mean instruction ratio of about 1.9 is driven by a few tasks where the model chose a slower algorithm than the reference; the median is 1.000. <strong>Part C</strong> finished the C-then-asm held-out repair loop: 19/78 on the full tests and 27/78 on the visible tests, above the qlora7b-v2 (12/78) and lora2 (10/78) loops and far below the 1.5B C loop (44/78). <strong>Part D</strong> classified the 42 held-out tasks whose C passes and whose assembly fails: 23 wrong answers, 9 crashes, 9 timeouts, 1 that does not assemble and none flagged for the calling convention. The model's assembly almost always assembles and looks like gcc output, but in most of these tasks it does not compute what its own C computes. The practical system today is the hybrid; the research question becomes how to get from it to assembly that beats gcc without losing correctness.</p></div>
+
+<nav class="toc" aria-label="Contents"><div class="toc-title">Contents</div><ol>
+<li><a href="#s1"><span class="n">1</span>Goals recap</a></li>
+<li><a href="#s2"><span class="n">2</span>Part A: a matched 7B C control (c-only-7b)</a></li>
+<li><a href="#s3"><span class="n">3</span>Part B: the gcc hybrid</a></li>
+<li><a href="#s4"><span class="n">4</span>Part C: the completed held-out loop</a></li>
+<li><a href="#s5"><span class="n">5</span>Part D: why the assembly fails where the C passes</a></li>
+<li><a href="#s6"><span class="n">6</span>All models compared</a></li>
+<li><a href="#s7"><span class="n">7</span>Compute used</a></li>
+<li><a href="#s8"><span class="n">8</span>Limitations and caveats</a></li>
+<li><a href="#s9"><span class="n">9</span>Proposed next steps</a></li>
+<li><a href="#cite"><span class="n"></span>How to cite</a></li>
+<li><a href="#refs"><span class="n"></span>References</a></li>
+<li><a href="#revhist"><span class="n"></span>Revision history</a></li>
+</ol></nav>
+
+<div class="col">
+
+<h2 id="s1"><span class="n">1</span>Goals recap <span class="upd" title="Section last changed">updated 21 Nov 2026</span></h2>
+<p><a href="../report-4/index.html">Report 4</a> left three open items. First, the C-then-asm 7B (c-then-asm) writes C that passes 48 of 78 held-out tasks when gcc <code>-O2</code> compiles it, against 31/78 for the C control, but the C control is the untrained 1.5B model, so model size, fine-tuning and the assembly target were mixed together. Second, the same model's own assembly passes 7 of those 78, so most of what it gets right is lost in its own lowering. Third, its held-out repair loop stopped at the 10-hour stage cap after 59 of 78 tasks.</p>
+<p>Round 4 (<code>BRIEF-round4.md</code>, approved 20 November 2026) addressed these in four parts, run in the order A, B, C, D: a matched 7B C control (A), a hybrid that lets gcc lower the model's C (B), the rest of the held-out loop (C), and a classification of the C-pass, assembly-fail tasks (D). The budget was 30 GPU hours with a 10-hour cap per stage and no calendar deadline. The pipeline wrote <code>logs/round4.done</code> at 04:33 Pacific time on 21 November with every stage <code>ok</code>. Terms follow Reports 1 to 4: pass@1 is greedy, pass@5 is the fraction of tasks with at least one passing sample out of five (T = 0.8), the validation set is 90 scaled tasks from the training distribution, and the held-out set is 78 HumanEval and MBPP tasks. Size and instruction ratios are means over greedy passes against gcc <code>-O2</code> on the task's reference C, and instruction counts are emulator retire counts.</p>
+
+<h2 id="s2"><span class="n">2</span>Part A: a matched 7B C control (c-only-7b) <span class="upd" title="Section last changed">updated 21 Nov 2026</span></h2>
+
+<h3 id="s2-1"><span class="n">2.1</span>Setup <span class="upd" title="Section last changed">updated 21 Nov 2026</span></h3>
+<p>c-only-7b is a QLoRA on the same base model, <code>Qwen2.5-Coder-7B-Instruct</code> in 4 bits, trained on the same 6,781 tasks as c-then-asm (the lora2 mix), with the task's reference C as the whole response and the existing C prompt (<code>target c</code>). The hyperparameters match c-then-asm. Because C-only responses are shorter, only 3 rows were dropped for length, against 56 for c-then-asm. It is evaluated with the existing C mode of the harness: the model's C is compiled with gcc <code>-O2</code> and run on the same tests in the same emulator, and a compile failure counts as <code>doesnt_assemble</code>, as for the C control.</p>
+<div class="tw"><table><caption>Table 1. c-only-7b training against c-then-asm (<code>runs/c-only-7b/summary.json</code>, <code>runs/round4/SUMMARY.md</code>; c-then-asm from Report 4, Table 6).</caption>
+<thead><tr><th>setting</th><th>c-only-7b (round 4)</th><th>c-then-asm (round 3)</th></tr></thead><tbody>
+<tr><td>base model</td><td><code>Qwen2.5-Coder-7B-Instruct</code>, 4-bit</td><td>same</td></tr>
+<tr><td>response</td><td>C only</td><td>C, then assembly</td></tr>
+<tr><td>LoRA, optimizer</td><td>r = 32, alpha = 64, dropout 0.05; lr 2e-4, 3 epochs, batch 1 × accumulation 16</td><td>same</td></tr>
+<tr><td>data</td><td>6,781 tasks; 6,778 examples after dropping 3 over the p99 length (458 tokens); max length 2,048; token p50 166, p90 274</td><td>6,781 rows; 6,725 examples after dropping 56 over the p99 length (1,674 tokens); max length 2,048; token p50 373, p90 659</td></tr>
+<tr><td>steps, train loss</td><td class="num">1,272 steps (38 warmup), 0.1659</td><td class="num">1,263 steps, 0.1264</td></tr>
+<tr><td>time</td><td class="num">7,937.07 s (stage: 2.21 GPU hours)</td><td class="num">12,699.1 s (3.53 GPU hours)</td></tr>
+<tr><td>in-training eval</td><td>none (<code>val_tasks=0</code>)</td><td>none</td></tr>
+</tbody></table></div>
+<p>The two training losses are over different responses (C only against C plus assembly) and are not comparable.</p>
+
+<h3 id="s2-2"><span class="n">2.2</span>Results <span class="upd" title="Section last changed">updated 21 Nov 2026</span></h3>
+<div class="tw"><table><caption>Table 2. C compiled by gcc <code>-O2</code> in the harness: the matched 7B C control, the C half of c-then-asm, and the untrained 1.5B C control (<code>runs/round4/SUMMARY.md</code>; c-then-asm and base-c rows copied by the pipeline from round 3). Ratios are against gcc <code>-O2</code> on the reference C; <em>n</em> is the number of greedy passes.</caption>
+<thead><tr><th>C source</th><th>set</th><th class="num">pass@1</th><th class="num">pass@5</th><th class="num">size / gcc -O2</th><th class="num">insn / gcc -O2</th></tr></thead><tbody>
+<tr><td><b>c-only-7b</b> (fine-tuned 7B, C only)</td><td>val</td><td class="num"><b>0.689 (62/90)</b></td><td class="num"><b>0.800 (72/90)</b></td><td class="num">1.089 (n=62)</td><td class="num">1.200 (n=62)</td></tr>
+<tr><td>c-then-asm, C half (fine-tuned 7B, C then asm)</td><td>val</td><td class="num">0.700 (63/90)</td><td class="num">0.778 (70/90)</td><td class="num">1.049 (n=63)</td><td class="num">1.177 (n=63)</td></tr>
+<tr><td><b>c-only-7b</b></td><td>held-out</td><td class="num"><b>0.590 (46/78)</b></td><td class="num"><b>0.718 (56/78)</b></td><td class="num">1.110 (n=46)</td><td class="num">1.863 (n=46)</td></tr>
+<tr><td>c-then-asm, C half</td><td>held-out</td><td class="num">0.615 (48/78)</td><td class="num">0.782 (61/78)</td><td class="num">1.031 (n=48)</td><td class="num">1.877 (n=48)</td></tr>
+<tr><td>base 1.5B, untrained (C control)</td><td>held-out</td><td class="num">0.397 (31/78)</td><td class="num">0.628 (49/78)</td><td class="num">1.003 (n=31)</td><td class="num">0.989 (n=31)</td></tr>
+</tbody></table></div>
+<p>The c-then-asm C-half pass@5 and ratios were tallies in Report 4; round 4 scored them as a first-class result and got the same values (61/78 and 70/90; 1.031 and 1.877; 1.049 and 1.177).</p>
+<p>The two fine-tuned 7B models are within a few tasks of each other everywhere: 46 against 48 greedy on held-out, 56 against 61 at pass@5, 62 against 63 greedy on validation and 72 against 70 at pass@5. On 78 tasks these are not differences. They also pass largely the same tasks: on held-out, 37 tasks pass greedy for both, 11 only for c-then-asm, 9 only for c-only-7b and 21 for neither (validation: 55, 8, 7 and 20; a tally of <code>hybrid.jsonl</code>). c-only-7b's greedy held-out C fails by wrong answer in 23 tasks, by compile failure in 7, and once each by crash and timeout (<code>greedy_categories</code>); the c-then-asm C half fails by wrong answer in 27, by compile failure in 2 and by crash in 1 (Report 4, §3.4).</p>
+
+<h3 id="s2-3"><span class="n">2.3</span>Reading <span class="upd" title="Section last changed">updated 21 Nov 2026</span></h3>
+<div class="callout"><p><strong>Training on the assembly target neither helps nor hurts the model's C.</strong> A 7B trained on C alone writes C about as well as the 7B trained on C followed by assembly (46/78 against 48/78 greedy on held-out). The step up from the untrained 1.5B C control (31/78) is therefore a property of the fine-tuned 7B, not of the assembly half of the C-then-asm response.</p></div>
+<p>This settles the question Report 4 left about the assembly target, but not the whole confound. Both 7B models are fine-tuned, and the C control is an untrained 1.5B, so the step from 31/78 to about 47/78 still combines model size and fine-tuning on these tasks. Separating those two would take the untrained 7B in C mode or a fine-tuned 1.5B in C mode (§9). For the system question that follows, the relevant fact is that the fine-tuned 7B writes C that passes about 60% of held-out tasks greedy, with or without the assembly target.</p>
+
+<h2 id="s3"><span class="n">3</span>Part B: the gcc hybrid <span class="upd" title="Section last changed">updated 21 Nov 2026</span></h2>
+
+<h3 id="s3-1"><span class="n">3.1</span>Setup <span class="upd" title="Section last changed">updated 21 Nov 2026</span></h3>
+<p>The hybrid is "the model writes C, gcc lowers it". For both 7B models, the pipeline took each greedy and sampled C output (for c-then-asm, the C halves already in <code>runs/c-then-asm/eval.jsonl</code>; for c-only-7b, its own evaluation), compiled it with gcc <code>-O2</code> and with gcc <code>-Os</code>, and scored the resulting code in the same harness as every assembly output. No new generation was needed for this stage, which took 163.89 seconds of CPU time. c-only-7b has no direct assembly to compare against; the direct-assembly row is the c-then-asm assembly half.</p>
+
+<h3 id="s3-2"><span class="n">3.2</span>Results <span class="upd" title="Section last changed">updated 21 Nov 2026</span></h3>
+<div class="tw"><table><caption>Table 3. Hybrid (model C, gcc lowers it) against the model's own assembly (<code>runs/round4/SUMMARY.md</code>, "C half and hybrid"). All ratios are against gcc <code>-O2</code> on the reference C, including the <code>-Os</code> rows.</caption>
+<thead><tr><th>model</th><th>set</th><th>path</th><th class="num">pass@1</th><th class="num">pass@5</th><th class="num">size / gcc -O2</th><th class="num">insn / gcc -O2</th></tr></thead><tbody>
+<tr><td>c-then-asm</td><td>val</td><td>direct asm</td><td class="num">0.444 (40/90)</td><td class="num">0.600 (54/90)</td><td class="num">1.055 (n=40)</td><td class="num">0.935 (n=40)</td></tr>
+<tr><td>c-then-asm</td><td>val</td><td>C, gcc -O2</td><td class="num">0.700 (63/90)</td><td class="num">0.778 (70/90)</td><td class="num">1.049 (n=63)</td><td class="num">1.177 (n=63)</td></tr>
+<tr><td>c-then-asm</td><td>val</td><td>C, gcc -Os</td><td class="num">0.700 (63/90)</td><td class="num">0.778 (70/90)</td><td class="num">0.858 (n=63)</td><td class="num">1.462 (n=63)</td></tr>
+<tr><td>c-only-7b</td><td>val</td><td>C, gcc -O2</td><td class="num">0.689 (62/90)</td><td class="num">0.800 (72/90)</td><td class="num">1.089 (n=62)</td><td class="num">1.200 (n=62)</td></tr>
+<tr><td>c-only-7b</td><td>val</td><td>C, gcc -Os</td><td class="num">0.689 (62/90)</td><td class="num">0.800 (72/90)</td><td class="num">0.902 (n=62)</td><td class="num">1.513 (n=62)</td></tr>
+<tr><td>c-then-asm</td><td>held-out</td><td>direct asm</td><td class="num">0.090 (7/78)</td><td class="num">0.115 (9/78)</td><td class="num">1.132 (n=7)</td><td class="num">3.584 (n=7)</td></tr>
+<tr><td><b>c-then-asm</b></td><td>held-out</td><td><b>C, gcc -O2</b></td><td class="num"><b>0.615 (48/78)</b></td><td class="num"><b>0.782 (61/78)</b></td><td class="num">1.031 (n=48)</td><td class="num">1.877 (n=48)</td></tr>
+<tr><td>c-then-asm</td><td>held-out</td><td>C, gcc -Os</td><td class="num">0.615 (48/78)</td><td class="num">0.782 (61/78)</td><td class="num">0.691 (n=48)</td><td class="num">2.019 (n=48)</td></tr>
+<tr><td>c-only-7b</td><td>held-out</td><td>C, gcc -O2</td><td class="num">0.590 (46/78)</td><td class="num">0.718 (56/78)</td><td class="num">1.110 (n=46)</td><td class="num">1.863 (n=46)</td></tr>
+<tr><td>c-only-7b</td><td>held-out</td><td>C, gcc -Os</td><td class="num">0.590 (46/78)</td><td class="num">0.718 (56/78)</td><td class="num">0.670 (n=46)</td><td class="num">2.028 (n=46)</td></tr>
+</tbody></table></div>
+<p>On held-out, letting gcc lower the C-then-asm model's C passes <strong>48 of 78 tasks greedy against 7</strong> for the same model's own assembly, and 61 against 9 at pass@5. On validation the gap is smaller (63 against 40 greedy, 70 against 54 at pass@5), in line with the validation and held-out gap reported since Report 3. The <code>-O2</code> hybrid rows reproduce the C-half figures copied from round 3 (63/90 and 48/78), which is expected: they compile the same C with the same flags.</p>
+<p><strong>-Os.</strong> Compiling the same C with <code>-Os</code> passes exactly the same tasks as <code>-O2</code>, greedy and at pass@5, for both models and both sets (a tally of <code>hybrid.jsonl</code>). On held-out the passing code is 0.691 (c-then-asm) and 0.670 (c-only-7b) of the size of gcc <code>-O2</code> on the reference C, at an instruction ratio of 2.019 and 2.028. The size saving comes mostly from the flag, not from the model: the reference is compiled at <code>-O2</code>, and gcc <code>-Os</code> on the reference C was not measured, so Table 3 does not say how the model's C compares with the reference at the same optimization level.</p>
+
+<h3 id="s3-3"><span class="n">3.3</span>The instruction ratio of about 1.9 <span class="upd" title="Section last changed">updated 21 Nov 2026</span></h3>
+<p>As in Report 4 (§3.3), the held-out instruction ratio is a mean over passing tasks and a few tasks dominate it. Table 4 lists the largest per-task ratios for the <code>-O2</code> hybrids, and Table 5 shows the mean with them removed (tallies of <code>hybrid.jsonl</code>; the means over all passes reproduce the summary values, 1.877 and 1.863).</p>
+<div class="tw"><table><caption>Table 4. Held-out <code>-O2</code> hybrid passes with the largest instruction ratios: emulator instruction count of the model's C compiled by gcc <code>-O2</code>, against gcc <code>-O2</code> on the reference C (a tally of <code>runs/round4/hybrid.jsonl</code>).</caption>
+<thead><tr><th>model</th><th>task</th><th class="num">model insn</th><th class="num">ref insn</th><th class="num">insn ratio</th><th class="num">model size</th><th class="num">ref size</th></tr></thead><tbody>
+<tr><td>c-then-asm</td><td><code>he75_is_multiply_prime</code></td><td class="num">9,622</td><td class="num">312</td><td class="num">30.840</td><td class="num">116</td><td class="num">130</td></tr>
+<tr><td>c-then-asm</td><td><code>he60_sum_to_n</code></td><td class="num">348</td><td class="num">39</td><td class="num">8.923</td><td class="num">66</td><td class="num">19</td></tr>
+<tr><td>c-then-asm</td><td><code>he77_iscube</code></td><td class="num">1,253</td><td class="num">232</td><td class="num">5.401</td><td class="num">67</td><td class="num">91</td></tr>
+<tr><td>c-then-asm</td><td><code>he157_right_angle_triangle</code></td><td class="num">101</td><td class="num">61</td><td class="num">1.656</td><td class="num">99</td><td class="num">47</td></tr>
+<tr><td>c-only-7b</td><td><code>he75_is_multiply_prime</code></td><td class="num">10,633</td><td class="num">312</td><td class="num">34.080</td><td class="num">123</td><td class="num">130</td></tr>
+<tr><td>c-only-7b</td><td><code>he60_sum_to_n</code></td><td class="num">348</td><td class="num">39</td><td class="num">8.923</td><td class="num">66</td><td class="num">19</td></tr>
+<tr><td>c-only-7b</td><td><code>he121_sum_odd_even_idx</code></td><td class="num">130</td><td class="num">88</td><td class="num">1.477</td><td class="num">118</td><td class="num">70</td></tr>
+</tbody></table></div>
+<div class="tw"><table><caption>Table 5. Held-out <code>-O2</code> hybrid instruction ratio: mean over all greedy passes, with the largest one, two or three removed, and the median (a tally of <code>runs/round4/hybrid.jsonl</code>).</caption>
+<thead><tr><th>model</th><th class="num">n</th><th class="num">mean, all</th><th class="num">without top 1</th><th class="num">without top 2</th><th class="num">without top 3</th><th class="num">median</th></tr></thead><tbody>
+<tr><td>c-then-asm</td><td class="num">48</td><td class="num">1.877</td><td class="num">1.260</td><td class="num">1.094</td><td class="num">0.998</td><td class="num">1.000</td></tr>
+<tr><td>c-only-7b</td><td class="num">46</td><td class="num">1.863</td><td class="num">1.147</td><td class="num">0.970</td><td class="num">0.958</td><td class="num">1.000</td></tr>
+</tbody></table></div>
+<p>One task, <code>he75_is_multiply_prime</code>, accounts for most of the excess for both models. The specification asks whether the input is the product of three primes, each at most 100. The reference C divides out prime factors and counts them. Both models instead write three nested loops over candidate factors up to about 100 and test whether their product equals the input, which retires about 30 times as many instructions on the tests. (Neither loop checks that the factors are prime, so both would accept 16 = 2 · 2 · 4, which the specification rejects; the held-out tests do not catch this.) The second task is <code>he60_sum_to_n</code>, the case behind Report 4's 3.584: both models loop from 1 to n where the reference uses the closed form. Without these two tasks the mean is 1.094 and 0.970, and the median pass retires the same number of instructions as the reference. The ratio of about 1.9 therefore reflects a few algorithm choices, not a general cost of letting gcc lower the model's C.</p>
+
+<h3 id="s3-4"><span class="n">3.4</span>Reading <span class="upd" title="Section last changed">updated 21 Nov 2026</span></h3>
+<div class="callout"><p><strong>The model writes C, and gcc lowers it, is the practical system today.</strong> On held-out it passes 48 of 78 tasks greedy and 61 at pass@5, against 7 and 9 for the same model's own assembly. On most passing tasks its code is as fast as gcc on the reference C, and <code>-Os</code> trades instruction count for size without losing a single pass.</p></div>
+<p>The hybrid does not by itself meet the program's goal of machine code that is better than a compiler's: it is a compiler's output by construction. What it provides is a correct starting point on about 60% of unfamiliar tasks, from which a model could try to improve size or speed while keeping the tests passing (§9). Where its code is slow, the cause in Table 4 is the algorithm in the C, which is a matter for the C-writing step, not for the lowering.</p>
+
+<h2 id="s4"><span class="n">4</span>Part C: the completed held-out loop <span class="upd" title="Section last changed">updated 21 Nov 2026</span></h2>
+<p>The round 3 held-out repair loop for c-then-asm (<code>loop-c-then-asm-heldout</code>; k = 8, R = 3, T = 0.8, scoring the assembly half) stopped at its 10-hour cap after 59 of 78 tasks. Round 4 resumed it on the remaining 19, all HumanEval tasks from <code>he102_choose_num</code> to <code>he163_generate_integers</code>, without redoing the 59. The stage took 18,602.35 seconds (5.17 GPU hours) and finished; <code>loop_unfinished</code> is empty and the loop file has one row for each of the 78 tasks. The combined result is <strong>19/78 on the full tests</strong> and 27/78 on the visible tests only, with a mean of 25.6 calls per task. Of the 19 new tasks, 4 passed on the full tests (<code>he102_choose_num</code>, <code>he122_add_elements</code>, <code>he138_sum_of_four_evens</code>, <code>he159_eat</code>) and 6 on the visible tests (a tally of <code>loop.jsonl</code>; the first 59 still give 15 and 21, as in Report 4).</p>
+<div class="tw"><table><caption>Table 6. c-then-asm held-out repair loop, all 78 tasks: first pass within <em>m</em> model calls (<code>runs/loop-c-then-asm-heldout/summary.json</code>, <code>budget_full</code> and <code>budget_visible</code>; fractions times 78).</caption>
+<thead><tr><th>tests</th><th class="num">n</th><th class="num">@1</th><th class="num">@4</th><th class="num">@8</th><th class="num">@16</th><th class="num">@32</th></tr></thead><tbody>
+<tr><td>full</td><td class="num">78</td><td class="num">6/78</td><td class="num">11/78</td><td class="num">13/78</td><td class="num">16/78</td><td class="num">19/78</td></tr>
+<tr><td>visible only</td><td class="num">78</td><td class="num">6/78</td><td class="num">12/78</td><td class="num">18/78</td><td class="num">23/78</td><td class="num">27/78</td></tr>
+</tbody></table></div>
+<p>The final attempts on the 78 tasks are 19 pass, 26 wrong answer, 14 do not assemble, 13 crash and 6 timeout. Passing programs are 0.944 of gcc <code>-O2</code> in size and 1.662 in instruction count (n = 19). The gap between visible and full tests (27 against 19) means 8 tasks ended with a program that passes the tests the loop could see and fails at least one of the others.</p>
+<div class="tw"><table><caption>Table 7. Held-out repair loops on all 78 tasks (<code>runs/round4/SUMMARY.md</code> and <code>RESULTS.json</code>; rows other than c-then-asm copied by the pipeline from round 3). The last column is a tally of each <code>loop.jsonl</code> on the 19 tasks the round 3 c-then-asm loop did not reach.</caption>
+<thead><tr><th>run</th><th class="num">pass_full</th><th class="num">pass_visible</th><th class="num">mean calls</th><th class="num">size / gcc -O2</th><th class="num">insn / gcc -O2</th><th class="num">full, on the 19 (tally)</th></tr></thead><tbody>
+<tr><td>loop-lora2-heldout</td><td class="num">10/78</td><td class="num">15/78</td><td class="num">29.2</td><td class="num">1.007 (n=10)</td><td class="num">1.128 (n=10)</td><td class="num">1/19</td></tr>
+<tr><td>loop-qlora7b-v2-heldout</td><td class="num">12/78</td><td class="num">17/78</td><td class="num">27.8</td><td class="num">1.172 (n=12)</td><td class="num">1.658 (n=12)</td><td class="num">1/19</td></tr>
+<tr><td><b>loop-c-then-asm-heldout</b></td><td class="num"><b>19/78</b></td><td class="num"><b>27/78</b></td><td class="num">25.6</td><td class="num">0.944 (n=19)</td><td class="num">1.662 (n=19)</td><td class="num">4/19</td></tr>
+<tr><td>loop-base-c-heldout (1.5B C, k=4, R=2)</td><td class="num">44/78</td><td class="num">48/78</td><td class="num">6.6</td><td class="num">1.093 (n=44)</td><td class="num">1.028 (n=44)</td><td class="num">10/19</td></tr>
+</tbody></table></div>
+<p>The c-then-asm loop is now the best assembly loop on the full held-out set, 19/78 against 12/78 for qlora7b-v2 and 10/78 for lora2, and the margin holds on the 19 newly scored tasks (4 against 1 and 1). It remains far below the untrained 1.5B C loop (44/78), which also uses a smaller budget, and below the single greedy try of the hybrid (48/78; §3). The loop's passes are mostly on tasks where the model's greedy C already passes: 17 of its 19 passes are such tasks and 2 are not (a tally of <code>loop.jsonl</code> against <code>hybrid.jsonl</code>). Repair against the visible tests recovers some of the lost lowering, but in most C-pass tasks it does not recover it.</p>
+
+<h2 id="s5"><span class="n">5</span>Part D: why the assembly fails where the C passes <span class="upd" title="Section last changed">updated 21 Nov 2026</span></h2>
+<p>On held-out, the greedy outputs of c-then-asm split into 6 tasks where both halves pass, 42 where only the C passes, 1 where only the assembly passes and 29 where neither does (agreement 35/78). Part D classified the 42 C-pass, assembly-fail tasks using the harness labels already stored on the assembly half (<code>runs/round4/failure_analysis.md</code>, <code>failure_tally.json</code>).</p>
+<div class="tw"><table><caption>Table 8. The 42 held-out tasks where the C half passes and the assembly half fails, by failure of the assembly (<code>runs/round4/failure_analysis.md</code>).</caption>
+<thead><tr><th>bucket</th><th>harness category</th><th class="num">n</th></tr></thead><tbody>
+<tr><td>logic_mismatch</td><td><code>wrong_answer</code> (assembles and runs, returns the wrong value)</td><td class="num">23</td></tr>
+<tr><td>crash</td><td><code>crash</code></td><td class="num">9</td></tr>
+<tr><td>timeout</td><td><code>timeout</code> / instruction limit</td><td class="num">9</td></tr>
+<tr><td>doesnt_assemble</td><td><code>doesnt_assemble</code></td><td class="num">1</td></tr>
+<tr><td>abi</td><td><code>abi</code> (calling-convention violation)</td><td class="num">0</td></tr>
+<tr><td>other</td><td></td><td class="num">0</td></tr>
+<tr><td colspan="2"><b>total</b></td><td class="num"><b>42</b></td></tr>
+</tbody></table></div>
+<p>These counts match the Report 4 tally of the same file (23, 9, 9 and 1). In 41 of the 42 tasks the assembly assembles, and the harness flags none for the calling convention. The assembly reads like gcc output, down to the <code>.p2align</code> padding directives, and uses the right argument registers. In more than half of the tasks it then runs to completion and returns the wrong value, and in the other 18 it crashes or does not finish within the limit. The crashes in the examples are reported as accesses to unmapped memory.</p>
+<p>Two short examples from <code>failure_analysis.md</code> and <code>runs/c-then-asm/eval.jsonl</code> show the pattern. In <code>he102_choose_num</code> (logic mismatch: "return 4294967295 != expected 14") the C half is a correct six-line function. The assembly copies <code>y</code> into <code>%rax</code> and then tests its low bit with <code>andl $1, %eax</code>, which overwrites the copy, so the following <code>subq $1, %rax</code> subtracts from the bit rather than from <code>y</code>; and the −1 path writes <code>movl $-1, %eax</code>, which returns 4,294,967,295 rather than −1 as a 64-bit value.</p>
+<pre><code>int64_t he_choose_num(int64_t x, int64_t y) {     he_choose_num:
+  if (x > y) return -1;                             movq  %rsi, %rax
+  if ((y &amp; 1)) {                                    cmpq  %rdi, %rsi
+    if (y - 1 &lt; x) return -1;                       jl    .L2
+    else return y - 1;                              andl  $1, %eax
+  } else { ... }                                    je    .L3
+                                                    subq  $1, %rax
+                                                    ...
+                                                .L2: movl  $-1, %eax
+                                                    ret</code></pre>
+<p>In <code>he25_factorize</code> (timeout) the C half is a correct trial-division loop that writes each factor to an output array. The assembly half has the shape of a gcc loop but none of its content: it multiplies by a register that has not been set (<code>imulq %rcx, %rdx</code>), contains no division and never stores to the output array, and runs until the harness stops it (2,216,493 instructions, against 238 for gcc's lowering of the model's own C).</p>
+<div class="callout"><p><strong>The model's assembly usually assembles and follows the calling convention, but it does not implement its own C.</strong> The loss is semantic, not syntactic: register reuse, operand width and missing loop bodies, in code that otherwise looks like compiler output.</p></div>
+<p>This is consistent with the observation in Report 4 that the training data never required the assembly half to be a lowering of the C half above it (§3.5 there): the model has learned what gcc output looks like, but has not learned to lower the particular program it just wrote. We have not tested that explanation; §9 proposes training data and a check that would.</p>
+
+<h2 id="s6"><span class="n">6</span>All models compared <span class="upd" title="Section last changed">updated 21 Nov 2026</span></h2>
+<p><strong>Single-try and loop results are not comparable.</strong> Table 9 reports a single greedy try or five independent samples per task; loops (Table 7) use up to 32 model calls per task and feedback from the visible tests. Compare models within a table. Older rows (lora1, qlora7b, dpo, dpo2, base 7B) are in Report 4, Table 12.</p>
+<div class="tw"><table><caption>Table 9. Greedy pass@1 and sampled pass@5 (n = 5, T = 0.8) on held-out and validation (<code>runs/round4/SUMMARY.md</code>; lora2, qlora7b-v2, c-then-asm and base-c rows copied by the pipeline from round 3). Rows marked "gcc" are the model's C compiled by gcc, not assembly written by the model.</caption>
+<thead><tr><th>model and path</th><th class="num">val pass@1</th><th class="num">val pass@5</th><th class="num">held-out pass@1</th><th class="num">held-out pass@5</th></tr></thead><tbody>
+<tr><td>LoRA 1.5B (lora2), asm</td><td class="num">38/90</td><td class="num">45/90</td><td class="num">4/78</td><td class="num">5/78</td></tr>
+<tr><td>QLoRA 7B v2 (qlora7b-v2), asm</td><td class="num">41/90</td><td class="num">52/90</td><td class="num">5/78</td><td class="num">12/78</td></tr>
+<tr><td>QLoRA 7B C then asm (c-then-asm), asm half</td><td class="num">40/90</td><td class="num">54/90</td><td class="num">7/78</td><td class="num">9/78</td></tr>
+<tr><td>base 1.5B, untrained, C → gcc -O2 (C control)</td><td class="num">—</td><td class="num">—</td><td class="num">31/78</td><td class="num">49/78</td></tr>
+<tr><td>c-then-asm, C half → gcc -O2 (hybrid)</td><td class="num">63/90</td><td class="num">70/90</td><td class="num">48/78</td><td class="num">61/78</td></tr>
+<tr><td>c-then-asm, C half → gcc -Os (hybrid)</td><td class="num">63/90</td><td class="num">70/90</td><td class="num">48/78</td><td class="num">61/78</td></tr>
+<tr><td>QLoRA 7B C only (c-only-7b) → gcc -O2</td><td class="num">62/90</td><td class="num">72/90</td><td class="num">46/78</td><td class="num">56/78</td></tr>
+<tr><td>c-only-7b → gcc -Os</td><td class="num">62/90</td><td class="num">72/90</td><td class="num">46/78</td><td class="num">56/78</td></tr>
+</tbody></table></div>
+<p><strong>Reading.</strong> Every route in which the model writes assembly stays between 4 and 7 of 78 held-out tasks greedy and at most 12 at pass@5, and at most 19 of 78 with a 32-call repair loop. Every route in which a fine-tuned 7B writes C and gcc lowers it passes 46 to 48 of 78 greedy and 56 to 61 at pass@5. The untrained 1.5B C control, at 31/78, sits between them.</p>
+
+<h2 id="s7"><span class="n">7</span>Compute used <span class="upd" title="Section last changed">updated 21 Nov 2026</span></h2>
+<p>Round 4 used <strong>7.81 of its 30 GPU hours</strong> (<code>gpu_hours_used</code> 7.8067 in <code>runs/round4/RESULTS.json</code> and <code>logs/round4.done</code>). No stage hit its cap. The hybrid scoring and the failure analysis ran on the CPU and are not counted as GPU time.</p>
+<div class="tw"><table><caption>Table 10. Round 4 hours by stage (<code>runs/round4/SUMMARY.md</code>, <code>gpu_hours.jsonl</code>).</caption>
+<thead><tr><th>stage</th><th class="num">seconds</th><th class="num">hours</th><th>GPU</th><th>ok</th></tr></thead><tbody>
+<tr><td>c-only-train</td><td class="num">7950.19</td><td class="num">2.21</td><td>yes</td><td>yes</td></tr>
+<tr><td>c-only-eval-val</td><td class="num">751.03</td><td class="num">0.21</td><td>yes</td><td>yes</td></tr>
+<tr><td>c-only-eval-heldout</td><td class="num">800.51</td><td class="num">0.22</td><td>yes</td><td>yes</td></tr>
+<tr><td>hybrid-score</td><td class="num">163.89</td><td class="num">0.05</td><td>no</td><td>yes</td></tr>
+<tr><td>loop-c-then-asm-heldout (19 remaining tasks)</td><td class="num">18602.35</td><td class="num">5.17</td><td>yes</td><td>yes</td></tr>
+<tr><td>failure-analysis</td><td class="num">0.03</td><td class="num">0.00</td><td>no</td><td>yes</td></tr>
+<tr><td colspan="2"><b>GPU total</b></td><td class="num"><b>7.81</b></td><td></td><td></td></tr>
+</tbody></table></div>
+<p>Across the pipelines that record a GPU-hour total, the program has used 46.45 hours in round 1 (Report 2), 40.68 in rounds 2 and 2b (Report 3), 18.60 in round 3 (Report 4) and 7.81 in round 4, <strong>113.54 GPU hours</strong> in all (46.45 + 40.6764 + 18.6033 + 7.8067). This excludes the sweeps, the first LoRA and QLoRA runs and other work in Report 1, for which no single total is recorded.</p>
+
+<h2 id="s8"><span class="n">8</span>Limitations and caveats <span class="upd" title="Section last changed">updated 21 Nov 2026</span></h2>
+<ol>
+<li><strong>Small held-out set, one seed.</strong> At 78 tasks, differences of a few tasks (46 against 48, 56 against 61) are not differences. Every model here is one training run with one seed, and no confidence intervals are reported.</li>
+<li><strong>The size and fine-tuning confound is narrowed, not removed.</strong> c-only-7b shows that the assembly target does not account for the gap to the C control, but both 7B models are fine-tuned and the C control is an untrained 1.5B. The untrained 7B and a fine-tuned 1.5B have not been run in C mode.</li>
+<li><strong>Copied prior numbers.</strong> Rows for lora2, qlora7b-v2, c-then-asm (asm half, C half and agreement) and the 1.5B C control were copied by the round 4 pipeline from <code>runs/round3/RESULTS.json</code>, not re-scored. The hybrid <code>-O2</code> rows recompile the stored C halves and agree with the copied C-half figures.</li>
+<li><strong>The harness.</strong> Every result runs single functions in the Unicorn emulator (QEMU for AVX) on the task's tests. A pass means the tests pass, not that the program is correct: <code>he75_is_multiply_prime</code> passes for both models with a predicate that accepts some inputs the specification rejects (§3.3). C is compiled as a leaf function, and an object that references the global offset table is rejected (Report 4, §3.4).</li>
+<li><strong>Ratios are against gcc -O2 on the reference C.</strong> The <code>-Os</code> size ratios (0.691 and 0.670) compare gcc <code>-Os</code> on the model's C with gcc <code>-O2</code> on the reference, so most of the saving is the flag. Ratios are means over passing tasks only and are dominated by a few tasks (Tables 4 and 5).</li>
+<li><strong>The hybrid reuses round 3 outputs.</strong> For c-then-asm, the C halves are those generated in round 3; no new generation was done for Part B.</li>
+<li><strong>Loop budgets are not matched.</strong> The assembly loops use k = 8, R = 3; the C loop uses k = 4, R = 2. The c-then-asm loop ran in two sessions with the same settings, and the last 19 tasks were run after a restart.</li>
+<li><strong>Failure buckets are harness labels.</strong> Part D maps the stored harness categories to buckets; it did not trace each failure by hand. "logic_mismatch" means the assembly ran and returned a wrong value; the two examples in §5 are read by hand, the rest are not. A zero <code>abi</code> count means the harness flagged no calling-convention violation, not that every crash is unrelated to register use.</li>
+<li><strong>Tallies computed for this report.</strong> The pass-set overlaps between the two 7B models, the <code>-O2</code>/<code>-Os</code> pass-set check, Tables 4 and 5, the per-model loop counts on the 19 tasks, and the loop-against-C-pass counts are tallies of <code>hybrid.jsonl</code> and the <code>loop.jsonl</code> files, not figures in the summaries.</li>
+<li><strong>Other.</strong> The pytest suite was not re-run for this report, and the human check of a sample of rewritten specifications is still outstanding (Reports 1 to 4).</li>
+</ol>
+
+<h2 id="s9"><span class="n">9</span>Proposed next steps <span class="upd" title="Section last changed">updated 21 Nov 2026</span></h2>
+<p><span class="tag plan">proposed</span> None of the following has been started. Each is a proposal for discussion, and none is a commitment.</p>
+<ol>
+<li><strong>Adopt the hybrid as the practical system and baseline.</strong> Report "model C, gcc lowers it" as the system result (48/78 greedy held-out) and measure every assembly-writing approach against it on correctness first, then on size and instruction count.</li>
+<li><strong>A model-C, gcc and repair loop.</strong> Run the repair loop on the C path: the model writes C, gcc compiles it, the visible tests give feedback, and the model revises the C. The 1.5B C loop already reaches 44/78; the fine-tuned 7B starts from 48/78 greedy, so this measures the ceiling of the C route with a matched budget.</li>
+<li><strong>Distillation: train the assembly on gcc's lowering of the model's own C.</strong> For each training task, take the C the model actually writes (when it passes), compile it with gcc, and train the assembly half to reproduce that lowering. This targets the gap in §5 directly: the model would learn to lower the program it wrote, rather than to produce gcc output for the reference C.</li>
+<li><strong>Differential testing against the model's own C inside the loop.</strong> When the model writes both halves, run the assembly against the compiled C on generated inputs as well as on the visible tests, and feed back the first disagreement. Part D shows that most failures are semantic mismatches with the C, which such a check can find without the hidden tests.</li>
+<li><strong>A superoptimization pass on gcc's output.</strong> Start from the hybrid's gcc code, let the model (or a search) propose smaller or faster variants for the stated goal, and keep a variant only if it passes the tests and agrees with the original on generated inputs. The floor stays at the hybrid's pass rate; the question is how often it can beat gcc.</li>
+<li><strong>Close the size and fine-tuning confound:</strong> run the untrained 7B in C mode, and a fine-tuned 1.5B in C mode, on the same held-out set.</li>
+<li><strong>Better algorithms in the C.</strong> Where the hybrid is slow (Table 4), the cause is the algorithm. Training data or prompts that favor the reference algorithm, or a goal-aware C step, would address this before lowering.</li>
+<li><strong>Stronger evaluation:</strong> a larger or fresher held-out set with confidence intervals, repeated seeds for the headline rows, and tests that catch weak predicates such as the <code>he75_is_multiply_prime</code> case.</li>
+</ol>
+
+<h2 id="cite">How to cite</h2>
+<p>This is a working paper. It is shared so others can read, discuss and cite it, and it is updated as the work moves forward. Please cite the revision you read, give its date, and say when you accessed the page. Earlier revisions are listed in the revision history. Results here have not been peer reviewed.</p>
+<p class="cite-ref">Wilson, B. (2026). <em>Let gcc do the lowering: a matched C control, a gcc hybrid, and where the model's assembly goes wrong</em> (Working paper, Revision 1, 21 November 2026). Abundant Frontier Institute. <a href="https://abundantfrontier.org/lab/e2m/report-5/">https://abundantfrontier.org/lab/e2m/report-5/</a></p>
+<pre class="cite-bib"><code>@techreport{wilson2026e2mreport5,
+  author      = {Wilson, Boyd},
+  title       = {Let gcc do the lowering: a matched C control, a gcc hybrid, and where the model's assembly goes wrong},
+  institution = {Abundant Frontier Institute},
+  type        = {Working paper},
+  number      = {Revision 1},
+  year        = {2026},
+  month       = {nov},
+  url         = {https://abundantfrontier.org/lab/e2m/report-5/},
+  note        = {Living document; last updated 21 November 2026. Accessed YYYY-MM-DD}
+}</code></pre>
+
+<h2 id="refs">References</h2>
+<ol class="refs">
+<li><a href="../report-4/index.html">E2M technical report 4</a>: dpo2, the C-then-assembly 7B and its C half, and the incomplete held-out loop (baselines for this report).</li>
+<li><a href="../report-3/index.html">E2M technical report 3</a>: DPO collapse, qlora7b-v2 and the validation and held-out gap.</li>
+<li><a href="../report-2/index.html">E2M technical report 2</a>: repair loop, rejection sampling and lora2.</li>
+<li><a href="../report-1/index.html">E2M technical report 1</a>: harness, sweeps, scale-up and the first LoRA results.</li>
+<li><a href="../concept/index.html">E2M concept paper</a>.</li>
+<li>Mark Chen et al. <em>Evaluating Large Language Models Trained on Code.</em> 2021. <a href="https://arxiv.org/abs/2107.03374">arXiv:2107.03374</a>. Pass@k uses the unbiased estimator from this paper.</li>
+<li>Binyuan Hui et al. <em>Qwen2.5-Coder Technical Report.</em> 2024. <a href="https://arxiv.org/abs/2409.12186">arXiv:2409.12186</a>.</li>
+<li>Tim Dettmers et al. <em>QLoRA: Efficient Finetuning of Quantized LLMs.</em> 2023. <a href="https://arxiv.org/abs/2305.14314">arXiv:2305.14314</a>.</li>
+</ol>
+
+<section class="revhist" id="revhist">
+<h2>Revision history</h2>
+<ol>
+<li><b>Revision 1</b> <span class="when">21 November 2026 (America/Los_Angeles)</span><br>First draft of technical report 5: round 4 Part A (c-only-7b, a matched 7B C-only QLoRA: held-out 46/78 and 56/78, validation 62/90 and 72/90), Part B (the hybrid, model C lowered by gcc <code>-O2</code> and <code>-Os</code>: held-out 48/78 against 7/78 for the model's own assembly; the instruction ratio traced to two tasks), Part C (the completed c-then-asm held-out loop, 19/78 full and 27/78 visible), Part D (the 42 C-pass, assembly-fail tasks: 23 logic mismatch, 9 crash, 9 timeout, 1 does not assemble, 0 ABI), the all-model comparison, compute (7.81 GPU hours; 113.54 across the recorded pipelines), caveats and proposed next steps. Numbers copied from <code>runs/round4/SUMMARY.md</code>, <code>RESULTS.json</code>, <code>failure_analysis.md</code>, <code>failure_tally.json</code>, <code>logs/round4.done</code>, <code>runs/c-only-7b/summary.json</code> and <code>runs/loop-c-then-asm-heldout/summary.json</code>; some counts are tallies of raw files, marked in the text.</li>
+</ol>
+</section>
+
+<footer>Living paper · Revision 1 · Last updated 21 November 2026 · Abundant Frontier Institute Lab · Working paper · <a href="../report-4/index.html">Technical report 4</a> · <a href="../report-3/index.html">Technical report 3</a> · <a href="../report-2/index.html">Technical report 2</a> · <a href="../report-1/index.html">Technical report 1</a> · <a href="../concept/index.html">Concept paper</a></footer>
+</div>
+</main>
+</body>
+</html>

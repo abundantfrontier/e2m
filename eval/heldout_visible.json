@@ -1,0 +1,1060 @@
+{
+  "rule": "first ceil(n/2) tests visible, remainder hidden; n==1 => all visible",
+  "n_tasks": 78,
+  "tasks": {
+    "mbpp3_is_not_prime": {
+      "n": 6,
+      "n_visible": 3,
+      "n_hidden": 3,
+      "visible_ids": [
+        "mbpp3_is_not_prime/0",
+        "mbpp3_is_not_prime/1",
+        "mbpp3_is_not_prime/2"
+      ],
+      "hidden_ids": [
+        "mbpp3_is_not_prime/3",
+        "mbpp3_is_not_prime/4",
+        "mbpp3_is_not_prime/5"
+      ]
+    },
+    "mbpp6_differ_one_bit": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "mbpp6_differ_one_bit/0",
+        "mbpp6_differ_one_bit/1",
+        "mbpp6_differ_one_bit/2"
+      ],
+      "hidden_ids": [
+        "mbpp6_differ_one_bit/3",
+        "mbpp6_differ_one_bit/4"
+      ]
+    },
+    "mbpp8_square_nums": {
+      "n": 4,
+      "n_visible": 2,
+      "n_hidden": 2,
+      "visible_ids": [
+        "mbpp8_square_nums/0",
+        "mbpp8_square_nums/1"
+      ],
+      "hidden_ids": [
+        "mbpp8_square_nums/2",
+        "mbpp8_square_nums/3"
+      ]
+    },
+    "mbpp14_prism_volume": {
+      "n": 3,
+      "n_visible": 2,
+      "n_hidden": 1,
+      "visible_ids": [
+        "mbpp14_prism_volume/0",
+        "mbpp14_prism_volume/1"
+      ],
+      "hidden_ids": [
+        "mbpp14_prism_volume/2"
+      ]
+    },
+    "mbpp17_square_perimeter": {
+      "n": 4,
+      "n_visible": 2,
+      "n_hidden": 2,
+      "visible_ids": [
+        "mbpp17_square_perimeter/0",
+        "mbpp17_square_perimeter/1"
+      ],
+      "hidden_ids": [
+        "mbpp17_square_perimeter/2",
+        "mbpp17_square_perimeter/3"
+      ]
+    },
+    "mbpp24_binary_to_decimal": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "mbpp24_binary_to_decimal/0",
+        "mbpp24_binary_to_decimal/1",
+        "mbpp24_binary_to_decimal/2"
+      ],
+      "hidden_ids": [
+        "mbpp24_binary_to_decimal/3",
+        "mbpp24_binary_to_decimal/4"
+      ]
+    },
+    "mbpp32_max_prime_factor": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "mbpp32_max_prime_factor/0",
+        "mbpp32_max_prime_factor/1",
+        "mbpp32_max_prime_factor/2"
+      ],
+      "hidden_ids": [
+        "mbpp32_max_prime_factor/3",
+        "mbpp32_max_prime_factor/4"
+      ]
+    },
+    "mbpp33_decimal_to_binary": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "mbpp33_decimal_to_binary/0",
+        "mbpp33_decimal_to_binary/1",
+        "mbpp33_decimal_to_binary/2"
+      ],
+      "hidden_ids": [
+        "mbpp33_decimal_to_binary/3",
+        "mbpp33_decimal_to_binary/4"
+      ]
+    },
+    "mbpp45_array_gcd": {
+      "n": 4,
+      "n_visible": 2,
+      "n_hidden": 2,
+      "visible_ids": [
+        "mbpp45_array_gcd/0",
+        "mbpp45_array_gcd/1"
+      ],
+      "hidden_ids": [
+        "mbpp45_array_gcd/2",
+        "mbpp45_array_gcd/3"
+      ]
+    },
+    "mbpp47_fact_div_last_digit": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "mbpp47_fact_div_last_digit/0",
+        "mbpp47_fact_div_last_digit/1",
+        "mbpp47_fact_div_last_digit/2"
+      ],
+      "hidden_ids": [
+        "mbpp47_fact_div_last_digit/3",
+        "mbpp47_fact_div_last_digit/4"
+      ]
+    },
+    "mbpp48_set_odd_bits": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "mbpp48_set_odd_bits/0",
+        "mbpp48_set_odd_bits/1",
+        "mbpp48_set_odd_bits/2"
+      ],
+      "hidden_ids": [
+        "mbpp48_set_odd_bits/3",
+        "mbpp48_set_odd_bits/4"
+      ]
+    },
+    "mbpp72_diff_of_squares": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "mbpp72_diff_of_squares/0",
+        "mbpp72_diff_of_squares/1",
+        "mbpp72_diff_of_squares/2"
+      ],
+      "hidden_ids": [
+        "mbpp72_diff_of_squares/3",
+        "mbpp72_diff_of_squares/4"
+      ]
+    },
+    "mbpp76_count_squares": {
+      "n": 4,
+      "n_visible": 2,
+      "n_hidden": 2,
+      "visible_ids": [
+        "mbpp76_count_squares/0",
+        "mbpp76_count_squares/1"
+      ],
+      "hidden_ids": [
+        "mbpp76_count_squares/2",
+        "mbpp76_count_squares/3"
+      ]
+    },
+    "mbpp78_odd_setbit_count": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "mbpp78_odd_setbit_count/0",
+        "mbpp78_odd_setbit_count/1",
+        "mbpp78_odd_setbit_count/2"
+      ],
+      "hidden_ids": [
+        "mbpp78_odd_setbit_count/3",
+        "mbpp78_odd_setbit_count/4"
+      ]
+    },
+    "mbpp100_next_palindrome": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "mbpp100_next_palindrome/0",
+        "mbpp100_next_palindrome/1",
+        "mbpp100_next_palindrome/2"
+      ],
+      "hidden_ids": [
+        "mbpp100_next_palindrome/3",
+        "mbpp100_next_palindrome/4"
+      ]
+    },
+    "mbpp151_is_coprime": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "mbpp151_is_coprime/0",
+        "mbpp151_is_coprime/1",
+        "mbpp151_is_coprime/2"
+      ],
+      "hidden_ids": [
+        "mbpp151_is_coprime/3",
+        "mbpp151_is_coprime/4"
+      ]
+    },
+    "mbpp155_toggle_even_bits": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "mbpp155_toggle_even_bits/0",
+        "mbpp155_toggle_even_bits/1",
+        "mbpp155_toggle_even_bits/2"
+      ],
+      "hidden_ids": [
+        "mbpp155_toggle_even_bits/3",
+        "mbpp155_toggle_even_bits/4"
+      ]
+    },
+    "mbpp224_count_set_bits": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "mbpp224_count_set_bits/0",
+        "mbpp224_count_set_bits/1",
+        "mbpp224_count_set_bits/2"
+      ],
+      "hidden_ids": [
+        "mbpp224_count_set_bits/3",
+        "mbpp224_count_set_bits/4"
+      ]
+    },
+    "mbpp234_cube_volume": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "mbpp234_cube_volume/0",
+        "mbpp234_cube_volume/1",
+        "mbpp234_cube_volume/2"
+      ],
+      "hidden_ids": [
+        "mbpp234_cube_volume/3",
+        "mbpp234_cube_volume/4"
+      ]
+    },
+    "mbpp244_next_square": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "mbpp244_next_square/0",
+        "mbpp244_next_square/1",
+        "mbpp244_next_square/2"
+      ],
+      "hidden_ids": [
+        "mbpp244_next_square/3",
+        "mbpp244_next_square/4"
+      ]
+    },
+    "mbpp256_count_primes": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "mbpp256_count_primes/0",
+        "mbpp256_count_primes/1",
+        "mbpp256_count_primes/2"
+      ],
+      "hidden_ids": [
+        "mbpp256_count_primes/3",
+        "mbpp256_count_primes/4"
+      ]
+    },
+    "mbpp267_sum_odd_squares": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "mbpp267_sum_odd_squares/0",
+        "mbpp267_sum_odd_squares/1",
+        "mbpp267_sum_odd_squares/2"
+      ],
+      "hidden_ids": [
+        "mbpp267_sum_odd_squares/3",
+        "mbpp267_sum_odd_squares/4"
+      ]
+    },
+    "mbpp287_sum_even_squares": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "mbpp287_sum_even_squares/0",
+        "mbpp287_sum_even_squares/1",
+        "mbpp287_sum_even_squares/2"
+      ],
+      "hidden_ids": [
+        "mbpp287_sum_even_squares/3",
+        "mbpp287_sum_even_squares/4"
+      ]
+    },
+    "he3_below_zero": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he3_below_zero/0",
+        "he3_below_zero/1",
+        "he3_below_zero/2"
+      ],
+      "hidden_ids": [
+        "he3_below_zero/3",
+        "he3_below_zero/4"
+      ]
+    },
+    "he8_sum_product": {
+      "n": 4,
+      "n_visible": 2,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he8_sum_product/0",
+        "he8_sum_product/1"
+      ],
+      "hidden_ids": [
+        "he8_sum_product/2",
+        "he8_sum_product/3"
+      ]
+    },
+    "he9_rolling_max": {
+      "n": 3,
+      "n_visible": 2,
+      "n_hidden": 1,
+      "visible_ids": [
+        "he9_rolling_max/0",
+        "he9_rolling_max/1"
+      ],
+      "hidden_ids": [
+        "he9_rolling_max/2"
+      ]
+    },
+    "he11_string_xor": {
+      "n": 3,
+      "n_visible": 2,
+      "n_hidden": 1,
+      "visible_ids": [
+        "he11_string_xor/0",
+        "he11_string_xor/1"
+      ],
+      "hidden_ids": [
+        "he11_string_xor/2"
+      ]
+    },
+    "he13_gcd": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he13_gcd/0",
+        "he13_gcd/1",
+        "he13_gcd/2"
+      ],
+      "hidden_ids": [
+        "he13_gcd/3",
+        "he13_gcd/4"
+      ]
+    },
+    "he16_count_distinct_chars": {
+      "n": 4,
+      "n_visible": 2,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he16_count_distinct_chars/0",
+        "he16_count_distinct_chars/1"
+      ],
+      "hidden_ids": [
+        "he16_count_distinct_chars/2",
+        "he16_count_distinct_chars/3"
+      ]
+    },
+    "he18_how_many_times": {
+      "n": 4,
+      "n_visible": 2,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he18_how_many_times/0",
+        "he18_how_many_times/1"
+      ],
+      "hidden_ids": [
+        "he18_how_many_times/2",
+        "he18_how_many_times/3"
+      ]
+    },
+    "he23_strlen": {
+      "n": 3,
+      "n_visible": 2,
+      "n_hidden": 1,
+      "visible_ids": [
+        "he23_strlen/0",
+        "he23_strlen/1"
+      ],
+      "hidden_ids": [
+        "he23_strlen/2"
+      ]
+    },
+    "he24_largest_divisor": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he24_largest_divisor/0",
+        "he24_largest_divisor/1",
+        "he24_largest_divisor/2"
+      ],
+      "hidden_ids": [
+        "he24_largest_divisor/3",
+        "he24_largest_divisor/4"
+      ]
+    },
+    "he25_factorize": {
+      "n": 4,
+      "n_visible": 2,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he25_factorize/0",
+        "he25_factorize/1"
+      ],
+      "hidden_ids": [
+        "he25_factorize/2",
+        "he25_factorize/3"
+      ]
+    },
+    "he26_remove_duplicates": {
+      "n": 3,
+      "n_visible": 2,
+      "n_hidden": 1,
+      "visible_ids": [
+        "he26_remove_duplicates/0",
+        "he26_remove_duplicates/1"
+      ],
+      "hidden_ids": [
+        "he26_remove_duplicates/2"
+      ]
+    },
+    "he27_flip_case": {
+      "n": 3,
+      "n_visible": 2,
+      "n_hidden": 1,
+      "visible_ids": [
+        "he27_flip_case/0",
+        "he27_flip_case/1"
+      ],
+      "hidden_ids": [
+        "he27_flip_case/2"
+      ]
+    },
+    "he36_fizz_buzz": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he36_fizz_buzz/0",
+        "he36_fizz_buzz/1",
+        "he36_fizz_buzz/2"
+      ],
+      "hidden_ids": [
+        "he36_fizz_buzz/3",
+        "he36_fizz_buzz/4"
+      ]
+    },
+    "he43_pairs_sum_to_zero": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he43_pairs_sum_to_zero/0",
+        "he43_pairs_sum_to_zero/1",
+        "he43_pairs_sum_to_zero/2"
+      ],
+      "hidden_ids": [
+        "he43_pairs_sum_to_zero/3",
+        "he43_pairs_sum_to_zero/4"
+      ]
+    },
+    "he45_triangle_area": {
+      "n": 4,
+      "n_visible": 2,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he45_triangle_area/0",
+        "he45_triangle_area/1"
+      ],
+      "hidden_ids": [
+        "he45_triangle_area/2",
+        "he45_triangle_area/3"
+      ]
+    },
+    "he48_is_palindrome": {
+      "n": 4,
+      "n_visible": 2,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he48_is_palindrome/0",
+        "he48_is_palindrome/1"
+      ],
+      "hidden_ids": [
+        "he48_is_palindrome/2",
+        "he48_is_palindrome/3"
+      ]
+    },
+    "he49_modp": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he49_modp/0",
+        "he49_modp/1",
+        "he49_modp/2"
+      ],
+      "hidden_ids": [
+        "he49_modp/3",
+        "he49_modp/4"
+      ]
+    },
+    "he56_correct_bracketing": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he56_correct_bracketing/0",
+        "he56_correct_bracketing/1",
+        "he56_correct_bracketing/2"
+      ],
+      "hidden_ids": [
+        "he56_correct_bracketing/3",
+        "he56_correct_bracketing/4"
+      ]
+    },
+    "he59_largest_prime_factor": {
+      "n": 4,
+      "n_visible": 2,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he59_largest_prime_factor/0",
+        "he59_largest_prime_factor/1"
+      ],
+      "hidden_ids": [
+        "he59_largest_prime_factor/2",
+        "he59_largest_prime_factor/3"
+      ]
+    },
+    "he60_sum_to_n": {
+      "n": 6,
+      "n_visible": 3,
+      "n_hidden": 3,
+      "visible_ids": [
+        "he60_sum_to_n/0",
+        "he60_sum_to_n/1",
+        "he60_sum_to_n/2"
+      ],
+      "hidden_ids": [
+        "he60_sum_to_n/3",
+        "he60_sum_to_n/4",
+        "he60_sum_to_n/5"
+      ]
+    },
+    "he63_fibfib": {
+      "n": 6,
+      "n_visible": 3,
+      "n_hidden": 3,
+      "visible_ids": [
+        "he63_fibfib/0",
+        "he63_fibfib/1",
+        "he63_fibfib/2"
+      ],
+      "hidden_ids": [
+        "he63_fibfib/3",
+        "he63_fibfib/4",
+        "he63_fibfib/5"
+      ]
+    },
+    "he64_vowels_count": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he64_vowels_count/0",
+        "he64_vowels_count/1",
+        "he64_vowels_count/2"
+      ],
+      "hidden_ids": [
+        "he64_vowels_count/3",
+        "he64_vowels_count/4"
+      ]
+    },
+    "he66_digit_sum_upper": {
+      "n": 4,
+      "n_visible": 2,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he66_digit_sum_upper/0",
+        "he66_digit_sum_upper/1"
+      ],
+      "hidden_ids": [
+        "he66_digit_sum_upper/2",
+        "he66_digit_sum_upper/3"
+      ]
+    },
+    "he72_will_it_fly": {
+      "n": 4,
+      "n_visible": 2,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he72_will_it_fly/0",
+        "he72_will_it_fly/1"
+      ],
+      "hidden_ids": [
+        "he72_will_it_fly/2",
+        "he72_will_it_fly/3"
+      ]
+    },
+    "he73_smallest_change": {
+      "n": 4,
+      "n_visible": 2,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he73_smallest_change/0",
+        "he73_smallest_change/1"
+      ],
+      "hidden_ids": [
+        "he73_smallest_change/2",
+        "he73_smallest_change/3"
+      ]
+    },
+    "he75_is_multiply_prime": {
+      "n": 6,
+      "n_visible": 3,
+      "n_hidden": 3,
+      "visible_ids": [
+        "he75_is_multiply_prime/0",
+        "he75_is_multiply_prime/1",
+        "he75_is_multiply_prime/2"
+      ],
+      "hidden_ids": [
+        "he75_is_multiply_prime/3",
+        "he75_is_multiply_prime/4",
+        "he75_is_multiply_prime/5"
+      ]
+    },
+    "he76_is_simple_power": {
+      "n": 6,
+      "n_visible": 3,
+      "n_hidden": 3,
+      "visible_ids": [
+        "he76_is_simple_power/0",
+        "he76_is_simple_power/1",
+        "he76_is_simple_power/2"
+      ],
+      "hidden_ids": [
+        "he76_is_simple_power/3",
+        "he76_is_simple_power/4",
+        "he76_is_simple_power/5"
+      ]
+    },
+    "he77_iscube": {
+      "n": 7,
+      "n_visible": 4,
+      "n_hidden": 3,
+      "visible_ids": [
+        "he77_iscube/0",
+        "he77_iscube/1",
+        "he77_iscube/2",
+        "he77_iscube/3"
+      ],
+      "hidden_ids": [
+        "he77_iscube/4",
+        "he77_iscube/5",
+        "he77_iscube/6"
+      ]
+    },
+    "he78_hex_key": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he78_hex_key/0",
+        "he78_hex_key/1",
+        "he78_hex_key/2"
+      ],
+      "hidden_ids": [
+        "he78_hex_key/3",
+        "he78_hex_key/4"
+      ]
+    },
+    "he82_prime_length": {
+      "n": 6,
+      "n_visible": 3,
+      "n_hidden": 3,
+      "visible_ids": [
+        "he82_prime_length/0",
+        "he82_prime_length/1",
+        "he82_prime_length/2"
+      ],
+      "hidden_ids": [
+        "he82_prime_length/3",
+        "he82_prime_length/4",
+        "he82_prime_length/5"
+      ]
+    },
+    "he83_starts_one_ends": {
+      "n": 4,
+      "n_visible": 2,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he83_starts_one_ends/0",
+        "he83_starts_one_ends/1"
+      ],
+      "hidden_ids": [
+        "he83_starts_one_ends/2",
+        "he83_starts_one_ends/3"
+      ]
+    },
+    "he85_sum_even_odd_idx": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he85_sum_even_odd_idx/0",
+        "he85_sum_even_odd_idx/1",
+        "he85_sum_even_odd_idx/2"
+      ],
+      "hidden_ids": [
+        "he85_sum_even_odd_idx/3",
+        "he85_sum_even_odd_idx/4"
+      ]
+    },
+    "he89_encrypt": {
+      "n": 4,
+      "n_visible": 2,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he89_encrypt/0",
+        "he89_encrypt/1"
+      ],
+      "hidden_ids": [
+        "he89_encrypt/2",
+        "he89_encrypt/3"
+      ]
+    },
+    "he92_any_int": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he92_any_int/0",
+        "he92_any_int/1",
+        "he92_any_int/2"
+      ],
+      "hidden_ids": [
+        "he92_any_int/3",
+        "he92_any_int/4"
+      ]
+    },
+    "he97_multiply_units": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he97_multiply_units/0",
+        "he97_multiply_units/1",
+        "he97_multiply_units/2"
+      ],
+      "hidden_ids": [
+        "he97_multiply_units/3",
+        "he97_multiply_units/4"
+      ]
+    },
+    "he100_make_a_pile": {
+      "n": 3,
+      "n_visible": 2,
+      "n_hidden": 1,
+      "visible_ids": [
+        "he100_make_a_pile/0",
+        "he100_make_a_pile/1"
+      ],
+      "hidden_ids": [
+        "he100_make_a_pile/2"
+      ]
+    },
+    "he102_choose_num": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he102_choose_num/0",
+        "he102_choose_num/1",
+        "he102_choose_num/2"
+      ],
+      "hidden_ids": [
+        "he102_choose_num/3",
+        "he102_choose_num/4"
+      ]
+    },
+    "he104_unique_digits": {
+      "n": 3,
+      "n_visible": 2,
+      "n_hidden": 1,
+      "visible_ids": [
+        "he104_unique_digits/0",
+        "he104_unique_digits/1"
+      ],
+      "hidden_ids": [
+        "he104_unique_digits/2"
+      ]
+    },
+    "he106_f_factorial_or_sum": {
+      "n": 3,
+      "n_visible": 2,
+      "n_hidden": 1,
+      "visible_ids": [
+        "he106_f_factorial_or_sum/0",
+        "he106_f_factorial_or_sum/1"
+      ],
+      "hidden_ids": [
+        "he106_f_factorial_or_sum/2"
+      ]
+    },
+    "he114_min_subarray_sum": {
+      "n": 4,
+      "n_visible": 2,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he114_min_subarray_sum/0",
+        "he114_min_subarray_sum/1"
+      ],
+      "hidden_ids": [
+        "he114_min_subarray_sum/2",
+        "he114_min_subarray_sum/3"
+      ]
+    },
+    "he120_k_largest": {
+      "n": 3,
+      "n_visible": 2,
+      "n_hidden": 1,
+      "visible_ids": [
+        "he120_k_largest/0",
+        "he120_k_largest/1"
+      ],
+      "hidden_ids": [
+        "he120_k_largest/2"
+      ]
+    },
+    "he121_sum_odd_even_idx": {
+      "n": 4,
+      "n_visible": 2,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he121_sum_odd_even_idx/0",
+        "he121_sum_odd_even_idx/1"
+      ],
+      "hidden_ids": [
+        "he121_sum_odd_even_idx/2",
+        "he121_sum_odd_even_idx/3"
+      ]
+    },
+    "he122_add_elements": {
+      "n": 4,
+      "n_visible": 2,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he122_add_elements/0",
+        "he122_add_elements/1"
+      ],
+      "hidden_ids": [
+        "he122_add_elements/2",
+        "he122_add_elements/3"
+      ]
+    },
+    "he131_odd_digit_product": {
+      "n": 6,
+      "n_visible": 3,
+      "n_hidden": 3,
+      "visible_ids": [
+        "he131_odd_digit_product/0",
+        "he131_odd_digit_product/1",
+        "he131_odd_digit_product/2"
+      ],
+      "hidden_ids": [
+        "he131_odd_digit_product/3",
+        "he131_odd_digit_product/4",
+        "he131_odd_digit_product/5"
+      ]
+    },
+    "he138_sum_of_four_evens": {
+      "n": 6,
+      "n_visible": 3,
+      "n_hidden": 3,
+      "visible_ids": [
+        "he138_sum_of_four_evens/0",
+        "he138_sum_of_four_evens/1",
+        "he138_sum_of_four_evens/2"
+      ],
+      "hidden_ids": [
+        "he138_sum_of_four_evens/3",
+        "he138_sum_of_four_evens/4",
+        "he138_sum_of_four_evens/5"
+      ]
+    },
+    "he139_special_factorial": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he139_special_factorial/0",
+        "he139_special_factorial/1",
+        "he139_special_factorial/2"
+      ],
+      "hidden_ids": [
+        "he139_special_factorial/3",
+        "he139_special_factorial/4"
+      ]
+    },
+    "he142_indexed_sum_squares": {
+      "n": 3,
+      "n_visible": 2,
+      "n_hidden": 1,
+      "visible_ids": [
+        "he142_indexed_sum_squares/0",
+        "he142_indexed_sum_squares/1"
+      ],
+      "hidden_ids": [
+        "he142_indexed_sum_squares/2"
+      ]
+    },
+    "he146_special_filter": {
+      "n": 4,
+      "n_visible": 2,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he146_special_filter/0",
+        "he146_special_filter/1"
+      ],
+      "hidden_ids": [
+        "he146_special_filter/2",
+        "he146_special_filter/3"
+      ]
+    },
+    "he150_x_or_y": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he150_x_or_y/0",
+        "he150_x_or_y/1",
+        "he150_x_or_y/2"
+      ],
+      "hidden_ids": [
+        "he150_x_or_y/3",
+        "he150_x_or_y/4"
+      ]
+    },
+    "he151_double_the_difference": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he151_double_the_difference/0",
+        "he151_double_the_difference/1",
+        "he151_double_the_difference/2"
+      ],
+      "hidden_ids": [
+        "he151_double_the_difference/3",
+        "he151_double_the_difference/4"
+      ]
+    },
+    "he152_compare_scores": {
+      "n": 2,
+      "n_visible": 1,
+      "n_hidden": 1,
+      "visible_ids": [
+        "he152_compare_scores/0"
+      ],
+      "hidden_ids": [
+        "he152_compare_scores/1"
+      ]
+    },
+    "he155_even_odd_count": {
+      "n": 4,
+      "n_visible": 2,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he155_even_odd_count/0",
+        "he155_even_odd_count/1"
+      ],
+      "hidden_ids": [
+        "he155_even_odd_count/2",
+        "he155_even_odd_count/3"
+      ]
+    },
+    "he157_right_angle_triangle": {
+      "n": 5,
+      "n_visible": 3,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he157_right_angle_triangle/0",
+        "he157_right_angle_triangle/1",
+        "he157_right_angle_triangle/2"
+      ],
+      "hidden_ids": [
+        "he157_right_angle_triangle/3",
+        "he157_right_angle_triangle/4"
+      ]
+    },
+    "he159_eat": {
+      "n": 4,
+      "n_visible": 2,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he159_eat/0",
+        "he159_eat/1"
+      ],
+      "hidden_ids": [
+        "he159_eat/2",
+        "he159_eat/3"
+      ]
+    },
+    "he163_generate_integers": {
+      "n": 4,
+      "n_visible": 2,
+      "n_hidden": 2,
+      "visible_ids": [
+        "he163_generate_integers/0",
+        "he163_generate_integers/1"
+      ],
+      "hidden_ids": [
+        "he163_generate_integers/2",
+        "he163_generate_integers/3"
+      ]
+    }
+  }
+}

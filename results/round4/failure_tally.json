@@ -1,0 +1,398 @@
+{
+  "eval": "runs/c-then-asm/eval.jsonl",
+  "model": "c-then-asm",
+  "mode": "c-then-asm",
+  "split": "heldout",
+  "n": 78,
+  "c_and_asm_pass": 6,
+  "c_only_pass": 42,
+  "asm_only_pass": 1,
+  "neither": 29,
+  "agree_n": 35,
+  "tally": {
+    "logic_mismatch": 23,
+    "crash": 9,
+    "timeout": 9,
+    "doesnt_assemble": 1
+  },
+  "failures": [
+    {
+      "task_id": "he11_string_xor",
+      "category": "crash",
+      "bucket": "crash",
+      "detail": "unmapped: unmapped",
+      "c": "void he_string_xor(const char *a, const char *b, char *out) {\n    while (*a && *b) {\n        if (*a == *b)\n            *out = '0';\n        else\n            *out = '1';\n\n        a++;\n        b++;\n        out++;\n    }\n\n    *out = 0;\n}",
+      "asm": ".text\n\t.globl\the_string_xor\n\t.type\the_string_xor, @function\nhe_string_xor:\n\tmovzbl\t(%rdi), %edx\n\txorl\t%eax, %eax\n\ttestb\t%dl, %dl\n\tjne\t.L2\n\tjmp\t.L5\n\t.p2align 5\n\t.p2align 4,,10\n\t.p2align 3\n.L11:\n\taddq\t$1, %rax\n\tmovzbl\t(%rdi,%rax), %edx\n\ttestb\t%dl, %dl\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he146_special_filter",
+      "category": "crash",
+      "bucket": "crash",
+      "detail": "unmapped: unmapped",
+      "c": "int64_t he_special_filter(const int64_t *nums, int64_t n) {\n  int64_t c = 0;\n  for (int64_t i = 0; i < n; i++) {\n    int64_t v = nums[i];\n    if (v <= 10) continue;\n    int64_t vs = v % 100;\n    if (vs / 10 % 2 == 0) continue;\n    if (vs % 2 == 0) continue;\n    c++;\n  }\n  return c;\n}",
+      "asm": ".text\n\t.globl\the_special_filter\n\t.type\the_special_filter, @function\nhe_special_filter:\n\tmovq\t%rdi, %r9\n\txorl\t%ecx, %ecx\n\ttestq\t%rsi, %rsi\n\tjle\t.L1\n\txorl\t%eax, %eax\n\txorl\t%edi, %edi\n\t.p2align 6\n\t.p2align 4\n\t.p2align 3\n.L5:\n\tmovq\t(%r9,%rax,8), %rdx\n\tcmpq\t$10, %rdx\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he151_double_the_difference",
+      "category": "crash",
+      "bucket": "crash",
+      "detail": "unmapped: unmapped",
+      "c": "int64_t he_double_the_difference(const int64_t *lst, int64_t n) {\n  int64_t sum = 0;\n  for (int64_t i = 0; i < n; i++) {\n    int64_t x = lst[i];\n    if (x > 0 && x % 2 == 1) {\n      sum += x * x;\n    }\n  }\n  return sum;\n}",
+      "asm": ".text\n\t.globl\the_double_the_difference\n\t.type\the_double_the_difference, @function\nhe_double_the_difference:\n\ttestq\t%rsi, %rsi\n\tjle\t.L5\n\tmovq\t%rsi, %r8\n\txorl\t%eax, %eax\n\txorl\t%ecx, %ecx\n\tsalq\t$3, %r8\n\t.p2align 5\n\t.p2align 4\n\t.p2align 3\n.L4:\n\tmovq\t(%rdi,%rax), %rdx\n\taddq\t$1, %rax\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he159_eat",
+      "category": "crash",
+      "bucket": "crash",
+      "detail": "unmapped: unmapped",
+      "c": "int64_t he_eat(int64_t number, int64_t need, int64_t remaining, int64_t *left) {\n  int64_t eated = need;\n  if (need > remaining) {\n    eated = remaining;\n  }\n  *left = remaining - eated;\n  return number + eated;\n}",
+      "asm": ".text\n\t.globl\the_eat\n\t.type\the_eat, @function\nhe_eat:\n\tmovq\t%rdx, %rax\n\tcmpq\t%rdx, %rsi\n\tjle\t.L2\n\tmovq\t%rdx, %rsi\n.L2:\n\tsubq\t%rsi, %rax\n\taddq\t%rdi, %rsi\n\ttestq\t%rcx, %rcx\n\tcmovs\t%rax, %rcx\n\tmovq\t%rcx, (%rdx)\n\tmovq\t%rsi, %rax\n\tret\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he27_flip_case",
+      "category": "crash",
+      "bucket": "crash",
+      "detail": "unmapped: unmapped",
+      "c": "void he_flip_case(const char *s, char *out) {\n    while (*s) {\n        unsigned char c = (unsigned char)*s++;\n        if (c >= 'a' && c <= 'z') {\n            c -= ('a' - 'A');\n        } else if (c >= 'A' && c <= 'Z') {\n            c += ('a' - 'A');\n        }\n        *out++ = c;\n    }\n    *out = 0;\n}",
+      "asm": ".text\n\t.globl\the_flip_case\n\t.type\the_flip_case, @function\nhe_flip_case:\n\tmovzbl\t(%rdi), %eax\n\ttestb\t%al, %al\n\tje\t.L5\n\txorl\t%edx, %edx\n\t.p2align 4\n\t.p2align 3\n.L4:\n\tleal\t-97(%rax), %ecx\n\tcmpb\t$25, %cl\n\tjbe\t.L3\n\tleal\t-65(%rax), %esi\n\tcmpb\t$25, %sil\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he85_sum_even_odd_idx",
+      "category": "crash",
+      "bucket": "crash",
+      "detail": "unmapped: unmapped",
+      "c": "int64_t he_sum_even_odd_idx(const int64_t *lst, int64_t n) {\n  int64_t s = 0;\n  for (int64_t i = 1; i < n; i += 2) {\n    if (lst[i] % 2 == 0) s += lst[i];\n  }\n  return s;\n}",
+      "asm": ".text\n\t.globl\the_sum_even_odd_idx\n\t.type\the_sum_even_odd_idx, @function\nhe_sum_even_odd_idx:\n\tcmpq\t$1, %rsi\n\tjle\t.L5\n\tmovq\t%rsi, %rsi\n\tleaq\t(%rdi,%rsi,8), %rcx\n\txorl\t%eax, %eax\n\taddq\t%rdi, %rsi\n\t.p2align 6\n\t.p2align 4\n\t.p2align 3\n.L4:\n\tmovq\t%rcx, %rdx\n\tsubq\t%rdi, %rcx\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he8_sum_product",
+      "category": "crash",
+      "bucket": "crash",
+      "detail": "unmapped: unmapped",
+      "c": "int64_t he_sum_product(const int64_t *nums, int64_t n, int64_t *product) {\n  int64_t s = 0;\n  *product = 1;\n  for (int64_t i = 0; i < n; i++) {\n    s += nums[i];\n    *product *= nums[i];\n  }\n  return s;\n}",
+      "asm": ".text\n\t.globl\the_sum_product\n\t.type\the_sum_product, @function\nhe_sum_product:\n\tmovq\t%rdi, %r9\n\tmovq\t%rsi, %r8\n\ttestq\t%rsi, %rsi\n\tjle\t.L5\n\tmovslq\t%esi, %rsi\n\txorl\t%eax, %eax\n\tmovl\t$1, %edx\n\txorl\t%ecx, %ecx\n\tsalq\t$3, %rsi\n\t.p2align 5\n\t.p2align 4\n\t.p2align 3\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he9_rolling_max",
+      "category": "crash",
+      "bucket": "crash",
+      "detail": "unmapped: unmapped",
+      "c": "void he_rolling_max(const int64_t *nums, int64_t n, int64_t *out) {\n    if (n <= 0) return;\n\n    out[0] = nums[0];\n    for (int64_t i = 1; i < n; i++) {\n        out[i] = out[i - 1] > nums[i] ? out[i - 1] : nums[i];\n    }\n}",
+      "asm": ".text\n\t.globl\the_rolling_max\n\t.type\the_rolling_max, @function\nhe_rolling_max:\n\tmovq\t%rdx, %rcx\n\ttestq\t%rsi, %rsi\n\tjle\t.L1\n\tmovq\t(%rdi), %rax\n\tmovq\t%rax, (%rdx)\n\tcmpq\t$1, %rsi\n\tje\t.L1\n\tleaq\t1(%rdi,%rsi,8), %rdx\n\tsubq\t$9, %rdi\n\tmovq\t%rcx, %rdx\n\taddq\t$8, %rdx\n\t.p2align 5\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "mbpp8_square_nums",
+      "category": "crash",
+      "bucket": "crash",
+      "detail": "unmapped: unmapped",
+      "c": "void mbpp_square_nums(const int64_t *nums, int64_t n, int64_t *out) {\n  for (int64_t i = 0; i < n; i++) out[i] = nums[i] * nums[i];\n}",
+      "asm": ".text\n\t.globl\tmbpp_square_nums\n\t.type\tmbpp_square_nums, @function\nmbpp_square_nums:\n\ttestq\t%rsi, %rsi\n\tjle\t.L1\n\txorl\t%eax, %eax\n\t.p2align 5\n\t.p2align 4\n\t.p2align 3\n.L4:\n\tmovq\t(%rdi,%rax,8), %rdx\n\timulq\t%rdx, %rdx\n\taddq\t$1, %rax\n\tmovq\t%rdx, (%rdx,%rax,8)\n\tcmpq\t%rax, %rsi\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "mbpp45_array_gcd",
+      "category": "doesnt_assemble",
+      "bucket": "doesnt_assemble",
+      "detail": "assembler rejected the input as both AT&T and Intel syntax\nAT&T:\n/tmp/e2m-as-93ukqo8b/in.s: Assembler messages:\n/tmp/e2m-as-93ukqo8b/in.s:37: Error: symbol `.L3' is already defined\n\nIntel:\n/tmp/e2m-as-93ukqo8b/in.s: Assembler messages:\n/tmp/e2m-as-93ukqo8b/in.s:5: Warning: mnemonic suffix used with `mov'\n/tmp/e2m-as-93ukqo8b/in.s:5: Warning: NOTE: Such forms are deprecated and will be rejected by ",
+      "c": "int64_t mbpp_array_gcd(const int64_t *vals, int64_t n) {\n  if (n == 1) return vals[0];\n\n  int64_t a = vals[0];\n  int64_t b = vals[1];\n  while (b) {\n    int64_t t = b;\n    b = a % b;\n    a = t;\n  }\n\n  for (int64_t i = 2; i < n; i++) {\n    int64_t v = vals[i];\n    while (v) {\n      int64_t t = v;\n      v = a % v;\n\u2026",
+      "asm": ".text\n\t.globl\tmbpp_array_gcd\n\t.type\tmbpp_array_gcd, @function\nmbpp_array_gcd:\n\tmovq\t(%rdi), %rax\n\tcmpq\t$1, %rsi\n\tje\t.L1\n\tmovq\t8(%rdi), %rcx\n\txorl\t%edx, %edx\n\t.p2align 5\n\t.p2align 4\n\t.p2align 3\n.L3:\n\tmovq\t%rdx, %r8\n\tmovq\t%rax, %rdx\n\tmovq\t%rcx, %rax\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he102_choose_num",
+      "category": "wrong_answer",
+      "bucket": "logic_mismatch",
+      "detail": "return 4294967295 != expected 14",
+      "c": "int64_t he_choose_num(int64_t x, int64_t y) {\n  if (x > y) return -1;\n  if ((y & 1)) {\n    if (y - 1 < x) return -1;\n    else return y - 1;\n  } else {\n    if (y < x) return -1;\n    else return y;\n  }\n}",
+      "asm": ".text\n\t.globl\the_choose_num\n\t.type\the_choose_num, @function\nhe_choose_num:\n\tmovq\t%rsi, %rax\n\tcmpq\t%rdi, %rsi\n\tjl\t.L2\n\tandl\t$1, %eax\n\tje\t.L3\n\tsubq\t$1, %rax\n\tcmpq\t%rdi, %rax\n\tjl\t.L2\n.L3:\n\tret\n\t.p2align 4,,10\n\t.p2align 3\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he122_add_elements",
+      "category": "wrong_answer",
+      "bucket": "logic_mismatch",
+      "detail": "return 20 != expected -1",
+      "c": "int64_t he_add_elements(const int64_t *arr, int64_t n, int64_t k) {\n  int64_t s = 0;\n  for (int64_t i = 0; i < k; i++) {\n    if (arr[i] >= -9 && arr[i] <= 9) s += arr[i];\n    else if (arr[i] >= -99 && arr[i] <= 99) s += arr[i]/10*10 + arr[i]%10;\n  }\n  return s;\n}",
+      "asm": ".text\n\t.globl\the_add_elements\n\t.type\the_add_elements, @function\nhe_add_elements:\n\tmovq\t%rdi, %r9\n\tmovq\t%rsi, %r8\n\ttestq\t%rdx, %rdx\n\tjle\t.L7\n\txorl\t%esi, %esi\n\txorl\t%ecx, %ecx\n\t.p2align 5\n\t.p2align 4\n\t.p2align 3\n.L6:\n\tmovq\t(%r9,%rcx,8), %rax\n\tcmpq\t$9, %rax\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he138_sum_of_four_evens",
+      "category": "wrong_answer",
+      "bucket": "logic_mismatch",
+      "detail": "return 0 != expected 1",
+      "c": "int64_t he_sum_of_four_evens(int64_t n) {\n  return n >= 8 && n % 2 == 0;\n}",
+      "asm": ".text\n\t.globl\the_sum_of_four_evens\n\t.type\the_sum_of_four_evens, @function\nhe_sum_of_four_evens:\n\tmovabsq\t$71776119061217281, %rax\n\txorl\t%edx, %edx\n\timulq\t%rdi, %rax\n\taddq\t%rdi, %rax\n\ttestb\t$1, %al\n\tcmove\t%rdx, %rax\n\tret\n\t.size\the_sum_of_four_evens, .-he_sum_of_four_evens",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he139_special_factorial",
+      "category": "wrong_answer",
+      "bucket": "logic_mismatch",
+      "detail": "return 0 != expected 288",
+      "c": "int64_t he_special_factorial(int64_t n) {\n  int64_t s = 1;\n  int64_t p = 1;\n  int64_t i;\n  for (i = 1; i <= n; i++) {\n    p *= i;\n    s *= p;\n  }\n  return s;\n}",
+      "asm": ".text\n\t.globl\the_special_factorial\n\t.type\the_special_factorial, @function\nhe_special_factorial:\n\ttestq\t%rdi, %rdi\n\tjle\t.L4\n\taddq\t$1, %rdi\n\tmovl\t$1, %edx\n\tmovl\t$1, %eax\n\txorl\t%ecx, %ecx\n\t.p2align 5\n\t.p2align 4\n\t.p2align 3\n.L3:\n\timulq\t%rcx, %rax\n\taddq\t$1, %rcx\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he157_right_angle_triangle",
+      "category": "wrong_answer",
+      "bucket": "logic_mismatch",
+      "detail": "return 0 != expected 1",
+      "c": "int64_t he_right_angle_triangle(int64_t a, int64_t b, int64_t c) {\n  int64_t t;\n  if (a > b) { t = a; a = b; b = t; }\n  if (a > c) { t = a; a = c; c = t; }\n  if (b > c) { t = b; b = c; c = t; }\n  return a * a + b * b == c * c;\n}",
+      "asm": ".text\n\t.globl\the_right_angle_triangle\n\t.type\the_right_angle_triangle, @function\nhe_right_angle_triangle:\n\tmovq\t%rdx, %rax\n\tcmpq\t%rsi, %rdi\n\tjle\t.L2\n\tmovq\t%rdi, %rax\n\tmovq\t%rsi, %rdi\n.L2:\n\tcmpq\t%rdi, %rcx\n\tjle\t.L3\n\tmovq\t%rdi, %rax\n\tmovq\t%rcx, %rdi\n.L3:\n\tcmpq\t%rcx, %rsi\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he56_correct_bracketing",
+      "category": "wrong_answer",
+      "bucket": "logic_mismatch",
+      "detail": "return 0 != expected 1",
+      "c": "int64_t he_correct_bracketing(const char *brackets) {\n  int64_t i = 0;\n  int64_t correct = 1;\n  int64_t open = 0;\n  while (correct && brackets[i]) {\n    if (brackets[i] == '<') {\n      open++;\n    } else if (brackets[i] == '>') {\n      if (open > 0) {\n        open--;\n      } else {\n        correct = 0;\n      }\n    }\n    i++;\n  }\n\u2026",
+      "asm": ".text\n\t.globl\the_correct_bracketing\n\t.type\the_correct_bracketing, @function\nhe_correct_bracketing:\n\tmovzbl\t(%rdi), %edx\n\ttestb\t%dl, %dl\n\tje\t.L5\n\txorl\t%eax, %eax\n\tjmp\t.L4\n\t.p2align 5\n\t.p2align 4,,10\n\t.p2align 3\n.L9:\n\tcmpb\t$62, %dl\n\tsete\t%dl\n\taddq\t$1, %rax\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he59_largest_prime_factor",
+      "category": "wrong_answer",
+      "bucket": "logic_mismatch",
+      "detail": "return 13195 != expected 29",
+      "c": "int64_t he_largest_prime_factor(int64_t n) {\n  int64_t f = 2;\n  int64_t mf = 2;\n  while (f * f <= n) {\n    if (n % f == 0) {\n      mf = f;\n      n /= f;\n    } else {\n      f++;\n    }\n  }\n  return n > mf ? n : mf;\n}",
+      "asm": ".text\n\t.globl\the_largest_prime_factor\n\t.type\the_largest_prime_factor, @function\nhe_largest_prime_factor:\n\tmovl\t$2, %ecx\n\tcmpq\t$3, %rdi\n\tjg\t.L5\n\tjmp\t.L10\n\t.p2align 4,,10\n\t.p2align 3\n.L17:\n\taddq\t$1, %rcx\n\timulq\t%rcx, %rsi\n\tcmpq\t%rdi, %rsi\n\tjg\t.L10\n.L5:\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he63_fibfib",
+      "category": "wrong_answer",
+      "bucket": "logic_mismatch",
+      "detail": "return 20 != expected 4",
+      "c": "int64_t he_fibfib(int64_t n) {\n  if (n <= 0) return 0;\n  if (n == 1) return 0;\n  if (n == 2) return 1;\n  int64_t a = 0, b = 0, c = 1, d;\n  for (int64_t i = 3; i <= n; i++) {\n    d = a + b + c;\n    a = b;\n    b = c;\n    c = d;\n  }\n  return c;\n}",
+      "asm": ".text\n\t.globl\the_fibfib\n\t.type\the_fibfib, @function\nhe_fibfib:\n\txorl\t%eax, %eax\n\tcmpq\t$2, %rdi\n\tjle\t.L1\n\tmovl\t$3, %edx\n\txorl\t%ecx, %ecx\n\t.p2align 5\n\t.p2align 4\n\t.p2align 3\n.L4:\n\tmovq\t%rax, %rsi\n\taddq\t$1, %rdx\n\taddq\t%rcx, %rsi\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he66_digit_sum_upper",
+      "category": "wrong_answer",
+      "bucket": "logic_mismatch",
+      "detail": "return -16777469655 != expected 131",
+      "c": "int64_t he_digit_sum_upper(const char *s) {\n    int64_t result = 0;\n    for (int i = 0; s[i] != '\\0'; i++) {\n        if (s[i] >= 'A' && s[i] <= 'Z') {\n            result += s[i];\n        }\n    }\n    return result;\n}",
+      "asm": ".text\n\t.globl\the_digit_sum_upper\n\t.type\the_digit_sum_upper, @function\nhe_digit_sum_upper:\n\tmovzbl\t(%rdi), %edx\n\txorl\t%eax, %eax\n\ttestb\t%dl, %dl\n\tjne\t.L3\n\tret\n\t.p2align 5\n\t.p2align 4,,10\n\t.p2align 3\n.L4:\n\taddq\t$1, %rax\n\tmovzbl\t(%rdi,%rax), %edx\n\ttestb\t%dl, %dl\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he72_will_it_fly",
+      "category": "wrong_answer",
+      "bucket": "logic_mismatch",
+      "detail": "return 0 != expected 1",
+      "c": "int64_t he_will_it_fly(const int64_t *q, int64_t n, int64_t w) {\n  for (int64_t i = 0; i < n / 2; i++) {\n    if (q[i] != q[n - 1 - i]) return 0;\n  }\n  int64_t s = 0;\n  for (int64_t i = 0; i < n; i++) s += q[i];\n  return s <= w;\n}",
+      "asm": ".text\n\t.globl\the_will_it_fly\n\t.type\the_will_it_fly, @function\nhe_will_it_fly:\n\tmovq\t%rdi, %r9\n\tmovq\t%rsi, %r8\n\tcmpq\t$1, %rsi\n\tjle\t.L5\n\tmovslq\t%esi, %rsi\n\txorl\t%eax, %eax\n\tsarq\t%rsi\n\tjmp\t.L3\n\t.p2align 5\n\t.p2align 4,,10\n\t.p2align 3\n.L7:\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he73_smallest_change",
+      "category": "wrong_answer",
+      "bucket": "logic_mismatch",
+      "detail": "return 9 != expected 4",
+      "c": "int64_t he_smallest_change(const int64_t *arr, int64_t n) {\n  int64_t c = 0;\n  for (int64_t i = 0; i < n / 2; i++) {\n    if (arr[i] != arr[n - 1 - i]) c++;\n  }\n  return c;\n}",
+      "asm": ".text\n\t.globl\the_smallest_change\n\t.type\the_smallest_change, @function\nhe_smallest_change:\n\tmovq\t%rdi, %r8\n\ttestq\t%rsi, %rsi\n\tjle\t.L5\n\tmovq\t%rsi, %rax\n\tmovq\t%rsi, %rdx\n\tshrq\t$63, %rax\n\tsarq\t%rdx\n\taddq\t%rsi, %rax\n\tandl\t$1, %eax\n\tsubq\t%rdx, %rax\n\txorl\t%edx, %edx\n\tsalq\t$3, %rax\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he78_hex_key",
+      "category": "wrong_answer",
+      "bucket": "logic_mismatch",
+      "detail": "return 1 != expected 2",
+      "c": "int64_t he_hex_key(const char *num) {\n  int64_t key = 0;\n  while (*num) {\n    if (*num == '2' || *num == '3' || *num == '5' ||\n        *num == '7' || *num == 'B' || *num == 'D') {\n      key++;\n    }\n    num++;\n  }\n  return key;\n}",
+      "asm": ".text\n\t.globl\the_hex_key\n\t.type\the_hex_key, @function\nhe_hex_key:\n\tmovzbl\t(%rdi), %eax\n\txorl\t%edx, %edx\n\ttestb\t%al, %al\n\tje\t.L1\n\t.p2align 5\n\t.p2align 4\n\t.p2align 3\n.L4:\n\tsubl\t$66, %eax\n\tcmpb\t$4, %al\n\tsetbe\t%al\n\taddq\t$1, %rdi\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he82_prime_length",
+      "category": "wrong_answer",
+      "bucket": "logic_mismatch",
+      "detail": "return 0 != expected 1",
+      "c": "int64_t he_prime_length(const char *string) {\n    int64_t i = 0;\n    while (*string++) i++;\n    if (i <= 1) return 0;\n    if (i == 2 || i == 3) return 1;\n    if (i % 2 == 0 || i % 3 == 0) return 0;\n    for (i = 5; i * i <= i; i += 6)\n        if (i % i == 0 || i % (i + 2) == 0)\n            return 0;\n    return 1;\n}",
+      "asm": ".text\n\t.globl\the_prime_length\n\t.type\the_prime_length, @function\nhe_prime_length:\n\tmovzbl\t(%rdi), %edx\n\txorl\t%eax, %eax\n\ttestb\t%dl, %dl\n\tjne\t.L2\n\tret\n\t.p2align 4,,10\n\t.p2align 3\n.L9:\n\tcmpq\t$17, %rcx\n\tjle\t.L8\n\tmovabsq\t$-3074457345618258603, %rsi\n\t.p2align 5\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he92_any_int",
+      "category": "wrong_answer",
+      "bucket": "logic_mismatch",
+      "detail": "return 0 != expected 1",
+      "c": "int64_t he_any_int(int64_t x, int64_t y, int64_t z) {\n  return x + y == z || x + z == y || y + z == x;\n}",
+      "asm": ".text\n\t.globl\the_any_int\n\t.type\the_any_int, @function\nhe_any_int:\n\taddq\t%rsi, %rdi\n\tmovl\t$1, %eax\n\tcmpq\t%rdx, %rdi\n\tjne\t.L2\n\tret\n\t.p2align 4,,10\n\t.p2align 3\n.L2:\n\taddq\t%rdx, %rsi\n\txorl\t%eax, %eax\n\tcmpq\t%rdi, %rsi\n\tsete\t%al\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he97_multiply_units",
+      "category": "wrong_answer",
+      "bucket": "logic_mismatch",
+      "detail": "return 7551463790544571040 != expected 16",
+      "c": "int64_t he_multiply_units(int64_t a, int64_t b) {\n  return (a % 10) * (b % 10);\n}",
+      "asm": ".text\n\t.globl\the_multiply_units\n\t.type\the_multiply_units, @function\nhe_multiply_units:\n\tmovslq\t%edi, %rax\n\tmovslq\t%esi, %rdx\n\timulq\t%rdx, %rax\n\tmovabsq\t$3978425819141910832, %rcx\n\tshrq\t$63, %rax\n\timulq\t%rcx, %rdi\n\taddq\t%rsi, %rdi\n\tsarq\t$3, %rdi\n\tsubq\t%rax, %rdi\n\tleaq\t(%rdi,%rdi,4), %rax\n\taddq\t%rax, %rax\n\tsubq\t%rax, %rdx\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "mbpp151_is_coprime",
+      "category": "wrong_answer",
+      "bucket": "logic_mismatch",
+      "detail": "return 0 != expected 1",
+      "c": "int64_t mbpp_is_coprime(int64_t x, int64_t y) {\n  int64_t t;\n  while (y != 0) {\n    t = x % y;\n    x = y;\n    y = t;\n  }\n  return x == 1;\n}",
+      "asm": ".text\n\t.globl\tmbpp_is_coprime\n\t.type\tmbpp_is_coprime, @function\nmbpp_is_coprime:\n\tmovq\t%rdi, %rax\n\ttestq\t%rsi, %rsi\n\tje\t.L2\n\t.p2align 4\n\t.p2align 4\n\t.p2align 3\n.L3:\n\tmovq\t%rdx, %rcx\n\tcqto\n\tidivq\t%rsi\n\tmovq\t%rsi, %rax\n\tmovq\t%rcx, %rdx\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "mbpp17_square_perimeter",
+      "category": "wrong_answer",
+      "bucket": "logic_mismatch",
+      "detail": "return 13 != expected 40",
+      "c": "int64_t mbpp_square_perimeter(int64_t side) { return 4 * side; }",
+      "asm": ".text\n\t.globl\tmbpp_square_perimeter\n\t.type\tmbpp_square_perimeter, @function\nmbpp_square_perimeter:\n\tleaq\t(%rdi,%rdi,2), %rax\n\tsarq\t$3, %rax\n\taddq\t%rdi, %rax\n\tret\n\t.size\tmbpp_square_perimeter, .-mbpp_square_perimeter",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "mbpp267_sum_odd_squares",
+      "category": "wrong_answer",
+      "bucket": "logic_mismatch",
+      "detail": "return 8388608 != expected 10",
+      "c": "int64_t mbpp_sum_odd_squares(int64_t n) {\n  return n * (4LL * n * n - 1) / 3;\n}",
+      "asm": ".text\n\t.globl\tmbpp_sum_odd_squares\n\t.type\tmbpp_sum_odd_squares, @function\nmbpp_sum_odd_squares:\n\tmovq\t%rdi, %rax\n\timulq\t$16777215, %rdi, %rdx\n\taddq\t%rax, %rax\n\tsubq\t%rax, %rdx\n\timulq\t%rdi, %rdx\n\tsarq\t$3, %rdx\n\taddq\t%rdx, %rdi\n\tmovslq\t%edi, %rax\n\tret\n\t.size\tmbpp_sum_odd_squares, .-mbpp_sum_odd_squares",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "mbpp287_sum_even_squares",
+      "category": "wrong_answer",
+      "bucket": "logic_mismatch",
+      "detail": "return 47313944100078715 != expected 20",
+      "c": "int64_t mbpp_sum_even_squares(int64_t n) {\n  return 2 * n * (n + 1) * (2 * n + 1) / 3;\n}",
+      "asm": ".text\n\t.globl\tmbpp_sum_even_squares\n\t.type\tmbpp_sum_even_squares, @function\nmbpp_sum_even_squares:\n\tleaq\t1(%rdi), %rcx\n\tleaq\t1(%rdi,%rdi), %rax\n\timulq\t%rdi, %rcx\n\timulq\t%rax, %rcx\n\tmovabsq\t$715827883203819647, %rax\n\timulq\t%rcx\n\tshrq\t$63, %rcx\n\tsarq\t$6, %rax\n\tsubq\t%rcx, %rax\n\tret\n\t.size\tmbpp_sum_even_squares, .-mbpp_sum_even_squares",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "mbpp32_max_prime_factor",
+      "category": "wrong_answer",
+      "bucket": "logic_mismatch",
+      "detail": "return 2 != expected 5",
+      "c": "int64_t mbpp_max_prime_factor(int64_t n) {\n  int64_t f = 2;\n  int64_t mf = 2;\n  while (f * f <= n) {\n    if (n % f == 0) {\n      mf = f;\n      n /= f;\n    } else {\n      f++;\n    }\n  }\n  return n > mf ? n : mf;\n}",
+      "asm": ".text\n\t.globl\tmbpp_max_prime_factor\n\t.type\tmbpp_max_prime_factor, @function\nmbpp_max_prime_factor:\n\tmovl\t$2, %ecx\n\tcmpq\t$3, %rdi\n\tjg\t.L5\n\tjmp\t.L10\n\t.p2align 5\n\t.p2align 4,,10\n\t.p2align 3\n.L11:\n\taddq\t$1, %rcx\n\tmovq\t%rcx, %rax\n\timulq\t%rcx, %rax\n\tcmpq\t%rdi, %rax\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "mbpp3_is_not_prime",
+      "category": "wrong_answer",
+      "bucket": "logic_mismatch",
+      "detail": "return 1 != expected 0",
+      "c": "int64_t mbpp_is_not_prime(int64_t n) {\n  if (n < 2) return 0;\n  if (n % 2 == 0) return n != 2;\n  for (int64_t i = 3; i * i <= n; i += 2)\n    if (n % i == 0) return 1;\n  return 0;\n}",
+      "asm": ".text\n\t.globl\tmbpp_is_not_prime\n\t.type\tmbpp_is_not_prime, @function\nmbpp_is_not_prime:\n\txorl\t%eax, %eax\n\tcmpq\t$1, %rdi\n\tjle\t.L1\n\tmovq\t%rdi, %rax\n\tandl\t$1, %eax\n\tje\t.L5\n\tmovl\t$3, %ecx\n\tcmpq\t$8, %rdi\n\tjg\t.L3\n\tjmp\t.L1\n\t.p2align 5\n\t.p2align 4,,10\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "mbpp6_differ_one_bit",
+      "category": "wrong_answer",
+      "bucket": "logic_mismatch",
+      "detail": "return 0 != expected 1",
+      "c": "int64_t mbpp_differ_one_bit(int64_t a, int64_t b) {\n  int64_t x = a ^ b;\n  return (x & (x - 1)) == 0 && x != 0;\n}",
+      "asm": ".text\n\t.globl\tmbpp_differ_one_bit\n\t.type\tmbpp_differ_one_bit, @function\nmbpp_differ_one_bit:\n\txorq\t%rsi, %rdi\n\tmovl\t$1, %eax\n\ttestq\t%rdi, %rdi\n\tjne\t.L2\n\tnotq\t%rdi\n.L3:\n\tandl\t$1, %edi\n\tsete\t%al\n\tmovzbl\t%al, %eax\n\tret\n\t.p2align 4,,10\n\t.p2align 3\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "mbpp72_diff_of_squares",
+      "category": "wrong_answer",
+      "bucket": "logic_mismatch",
+      "detail": "return 1 != expected 0",
+      "c": "int64_t mbpp_diff_of_squares(int64_t n) {\n  return n % 4 != 2;\n}",
+      "asm": ".text\n\t.globl\tmbpp_diff_of_squares\n\t.type\tmbpp_diff_of_squares, @function\nmbpp_diff_of_squares:\n\tmovq\t%rdi, %rax\n\tshrq\t$2, %rax\n\tandl\t$1, %eax\n\tcmpq\t%rdi, %rax\n\tsetne\t%al\n\tret\n\t.size\tmbpp_diff_of_squares, .-mbpp_diff_of_squares",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he25_factorize",
+      "category": "timeout",
+      "bucket": "timeout",
+      "detail": "timeout: timeout",
+      "c": "int64_t he_factorize(int64_t n, int64_t *out) {\n  int64_t d = 2;\n  int64_t k = 0;\n  while (n > 1 && d * d <= n) {\n    while (n % d == 0) {\n      n /= d;\n      out[k++] = d;\n    }\n    d++;\n  }\n  if (n > 1) {\n    out[k] = n;\n    k++;\n  }\n  return k;\n}",
+      "asm": ".text\n\t.globl\the_factorize\n\t.type\the_factorize, @function\nhe_factorize:\n\tmovq\t%rdi, %r9\n\tmovq\t%rsi, %rax\n\tcmpq\t$1, %rdi\n\tjle\t.L7\n\tmovl\t$2, %ecx\n\txorl\t%edi, %edi\n\timulq\t%rcx, %rdx\n\tcmpq\t%rdx, %r9\n\tjl\t.L7\n\t.p2align 5\n\t.p2align 4\n\t.p2align 3\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he26_remove_duplicates",
+      "category": "timeout",
+      "bucket": "timeout",
+      "detail": "timeout: timeout",
+      "c": "int64_t he_remove_duplicates(const int64_t *nums, int64_t n, int64_t *out) {\n  int64_t k = 0;\n  for (int64_t i = 0; i < n; i++) {\n    int64_t v = nums[i];\n    int64_t j;\n    for (j = 0; j < n; j++) {\n      if (i != j && nums[j] == v) break;\n    }\n    if (j == n) out[k++] = v;\n  }\n  return k;\n}",
+      "asm": ".text\n\t.globl\the_remove_duplicates\n\t.type\the_remove_duplicates, @function\nhe_remove_duplicates:\n\tmovq\t%rdx, %r9\n\ttestq\t%rsi, %rsi\n\tjle\t.L7\n\tmovq\t%rsi, %rax\n\tmovq\t%rsi, %r10\n\tsubq\t$1, %rax\n\txorl\t%ecx, %ecx\n\tleaq\t(%rdi,%rsi,8), %rsi\n\t.p2align 5\n\t.p2align 4\n\t.p2align 3\n.L4:\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he3_below_zero",
+      "category": "timeout",
+      "bucket": "timeout",
+      "detail": "timeout: timeout",
+      "c": "int64_t he_below_zero(const int64_t *ops, int64_t n) {\n  int64_t bal = 0;\n  for (int64_t i = 0; i < n; i++) {\n    bal += ops[i];\n    if (bal < 0) return 1;\n  }\n  return 0;\n}",
+      "asm": ".text\n\t.globl\the_below_zero\n\t.type\the_below_zero, @function\nhe_below_zero:\n\ttestq\t%rsi, %rsi\n\tjle\t.L5\n\tmovslq\t%esi, %rsi\n\txorl\t%eax, %eax\n\tleaq\t(%rdi,%rsi,8), %rcx\n\t.p2align 5\n\t.p2align 4\n\t.p2align 3\n.L4:\n\taddq\t$8, %rdi\n\tcmpq\t%rax, %rdi\n\tje\t.L5\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he43_pairs_sum_to_zero",
+      "category": "timeout",
+      "bucket": "timeout",
+      "detail": "timeout: timeout",
+      "c": "int64_t he_pairs_sum_to_zero(const int64_t *vals, int64_t n) {\n  for (int64_t i = 0; i < n - 1; i++) {\n    for (int64_t j = i + 1; j < n; j++) {\n      if (vals[i] + vals[j] == 0) return 1;\n    }\n  }\n  return 0;\n}",
+      "asm": ".text\n\t.globl\the_pairs_sum_to_zero\n\t.type\the_pairs_sum_to_zero, @function\nhe_pairs_sum_to_zero:\n\tmovq\t%rdi, %r9\n\ttestq\t%rsi, %rsi\n\tjle\t.L7\n\tsubq\t$1, %rsi\n\txorl\t%eax, %eax\n\tleaq\t(%r9,%rsi,8), %r10\n\tcmpq\t%rax, %rsi\n\tjne\t.L3\n\tjmp\t.L7\n\t.p2align 5\n\t.p2align 4,,10\n\t.p2align 3\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he75_is_multiply_prime",
+      "category": "timeout",
+      "bucket": "timeout",
+      "detail": "timeout: timeout",
+      "c": "int64_t he_is_multiply_prime(int64_t a) {\n  for (int64_t p1 = 2; p1 <= 97; p1++) {\n    if (a % p1 == 0) {\n      for (int64_t p2 = 2; p2 <= 97; p2++) {\n        if (a % p2 == 0) {\n          for (int64_t p3 = 2; p3 <= 97; p3++) {\n            if (p1 * p2 * p3 == a) return 1;\n          }\n        }\n      }\n    }\n  }\n  return 0;\n}",
+      "asm": ".text\n\t.globl\the_is_multiply_prime\n\t.type\the_is_multiply_prime, @function\nhe_is_multiply_prime:\n\tmovabsq\t$-3689348814741910323, %rcx\n\txorl\t%r8d, %r8d\n.L7:\n\tmovabsq\t$18446744073709551615, %rsi\n\tcmpq\t%rdi, %rax\n\tjg\t.L1\n\tmovabsq\t$39614043325, %rdx\n\tcmpq\t%rdi, %rcx\n\tjg\t.L1\n\timulq\t%rdx, %rax\n\taddq\t$1, %rcx\n\ttestb\t$1, %cl\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "he77_iscube",
+      "category": "timeout",
+      "bucket": "timeout",
+      "detail": "timeout: timeout",
+      "c": "int64_t he_iscube(int64_t a) {\n  int64_t b = 0;\n  for (b = -16; b <= 16; b++) if (b * b * b == a) return 1;\n  return 0;\n}",
+      "asm": ".text\n\t.globl\the_iscube\n\t.type\the_iscube, @function\nhe_iscube:\n\tmovl\t$4294967295, %esi\n\txorl\t%eax, %eax\n.L3:\n\tmovq\t%rsi, %rdx\n\timulq\t%rsi, %rdx\n\timulq\t%rsi, %rdx\n\tcmpq\t%rdx, %rdi\n\tje\t.L4\n\tsubq\t$1, %rsi\n\tjne\t.L3\n\tret\n\t.p2align 4,,10\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "mbpp244_next_square",
+      "category": "timeout",
+      "bucket": "timeout",
+      "detail": "timeout: timeout",
+      "c": "int64_t mbpp_next_square(int64_t n) {\n  int64_t w = 0;\n  while (w * w <= n) w++;\n  return w * w;\n}",
+      "asm": ".text\n\t.globl\tmbpp_next_square\n\t.type\tmbpp_next_square, @function\nmbpp_next_square:\n\tcmpq\t$1, %rdi\n\tjle\t.L5\n\tmovl\t$2, %edx\n\tmovl\t$3, %eax\n\tjmp\t.L4\n\t.p2align 5\n\t.p2align 4,,10\n\t.p2align 3\n.L9:\n\tmovq\t%rsi, %rax\n\taddq\t$2, %rdx\n\timulq\t%rdx, %rax\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "mbpp24_binary_to_decimal",
+      "category": "timeout",
+      "bucket": "timeout",
+      "detail": "timeout: timeout",
+      "c": "int64_t mbpp_binary_to_decimal(int64_t binary) {\n  int64_t decimal = 0;\n  int64_t factor = 1;\n\n  while (binary != 0) {\n    decimal += (binary % 10) * factor;\n    binary /= 10;\n    factor *= 2;\n  }\n\n  return decimal;\n}",
+      "asm": ".text\n\t.globl\tmbpp_binary_to_decimal\n\t.type\tmbpp_binary_to_decimal, @function\nmbpp_binary_to_decimal:\n\txorl\t%ecx, %ecx\n\ttestq\t%rdi, %rdi\n\tje\t.L1\n\tmovabsq\t$3689348814741910323, %r8\n\t.p2align 5\n\t.p2align 4\n\t.p2align 3\n.L3:\n\tmovq\t%rdi, %rax\n\tmovq\t%rdi, %rdx\n\timulq\t%r8, %rdx\n\tmovq\t%rdi, %rax\n\u2026",
+      "c_category": "pass"
+    },
+    {
+      "task_id": "mbpp47_fact_div_last_digit",
+      "category": "timeout",
+      "bucket": "timeout",
+      "detail": "timeout: timeout",
+      "c": "int64_t mbpp_fact_div_last_digit(int64_t a, int64_t b) {\n  if (b - a >= 5) return 0;\n  if (a == b) return 1;\n  int64_t d = 1;\n  for (int64_t i = a + 1; i <= b; i++) d = (d * (i % 10)) % 10;\n  return d;\n}",
+      "asm": ".text\n\t.globl\tmbpp_fact_div_last_digit\n\t.type\tmbpp_fact_div_last_digit, @function\nmbpp_fact_div_last_digit:\n\tmovq\t%rsi, %rax\n\tsubq\t%rdi, %rax\n\tcmpq\t$4, %rax\n\tjge\t.L7\n\tcmpq\t%rdi, %rsi\n\tje\t.L5\n\tleaq\t1(%rdi), %rdx\n\tandl\t$1, %esi\n\tmovl\t$1, %eax\n\tmovl\t$1, %ecx\n\tjne\t.L3\n\tmovl\t$2, %eax\n\u2026",
+      "c_category": "pass"
+    }
+  ]
+}

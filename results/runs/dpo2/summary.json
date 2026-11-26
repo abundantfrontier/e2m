@@ -1,0 +1,106 @@
+{
+  "model": "runs/models/Qwen2.5-Coder-1.5B-Instruct",
+  "init_adapter": "runs/lora2/adapter",
+  "pairs": "data/scaled/pairs.jsonl",
+  "n_pairs_loaded": 46472,
+  "n_blocked_ids": 168,
+  "n_train": 44848,
+  "n_eval": 256,
+  "beta": 0.2,
+  "epochs": 0.5,
+  "lr": 5e-06,
+  "lora_r": 32,
+  "lora_alpha": 64,
+  "lora_dropout": 0.05,
+  "batch_size": 1,
+  "grad_accum": 8,
+  "max_len": 768,
+  "max_steps": 1500,
+  "prompt_goal": "pair",
+  "rpo_weight": 1.0,
+  "collapse_every": 250,
+  "collapse_n": 30,
+  "lora2_assemble_rate": 0.9666666666666667,
+  "collapse_threshold": 0.7733333333333334,
+  "collapse_subset_n": 30,
+  "train_loss": 0.4841766357421875,
+  "eval": {
+    "eval_loss": 0.5751245021820068,
+    "eval_reward_margin": 3.3467142581939697,
+    "eval_accuracy": 0.68359375,
+    "eval_batches": 256
+  },
+  "elapsed_s": 8309.96,
+  "warmup_steps": 45,
+  "global_steps": 1500,
+  "last_good_step": 1500,
+  "collapsed": false,
+  "stop_reason": "completed",
+  "collapse_curve": [
+    {
+      "step": 0,
+      "assembles": 29,
+      "n": 30,
+      "rate": 0.9666666666666667,
+      "lora2_rate": 0.9666666666666667,
+      "threshold": 0.7733333333333334,
+      "keep": true
+    },
+    {
+      "step": 250,
+      "assembles": 25,
+      "n": 30,
+      "rate": 0.8333333333333334,
+      "lora2_rate": 0.9666666666666667,
+      "threshold": 0.7733333333333334,
+      "keep": true
+    },
+    {
+      "step": 500,
+      "assembles": 25,
+      "n": 30,
+      "rate": 0.8333333333333334,
+      "lora2_rate": 0.9666666666666667,
+      "threshold": 0.7733333333333334,
+      "keep": true
+    },
+    {
+      "step": 750,
+      "assembles": 28,
+      "n": 30,
+      "rate": 0.9333333333333333,
+      "lora2_rate": 0.9666666666666667,
+      "threshold": 0.7733333333333334,
+      "keep": true
+    },
+    {
+      "step": 1000,
+      "assembles": 27,
+      "n": 30,
+      "rate": 0.9,
+      "lora2_rate": 0.9666666666666667,
+      "threshold": 0.7733333333333334,
+      "keep": true
+    },
+    {
+      "step": 1250,
+      "assembles": 26,
+      "n": 30,
+      "rate": 0.8666666666666667,
+      "lora2_rate": 0.9666666666666667,
+      "threshold": 0.7733333333333334,
+      "keep": true
+    },
+    {
+      "step": 1500,
+      "assembles": 26,
+      "n": 30,
+      "rate": 0.8666666666666667,
+      "lora2_rate": 0.9666666666666667,
+      "threshold": 0.7733333333333334,
+      "keep": true
+    }
+  ],
+  "adapter": "runs/dpo2/adapter",
+  "merged": "runs/dpo2/merged"
+}

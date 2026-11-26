@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E2M technical report 2: repair loop and rejection sampling (living paper) · Abundant Frontier Institute</title>
+<meta name="description" content="Living technical report: a visible-test repair loop and one round of rejection sampling for a 1.5B assembly LoRA, scored on held-out tasks.">
+<meta name="citation_title" content="Repair loop and rejection sampling">
+<meta name="citation_author" content="Wilson, Boyd">
+<meta name="citation_publication_date" content="2026/11/14">
+<meta name="citation_technical_report_institution" content="Abundant Frontier Institute">
+<meta name="citation_technical_report_number" content="Revision 1">
+<meta name="citation_public_url" content="https://abundantfrontier.org/lab/e2m/report-2/">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<nav class="nav"><div class="nav-in">
+<a class="brand" href="https://abundantfrontier.org/"><span class="e">🌾</span><span>Abundant Frontier Institute</span></a>
+<div class="nav-links"><a href="/lab/">Lab</a><a href="../concept/index.html" >Concept paper</a><a href="../report-1/index.html" >Technical report 1</a><a href="../report-2/index.html" class="cur">Technical report 2</a><a href="../report-3/index.html" >Technical report 3</a><a href="../report-4/index.html" >Technical report 4</a><a href="../report-5/index.html" >Technical report 5</a><span class="badge">Working paper</span></div>
+</div></nav>
+<main class="page">
+<header class="title">
+<div class="kicker">Technical report · second work product</div>
+<h1>Repair loop and rejection sampling</h1>
+<p class="sub">Technical report 2 of the <em>E2M</em> program: a test-feedback repair loop, one round of rejection sampling, and a second 1.5B LoRA, compared with the Report 1 baselines and the NL-to-C-to-gcc control.</p>
+<p class="byline"><strong>Boyd Wilson</strong>, Abundant Frontier Institute and Omnibond Systems</p>
+<p class="meta">Living paper · Revision 1 · Last updated 14 November 2026 · Companion to the <a href="../concept/index.html">E2M concept paper</a> and <a href="../report-1/index.html">technical report 1</a> · All results are from one 24 GB RTX 3090 workstation · Code and data: <a href="https://github.com/abundantfrontier/e2m">github.com/abundantfrontier/e2m</a></p>
+</header>
+
+<div class="draftbar"><b>Working paper.</b> You may cite it; see <a href="#cite">How to cite</a>. Numbers are copied from <code>STATUS.md</code> (section "Repair loop + rejection-sampling round 1") and <code>runs/loop-pipeline/RESULTS.json</code> on the 3090; nothing here is rounded or re-scored. <code>loop-lora2-val</code> was not run.</div>
+
+<div class="abstract"><h2>Abstract</h2>
+<p>Report 1 ended with a 1.5B LoRA that passed 2 of 78 held-out tasks greedily (pass@1 0.026, pass@5 0.064), a 7B QLoRA at 5 of 78 (0.064, 0.103), and an NL-to-C-to-gcc <code>-O2</code> control at 0.397 pass@1 and 0.628 pass@5. This report adds a repair loop: sample <em>k</em> candidates, assemble and run them, and feed assemble errors and failures from the <em>visible</em> half of the tests back to the model for up to <em>R</em> rounds, scoring on the full tests. It also adds one round of rejection sampling: full-pass programs from the loop, mixed with gcc-default and rewritten-specification rows, train a second 1.5B LoRA (lora2). On the 78 held-out tasks the loop lifts lora1 from 2/78 greedy to 6/78 (k = 8, R = 3), and lora2 from 4/78 greedy to 10/78. The same loop on the C control reaches 44/78 (k = 4, R = 2). On the scaled validation set lora2 is 38/90 greedy, above lora1 (19/90) and QLoRA 7B (33/90). Held-out assembly is still far from the C control. Visible-only feedback overstates held-out success (lora2: 15/78 on visible tests, 10/78 on all). The pipeline used 46.45 GPU hours against a ~40 h budget and stopped at the budget gate before <code>loop-lora2-val</code>; that run, and DPO, have not been done. All numbers are copied from <code>STATUS.md</code> and <code>runs/loop-pipeline/RESULTS.json</code> on the 3090.</p></div>
+
+<nav class="toc" aria-label="Contents"><div class="toc-title">Contents</div><ol>
+<li><a href="#s1"><span class="n">1</span>Goals recap</a></li>
+<li><a href="#s2"><span class="n">2</span>Repair loop and rejection sampling</a></li>
+<li><a href="#s3"><span class="n">3</span>Specification rewrite and training mix</a></li>
+<li><a href="#s4"><span class="n">4</span>lora2 training and greedy results</a></li>
+<li><a href="#s5"><span class="n">5</span>Repair-loop results</a></li>
+<li><a href="#s6"><span class="n">6</span>GPU hours</a></li>
+<li><a href="#s7"><span class="n">7</span>Example outputs</a></li>
+<li><a href="#s8"><span class="n">8</span>Limitations and caveats</a></li>
+<li><a href="#s9"><span class="n">9</span>Next steps</a></li>
+<li><a href="#refs"><span class="n"></span>References</a></li>
+<li><a href="#revhist"><span class="n"></span>Revision history</a></li>
+</ol></nav>
+
+<div class="col">
+
+<h2 id="s1"><span class="n">1</span>Goals recap <span class="upd" title="Section last changed">updated 14 Nov 2026</span></h2>
+<p>Report 1 (<a href="../report-1/index.html#s7">§7</a>) showed that imitating gcc output with a small LoRA does not transfer to held-out tasks: 2/78 greedy for the 1.5B model and 5/78 for the 7B QLoRA, against 31/78 for the same base model writing C that gcc compiles at <code>-O2</code>. Its next steps named the repair loop (best-of-<em>n</em> with test feedback) as the interesting move if the imitation result was far behind the control. This report is that step, plus one round of rejection sampling to see whether the loop's successes make a better training set.</p>
+
+<h2 id="s2"><span class="n">2</span>Repair loop and rejection sampling <span class="upd" title="Section last changed">updated 14 Nov 2026</span></h2>
+<p>The package <code>e2m/loop</code> samples <em>k</em> candidates, assembles and runs them in the existing harness (Unicorn by default, QEMU for AVX), then repairs up to <em>R</em> rounds using <strong>visible tests only</strong>. Scoring uses the full test set. The held-out visible and hidden split is frozen in <code>eval/heldout_visible.json</code>: the first <code>ceil(n/2)</code> tests of each task are visible, giving 199 visible and 153 hidden of 352. Specifications can be rewritten by local Ollama <code>qwen3:14b</code>, with a leakage check against held-out names, n-grams and <code>bge-m3</code> embeddings. Rejection sampling keeps the programs that pass the full tests, mixes them with the gcc-default SFT rows and rewritten-specification gcc rows, and trains a LoRA of the same 1.5B model (<code>runs/lora2</code>). The stages run through a resumable pipeline, <code>e2m/loop/pipeline.py</code>.</p>
+<p>Generated code is still never run on the host CPU.</p>
+
+<h2 id="s3"><span class="n">3</span>Specification rewrite and training mix <span class="upd" title="Section last changed">updated 14 Nov 2026</span></h2>
+<p>Rewriting the English specifications of the train tasks gives the model a second phrasing of each problem. The rewrite stage offered 3,020 tasks (scaled plus starter) and kept 2,823 after the leakage check; <code>data/scaled/rewritten.jsonl</code> has 2,823 rows.</p>
+<div class="tw"><table><caption>Table 1. Specification rewrite (<code>data/scaled/rewrite-leakage.json</code>, 2.81 GPU hours).</caption>
+<thead><tr><th></th><th class="num">count</th></tr></thead><tbody>
+<tr><td>tasks offered (scaled + starter)</td><td class="num">3020</td></tr>
+<tr><td>LLM JSON ok</td><td class="num">2826</td></tr>
+<tr><td>LLM fail</td><td class="num">194</td></tr>
+<tr><td>kept</td><td class="num">2823</td></tr>
+<tr><td>drop n-gram / name</td><td class="num">1 (<code>gcd</code>)</td></tr>
+<tr><td>drop embed</td><td class="num">2 (<code>sum_to</code> vs <code>he60_sum_to_n</code> 0.879; <code>is_prime</code> vs <code>he82_prime_length</code> 0.868)</td></tr>
+</tbody></table></div>
+<p>Rejection sampling ran lora1 over the train tasks. <code>loop-reject-train</code> used original specifications, <em>k</em> = 4, <em>R</em> = 2 and <code>--max-hours 12</code>, and covered 1,800 of 2,910 train tasks: full pass 699/1800 (0.388), visible 756/1800. <code>loop-reject-rewritten</code> used rewritten specifications, <em>k</em> = 2, <em>R</em> = 1 and <code>--max-hours 6</code>, and covered 1,301 tasks: full pass 415/1301 (0.319), visible 436/1301. <code>data/scaled/reject.jsonl</code> keeps 1,114 programs (699 original and 415 rewritten).</p>
+<div class="tw"><table><caption>Table 2. Training mix for lora2 (<code>runs/mix-sft/mix.json</code>).</caption>
+<thead><tr><th>source</th><th class="num">rows</th></tr></thead><tbody>
+<tr><td>gcc default (train scaled + starter, val/held-out blocked)</td><td class="num">2930</td></tr>
+<tr><td>rewritten-spec + gcc asm</td><td class="num">2737</td></tr>
+<tr><td>reject-loop passes</td><td class="num">1114</td></tr>
+<tr><td>blocked task ids (90 val + 78 held-out)</td><td class="num">168</td></tr>
+<tr><td>rewritten skipped</td><td class="num">86</td></tr>
+<tr><td><b>sft_lora2.jsonl</b></td><td class="num"><b>6781</b> (2930 unique task ids)</td></tr>
+</tbody></table></div>
+
+
+<h2 id="s4"><span class="n">4</span>lora2 training and greedy results <span class="upd" title="Section last changed">updated 14 Nov 2026</span></h2>
+<p>lora2 uses the same recipe as lora1 on <code>Qwen2.5-Coder-1.5B-Instruct</code>: r = 32, alpha = 64, dropout 0.05, learning rate 2e-4, 3 epochs, batch 2 × accumulation 8, bf16. <code>runs/lora2/summary.json</code> records 6,713 train examples (68 dropped over the p99 length of 1,343 tokens, max length 1,344), 1,260 steps, a final train loss of 0.152 and 3,226 s of training. The in-training validation set was empty (<code>val_tasks=0</code>) because the mix had already dropped the validation and held-out task ids.</p>
+<p>pass@1 is greedy. pass@5 is the unbiased estimator on 5 samples at T = 0.8; with <em>n</em> = 5 that equals the fraction of tasks with at least one correct sample.</p>
+<div class="tw"><table><caption>Table 3. Greedy pass@1 and sampled pass@5 (<em>n</em> = 5, T = 0.8) on scaled val (90 tasks) and the held-out set (78 tasks). Rows for lora1, QLoRA 7B, the base AT&amp;T model and the C control repeat Report 1.</caption>
+<thead><tr><th>model</th><th>eval set</th><th class="num">n</th><th class="num">pass@1</th><th class="num">pass@5</th><th class="num">size / gcc -O2</th><th class="num">insn / gcc -O2</th></tr></thead><tbody>
+<tr><td>LoRA 1.5B (lora1)</td><td>scaled val</td><td class="num">90</td><td class="num">0.211 (19/90)</td><td class="num">0.367 (33/90)</td><td class="num">1.033 (n=19)</td><td class="num">1.008 (n=19)</td></tr>
+<tr><td>LoRA 1.5B (lora1)</td><td>held-out</td><td class="num">78</td><td class="num">0.026 (2/78)</td><td class="num">0.064 (5/78)</td><td class="num">1.030 (n=2)</td><td class="num">1.026 (n=2)</td></tr>
+<tr><td>QLoRA 7B</td><td>scaled val</td><td class="num">90</td><td class="num">0.367 (33/90)</td><td class="num">0.500 (45/90)</td><td class="num">1.037 (n=33)</td><td class="num">1.018 (n=33)</td></tr>
+<tr><td>QLoRA 7B</td><td>held-out</td><td class="num">78</td><td class="num">0.064 (5/78)</td><td class="num">0.103 (8/78)</td><td class="num">1.008 (n=5)</td><td class="num">1.151 (n=5)</td></tr>
+<tr><td>LoRA 1.5B (lora2)</td><td>scaled val</td><td class="num">90</td><td class="num">0.422 (38/90)</td><td class="num">0.500 (45/90)</td><td class="num">1.111 (n=38)</td><td class="num">1.044 (n=38)</td></tr>
+<tr><td>LoRA 1.5B (lora2)</td><td>held-out</td><td class="num">78</td><td class="num">0.051 (4/78)</td><td class="num">0.064 (5/78)</td><td class="num">1.100 (n=4)</td><td class="num">1.310 (n=4)</td></tr>
+<tr><td>base 1.5B, AT&amp;T</td><td>held-out</td><td class="num">78</td><td class="num">0.000 (0/78)</td><td class="num">0.000 (0/78)</td><td class="num">—</td><td class="num">—</td></tr>
+<tr><td>base 1.5B, C → gcc -O2</td><td>held-out</td><td class="num">78</td><td class="num">0.397 (31/78)</td><td class="num">0.628 (49/78)</td><td class="num">1.003 (n=31)</td><td class="num">0.989 (n=31)</td></tr>
+</tbody></table></div>
+<p>Against Report 1, lora2 on held-out is 4/78 greedy (0.051) and 5/78 at pass@5 (0.064): above lora1 (2/78, 0.026) on pass@1, the same on pass@5, and just under QLoRA 7B (5/78, 0.064; pass@5 0.103). The C control remains 31/78 (0.397) and 49/78 (0.628). On scaled validation, lora2 reaches 38/90 greedy, above lora1 (19/90) and QLoRA 7B (33/90), and matches QLoRA 7B on pass@5 (45/90). Validation tasks come from the same distribution as training, so this is not evidence of transfer; the held-out set is the transfer test.</p>
+<div class="tw"><table><caption>Table 4. Greedy failure counts.</caption>
+<thead><tr><th>model</th><th>set</th><th class="num">pass</th><th class="num">wrong_answer</th><th class="num">doesnt_assemble</th><th class="num">crash</th><th class="num">timeout</th><th class="num">abi</th></tr></thead><tbody>
+<tr><td>lora1 asm</td><td>val</td><td class="num">19</td><td class="num">60</td><td class="num">5</td><td class="num">2</td><td class="num">4</td><td class="num">0</td></tr>
+<tr><td>lora1 asm</td><td>held-out</td><td class="num">2</td><td class="num">40</td><td class="num">20</td><td class="num">9</td><td class="num">7</td><td class="num">0</td></tr>
+<tr><td>qlora7b asm</td><td>val</td><td class="num">33</td><td class="num">47</td><td class="num">8</td><td class="num">1</td><td class="num">1</td><td class="num">0</td></tr>
+<tr><td>qlora7b asm</td><td>held-out</td><td class="num">5</td><td class="num">37</td><td class="num">17</td><td class="num">8</td><td class="num">11</td><td class="num">0</td></tr>
+<tr><td>lora2 asm</td><td>val</td><td class="num">38</td><td class="num">49</td><td class="num">3</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+<tr><td>lora2 asm</td><td>held-out</td><td class="num">4</td><td class="num">33</td><td class="num">21</td><td class="num">10</td><td class="num">10</td><td class="num">0</td></tr>
+<tr><td>base asm</td><td>held-out</td><td class="num">0</td><td class="num">0</td><td class="num">78</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+<tr><td>base C</td><td>held-out</td><td class="num">31</td><td class="num">24</td><td class="num">23</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+</tbody></table></div>
+
+
+<h2 id="s5"><span class="n">5</span>Repair-loop results <span class="upd" title="Section last changed">updated 14 Nov 2026</span></h2>
+<p>All loops here are scored on the full tests but are given feedback from the visible tests only.</p>
+<div class="tw"><table><caption>Table 5. Repair loop: pass on the full tests with visible-only feedback. k = 8, R = 3, T = 0.8 unless noted. @<em>m</em> is the first full-test pass within <em>m</em> model calls.</caption>
+<thead><tr><th>run</th><th class="num">n</th><th class="num">pass_full</th><th class="num">pass_visible</th><th class="num">@1</th><th class="num">@4</th><th class="num">@8</th><th class="num">@16</th><th class="num">@32</th><th class="num">size / gcc -O2</th><th class="num">insn / gcc -O2</th></tr></thead><tbody>
+<tr><td>loop-lora1-heldout</td><td class="num">78</td><td class="num">6/78</td><td class="num">10/78</td><td class="num">1/78</td><td class="num">2/78</td><td class="num">3/78</td><td class="num">4/78</td><td class="num">6/78</td><td class="num">1.241 (n=6)</td><td class="num">1.117 (n=6)</td></tr>
+<tr><td>loop-lora1-val</td><td class="num">90</td><td class="num">49/90</td><td class="num">51/90</td><td class="num">19/90</td><td class="num">26/90</td><td class="num">32/90</td><td class="num">40/90</td><td class="num">49/90</td><td class="num">0.916 (n=49)</td><td class="num">1.509 (n=49)</td></tr>
+<tr><td>loop-base-c-heldout (k=4, R=2)</td><td class="num">78</td><td class="num">44/78</td><td class="num">48/78</td><td class="num">25/78</td><td class="num">37/78</td><td class="num">43/78</td><td class="num">44/78</td><td class="num">44/78</td><td class="num">1.093 (n=44)</td><td class="num">1.028 (n=44)</td></tr>
+<tr><td>loop-lora2-heldout</td><td class="num">78</td><td class="num">10/78</td><td class="num">15/78</td><td class="num">2/78</td><td class="num">3/78</td><td class="num">5/78</td><td class="num">7/78</td><td class="num">10/78</td><td class="num">1.007 (n=10)</td><td class="num">1.128 (n=10)</td></tr>
+<tr><td>loop-lora2-val</td><td class="num">90</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+<tr><td>loop-reject-train (k=4, R=2)</td><td class="num">1800</td><td class="num">699/1800</td><td class="num">756/1800</td><td class="num">456/1800</td><td class="num">669/1800</td><td class="num">699/1800</td><td class="num">699/1800</td><td class="num">699/1800</td><td class="num">1.033 (n=699)</td><td class="num">1.066 (n=699)</td></tr>
+<tr><td>loop-reject-rewritten (k=2, R=1)</td><td class="num">1301</td><td class="num">415/1301</td><td class="num">436/1301</td><td class="num">305/1301</td><td class="num">415/1301</td><td class="num">415/1301</td><td class="num">415/1301</td><td class="num">415/1301</td><td class="num">1.061 (n=415)</td><td class="num">1.065 (n=415)</td></tr>
+</tbody></table></div>
+<div class="tw"><table><caption>Table 6. Repair loop: final-attempt categories on the full tests.</caption>
+<thead><tr><th>run</th><th class="num">pass</th><th class="num">wrong_answer</th><th class="num">doesnt_assemble</th><th class="num">crash</th><th class="num">timeout</th><th class="num">abi</th></tr></thead><tbody>
+<tr><td>loop-lora1-heldout</td><td class="num">6</td><td class="num">22</td><td class="num">34</td><td class="num">12</td><td class="num">4</td><td class="num">0</td></tr>
+<tr><td>loop-lora1-val</td><td class="num">49</td><td class="num">32</td><td class="num">7</td><td class="num">1</td><td class="num">1</td><td class="num">0</td></tr>
+<tr><td>loop-base-c-heldout</td><td class="num">44</td><td class="num">11</td><td class="num">22</td><td class="num">1</td><td class="num">0</td><td class="num">0</td></tr>
+<tr><td>loop-lora2-heldout</td><td class="num">10</td><td class="num">32</td><td class="num">22</td><td class="num">9</td><td class="num">5</td><td class="num">0</td></tr>
+<tr><td>loop-reject-train</td><td class="num">699</td><td class="num">826</td><td class="num">191</td><td class="num">55</td><td class="num">28</td><td class="num">1</td></tr>
+<tr><td>loop-reject-rewritten</td><td class="num">415</td><td class="num">648</td><td class="num">169</td><td class="num">36</td><td class="num">33</td><td class="num">0</td></tr>
+</tbody></table></div>
+<p>On held-out, the loop takes lora1 from 6/78 (and 2/78 greedy in Table 3) and lora2 to 10/78, against 44/78 for the C repair loop and 31/78 for C greedy. The loop helps, but held-out assembly is still far behind the control. Visible-only feedback overstates: lora2 passes 15/78 on the visible tests but 10/78 on all tests, and lora1 10/78 against 6/78. The <code>loop-lora2-val</code> row is empty because that stage never ran (§8).</p>
+
+<h2 id="s6"><span class="n">6</span>GPU hours <span class="upd" title="Section last changed">updated 14 Nov 2026</span></h2>
+<p>The pipeline stopped at the GPU-hour gate. <code>e2m.loop.pipeline.remaining_ok</code> returns false once <code>gpu_hours_used() &gt;= 40.0</code>, and the pipeline then exits with code 3. After <code>loop-lora2-heldout</code> finished with code 0, used hours were 46.45 (167,225.43 s). <code>loop-lora2-val</code> (about 1.5 h) did not start. The rewrite and training rows are from the same file as Table 7.</p>
+<div class="tw"><table><caption>Table 7. GPU hours by pipeline stage.</caption>
+<thead><tr><th>stage</th><th class="num">seconds</th><th class="num">hours</th><th>ok</th></tr></thead><tbody>
+<tr><td>rewrite</td><td class="num">10114.07</td><td class="num">2.81</td><td>yes</td></tr>
+<tr><td>loop-lora1-heldout</td><td class="num">35009.61</td><td class="num">9.72</td><td>yes</td></tr>
+<tr><td>loop-lora1-val</td><td class="num">15683.29</td><td class="num">4.36</td><td>yes</td></tr>
+<tr><td>loop-base-c-heldout</td><td class="num">1660.63</td><td class="num">0.46</td><td>yes</td></tr>
+<tr><td>loop-reject-train</td><td class="num">43215.35</td><td class="num">12.00</td><td>yes</td></tr>
+<tr><td>loop-reject-rewritten</td><td class="num">21660.12</td><td class="num">6.02</td><td>yes</td></tr>
+<tr><td>lora2-train</td><td class="num">3237.48</td><td class="num">0.90</td><td>yes</td></tr>
+<tr><td>lora2-eval-val</td><td class="num">1482.77</td><td class="num">0.41</td><td>yes</td></tr>
+<tr><td>lora2-eval-heldout</td><td class="num">2973.24</td><td class="num">0.83</td><td>yes</td></tr>
+<tr><td>loop-lora2-heldout</td><td class="num">32188.87</td><td class="num">8.94</td><td>yes</td></tr>
+<tr><td><b>total</b></td><td class="num"><b>167225.43</b></td><td class="num"><b>46.45</b></td><td>exit 3</td></tr>
+</tbody></table></div>
+
+
+<h2 id="s7"><span class="n">7</span>Example outputs <span class="upd" title="Section last changed">updated 14 Nov 2026</span></h2>
+<p>lora2 greedy held-out pass, <code>mbpp234_cube_volume</code>:</p>
+<pre style="font-size:.85rem;overflow:auto;background:#f5f5f4;border:1px solid var(--line);border-radius:8px;padding:.8rem 1rem"><code>mbpp_cube_volume:
+	movq	%rdi, %rax
+	imulq	%rdi, %rax
+	imulq	%rdi, %rax
+	ret</code></pre>
+<p>lora2 loop new full pass (the lora1 loop failed this task), <code>mbpp3_is_not_prime</code>, at call 6:</p>
+<pre style="font-size:.85rem;overflow:auto;background:#f5f5f4;border:1px solid var(--line);border-radius:8px;padding:.8rem 1rem"><code>mbpp_is_not_prime:
+	cmpq	$3, %rdi
+	jbe	.L5
+	movl	$2, %ecx
+	jmp	.L3
+.L8:
+	addq	$1, %rcx
+	cmpq	%rcx, %rdi
+	je	.L5
+.L3:
+	movq	%rdi, %rax
+	xorl	%edx, %edx
+	cqto
+	idivq	%rcx
+	testq	%rdx, %rdx
+	jne	.L8
+	movl	$1, %eax
+	ret
+.L5:
+	xorl	%eax, %eax
+	ret</code></pre>
+<p>lora1 loop held-out pass, <code>mbpp8_square_nums</code>, at call 31: an AT&amp;T loop that squares <code>(%rdi,%rax,8)</code> into <code>(%r8)</code>. The C repair loop passes the same <code>mbpp3_is_not_prime</code> task at call 4 with a C trial-division function compiled by gcc <code>-O2</code>.</p>
+<p>A visible-pass, full-fail case: lora2 loop on <code>mbpp45_array_gcd</code> passes the visible tests at call 2; later attempts use <code>shrq %r8d</code> (a <code>q</code> suffix on a 32-bit register) and <code>doesnt_assemble</code>.</p>
+
+<h2 id="s8"><span class="n">8</span>Limitations and caveats <span class="upd" title="Section last changed">updated 14 Nov 2026</span></h2>
+<ol>
+<li><strong><code>loop-lora2-val</code> was not run.</strong> The validation loop column therefore has lora1 only.</li>
+<li><strong>Budget overrun.</strong> The pipeline used 46.45 GPU hours against a ~40 h budget; it stopped at the gate, not at a stage failure.</li>
+<li><strong>Partial rejection coverage.</strong> The rejection loops covered 1,800 of 2,910 original train tasks and 1,301 rewritten tasks.</li>
+<li><strong>No in-training eval loss for lora2</strong> (<code>val_tasks=0</code>).</li>
+<li><strong>Stage 4 not started.</strong> DPO on <code>data/scaled/pairs.jsonl</code>, the 7B recipe, and a 7B base-assembly baseline have not been run.</li>
+<li><strong>Small held-out set.</strong> At 78 tasks, 4/78 versus 5/78 is not a meaningful difference, and neither are single-digit loop gaps without repeated runs. No confidence intervals are reported.</li>
+<li><strong>Different loop budgets.</strong> The C loop uses <em>k</em> = 4, <em>R</em> = 2; the assembly loops use <em>k</em> = 8, <em>R</em> = 3. They are not matched.</li>
+<li><strong>Tests.</strong> <code>pytest tests/test_loop.py tests/test_eval_summary.py</code>: 13 passed. The full suite was not re-run for this report.</li>
+<li><strong>Specifications.</strong> The human check of a sample of specifications is still outstanding (Report 1, §9).</li>
+</ol>
+
+<h2 id="s9"><span class="n">9</span>Next steps <span class="upd" title="Section last changed">updated 14 Nov 2026</span></h2>
+<ol>
+<li><strong>Run <code>loop-lora2-val</code></strong> when GPU time is available, so the validation loop column matches lora1.</li>
+<li><strong>A second rejection-sampling round with lora2</strong>, or DPO on the 46,472 preference pairs gated on held-out correctness.</li>
+<li><strong>Close the gap to the control.</strong> Held-out is lora2 loop 10/78 against C loop 44/78 and C greedy 31/78.</li>
+<li><strong>Human check of a sample of rewritten specifications</strong> before drawing conclusions from rewritten-spec rows.</li>
+</ol>
+
+<h2 id="cite">How to cite</h2>
+<p>This is a working paper. It is shared so others can read, discuss and cite it, and it is updated as the work moves forward. Please cite the revision you read, give its date, and say when you accessed the page. Earlier revisions are listed in the revision history. Results here have not been peer reviewed.</p>
+<p class="cite-ref">Wilson, B. (2026). <em>Repair loop and rejection sampling</em> (Working paper, Revision 1, 14 November 2026). Abundant Frontier Institute. <a href="https://abundantfrontier.org/lab/e2m/report-2/">https://abundantfrontier.org/lab/e2m/report-2/</a></p>
+<pre class="cite-bib"><code>@techreport{wilson2026e2mreport2,
+  author      = {Wilson, Boyd},
+  title       = {Repair loop and rejection sampling},
+  institution = {Abundant Frontier Institute},
+  type        = {Working paper},
+  number      = {Revision 1},
+  year        = {2026},
+  month       = {nov},
+  url         = {https://abundantfrontier.org/lab/e2m/report-2/},
+  note        = {Living document; last updated 14 November 2026. Accessed YYYY-MM-DD}
+}</code></pre>
+
+<h2 id="refs">References</h2>
+<ol class="refs">
+<li><a href="../report-1/index.html">E2M technical report 1</a>: harness, sweeps, scale-up and the first LoRA results (baselines for this report).</li>
+<li><a href="../concept/index.html">E2M concept paper</a>.</li>
+<li>Mark Chen et al. <em>Evaluating Large Language Models Trained on Code.</em> 2021. <a href="https://arxiv.org/abs/2107.03374">arXiv:2107.03374</a>. Pass@k uses the unbiased estimator from this paper.</li>
+<li>Binyuan Hui et al. <em>Qwen2.5-Coder Technical Report.</em> 2024. <a href="https://arxiv.org/abs/2409.12186">arXiv:2409.12186</a>.</li>
+<li>Edward J. Hu et al. <em>LoRA: Low-Rank Adaptation of Large Language Models.</em> 2021. <a href="https://arxiv.org/abs/2106.09685">arXiv:2106.09685</a>.</li>
+</ol>
+
+<section class="revhist" id="revhist">
+<h2>Revision history</h2>
+<ol>
+<li><b>Revision 1</b> <span class="when">14 November 2026 (America/Los_Angeles)</span><br>First draft of technical report 2: repair loop, rejection-sampling round 1, lora2, GPU hours, examples and caveats. Numbers copied from <code>STATUS.md</code> (section "Repair loop + rejection-sampling round 1") and <code>runs/loop-pipeline/RESULTS.json</code>. <code>loop-lora2-val</code> not run; Stage 4 (DPO) not started.</li>
+</ol>
+</section>
+
+<footer>Living paper · Revision 1 · Last updated 14 November 2026 · Abundant Frontier Institute Lab · Working paper · <a href="../report-1/index.html">Technical report 1</a> · <a href="../concept/index.html">Concept paper</a></footer>
+</div>
+</main>
+</body>
+</html>

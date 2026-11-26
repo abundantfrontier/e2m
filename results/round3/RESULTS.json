@@ -1,0 +1,826 @@
+{
+  "title": "E2M round 3",
+  "deadline": null,
+  "gpu_hours_budget": 30.0,
+  "gpu_hours_used": 18.6033,
+  "order": "A then B",
+  "order_reason": "DPO collapse guard should stop within a few hundred steps if generation breaks again; C-then-asm is the held-out-gap experiment and gets the remaining budget.",
+  "gpu_hours": [
+    {
+      "name": "dpo-pairs",
+      "seconds": 5.19,
+      "ok": true,
+      "ts": "2026-11-17T19:25:27.235180-08:00"
+    },
+    {
+      "name": "dpo2-train",
+      "seconds": 8321.18,
+      "ok": true,
+      "ts": "2026-11-17T21:44:08.415021-08:00"
+    },
+    {
+      "name": "dpo2-eval-val",
+      "seconds": 895.61,
+      "ok": true,
+      "ts": "2026-11-17T21:59:04.056486-08:00"
+    },
+    {
+      "name": "dpo2-eval-heldout",
+      "seconds": 1445.8,
+      "ok": true,
+      "ts": "2026-11-17T22:23:09.858929-08:00"
+    },
+    {
+      "name": "c-then-asm-data",
+      "seconds": 0.19,
+      "ok": true,
+      "ts": "2026-11-17T22:23:10.055158-08:00"
+    },
+    {
+      "name": "c-then-asm-train",
+      "seconds": 12713.01,
+      "ok": true,
+      "ts": "2026-11-18T01:55:03.069009-08:00"
+    },
+    {
+      "name": "c-then-asm-eval-val",
+      "seconds": 2898.8,
+      "ok": true,
+      "ts": "2026-11-18T02:43:21.866140-08:00"
+    },
+    {
+      "name": "c-then-asm-eval-heldout",
+      "seconds": 4445.09,
+      "ok": true,
+      "ts": "2026-11-18T03:57:26.954692-08:00"
+    },
+    {
+      "name": "loop-c-then-asm-heldout",
+      "seconds": 36246.91,
+      "ok": false,
+      "ts": "2026-11-18T14:01:33.865837-08:00"
+    }
+  ],
+  "stages": {
+    "dpo-pairs": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "dpo2-train": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "dpo2-eval-val": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "dpo2-eval-heldout": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "loop-dpo2-heldout": {
+      "status": "skipped",
+      "code": null,
+      "reason": "val pass@1 26/90 < lora2 38/90"
+    },
+    "c-then-asm-data": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "c-then-asm-train": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "c-then-asm-eval-val": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "c-then-asm-eval-heldout": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "loop-c-then-asm-heldout": {
+      "status": "stopped",
+      "code": 3,
+      "reason": "max-hours"
+    }
+  },
+  "dpo2_pairs": {
+    "choice": "pair_goal_in_prompt",
+    "reason": "user_asm already takes Goal: default|size|speed; each pair keeps its real goal",
+    "n_pairs_loaded": 46472,
+    "n_blocked_ids": 168,
+    "goal_counts": {
+      "size": 15104,
+      "speed": 15065,
+      "default": 16303
+    },
+    "prompt_goal": "pair",
+    "collapse_n": 30,
+    "collapse_task_ids": [
+      "exebench_MUL_ASSIGN_209444b3512e",
+      "exebench_answer2_660700b56ed5",
+      "exebench_decisionFunc_d1689f8a43b2",
+      "exebench_A_970727cd3965",
+      "exebench_count_265b732dc4ac",
+      "exebench_dull_5eb08148d3a4",
+      "exebench_checkmd5_f5e6fad22803",
+      "exebench_dobro_f5584d7594de",
+      "exebench_decodeChar_3cfd1b5dd631",
+      "exebench_bar_c3147f1d23f5",
+      "exebench_bits_required_unsigned_200063803eca",
+      "exebench_checkBid_1220af5db7f5",
+      "exebench_bdf_string_hash_0da437ae95c5",
+      "exebench_bitscanforward_fb74b402bbd6",
+      "exebench_ehnlc_strncmp_9353c4ce09ba",
+      "exebench_ffi_test_10_a30a09c59164",
+      "exebench_add2_d788d98459b0",
+      "exebench_balanced_btree_max_nodes_723b16194229",
+      "exebench_EOS_T_1afe33b51737",
+      "exebench_CmpDoubles_1153267d175b",
+      "exebench_bit_group_starts_uint_54be4f3ceaec",
+      "exebench_abs_val_379abcbc0d6a",
+      "exebench_findafrom_x_vi_vf_e3f4808093a3",
+      "exebench_base32decsize_ddda025106ec",
+      "exebench_addring_879e740c1831",
+      "exebench_delta_AT_b6ca07e07493",
+      "exebench__get_index_char_f1c904348f5c",
+      "exebench_ehstrnlen_ad3e8426bbc9",
+      "exebench_CircularBuffer_incr_570b8f330b69",
+      "exebench_b64e_size_762243a6d5f3"
+    ],
+    "lora2_assemble_ok": 29,
+    "lora2_assemble_n": 30,
+    "lora2_assemble_rate": 0.9666666666666667,
+    "collapse_threshold": 0.7733333333333334,
+    "tasks_path": "tasks/scaled.jsonl",
+    "pairs_path": "data/scaled/pairs.jsonl"
+  },
+  "dpo2_train": {
+    "model": "runs/models/Qwen2.5-Coder-1.5B-Instruct",
+    "init_adapter": "runs/lora2/adapter",
+    "pairs": "data/scaled/pairs.jsonl",
+    "n_pairs_loaded": 46472,
+    "n_blocked_ids": 168,
+    "n_train": 44848,
+    "n_eval": 256,
+    "beta": 0.2,
+    "epochs": 0.5,
+    "lr": 5e-06,
+    "lora_r": 32,
+    "lora_alpha": 64,
+    "lora_dropout": 0.05,
+    "batch_size": 1,
+    "grad_accum": 8,
+    "max_len": 768,
+    "max_steps": 1500,
+    "prompt_goal": "pair",
+    "rpo_weight": 1.0,
+    "collapse_every": 250,
+    "collapse_n": 30,
+    "lora2_assemble_rate": 0.9666666666666667,
+    "collapse_threshold": 0.7733333333333334,
+    "collapse_subset_n": 30,
+    "train_loss": 0.4841766357421875,
+    "eval": {
+      "eval_loss": 0.5751245021820068,
+      "eval_reward_margin": 3.3467142581939697,
+      "eval_accuracy": 0.68359375,
+      "eval_batches": 256
+    },
+    "elapsed_s": 8309.96,
+    "warmup_steps": 45,
+    "global_steps": 1500,
+    "last_good_step": 1500,
+    "collapsed": false,
+    "stop_reason": "completed",
+    "collapse_curve": [
+      {
+        "step": 0,
+        "assembles": 29,
+        "n": 30,
+        "rate": 0.9666666666666667,
+        "lora2_rate": 0.9666666666666667,
+        "threshold": 0.7733333333333334,
+        "keep": true
+      },
+      {
+        "step": 250,
+        "assembles": 25,
+        "n": 30,
+        "rate": 0.8333333333333334,
+        "lora2_rate": 0.9666666666666667,
+        "threshold": 0.7733333333333334,
+        "keep": true
+      },
+      {
+        "step": 500,
+        "assembles": 25,
+        "n": 30,
+        "rate": 0.8333333333333334,
+        "lora2_rate": 0.9666666666666667,
+        "threshold": 0.7733333333333334,
+        "keep": true
+      },
+      {
+        "step": 750,
+        "assembles": 28,
+        "n": 30,
+        "rate": 0.9333333333333333,
+        "lora2_rate": 0.9666666666666667,
+        "threshold": 0.7733333333333334,
+        "keep": true
+      },
+      {
+        "step": 1000,
+        "assembles": 27,
+        "n": 30,
+        "rate": 0.9,
+        "lora2_rate": 0.9666666666666667,
+        "threshold": 0.7733333333333334,
+        "keep": true
+      },
+      {
+        "step": 1250,
+        "assembles": 26,
+        "n": 30,
+        "rate": 0.8666666666666667,
+        "lora2_rate": 0.9666666666666667,
+        "threshold": 0.7733333333333334,
+        "keep": true
+      },
+      {
+        "step": 1500,
+        "assembles": 26,
+        "n": 30,
+        "rate": 0.8666666666666667,
+        "lora2_rate": 0.9666666666666667,
+        "threshold": 0.7733333333333334,
+        "keep": true
+      }
+    ],
+    "adapter": "runs/dpo2/adapter",
+    "merged": "runs/dpo2/merged"
+  },
+  "c_then_asm_data": {
+    "sft": "data/scaled/sft_lora2.jsonl",
+    "out": "data/scaled/sft_c_then_asm.jsonl",
+    "n_sft": 6781,
+    "n_written": 6781,
+    "n_missing_c": 0,
+    "n_c_sources": 3020,
+    "unique_task_ids": 2930,
+    "delimiter": "===C=== then ===ASM==="
+  },
+  "c_then_asm_train": {
+    "syntax": "att",
+    "goal": "default",
+    "target": "c-then-asm",
+    "model": "runs/models/Qwen2.5-Coder-7B-Instruct",
+    "train_tasks": 6781,
+    "val_tasks": 0,
+    "train_examples": 6725,
+    "val_examples": 0,
+    "dropped_over_p99": 56,
+    "token_p50": 373,
+    "token_p90": 659,
+    "token_p99": 1674,
+    "max_len": 2048,
+    "epochs": 3.0,
+    "lr": 0.0002,
+    "lora_r": 32,
+    "lora_alpha": 64,
+    "lora_dropout": 0.05,
+    "batch_size": 1,
+    "grad_accum": 16,
+    "load_4bit": true,
+    "max_steps": 0,
+    "limit": 0,
+    "train_loss": 0.1263779882144003,
+    "elapsed_s": 12699.1,
+    "warmup_steps": 37,
+    "global_steps": 1263,
+    "eval_loss": []
+  },
+  "greedy": {
+    "lora2/asm/val": {
+      "model": "lora2",
+      "mode": "asm",
+      "split": "val",
+      "n": 90,
+      "pass_at_1": 0.4222222222222222,
+      "pass_at_5": 0.5,
+      "size_ratio_vs_gcc_o2": 1.1108760096194927,
+      "insn_ratio_vs_gcc_o2": 1.0442514189858492,
+      "size_ratio_n": 38,
+      "insn_ratio_n": 38,
+      "greedy_categories": {
+        "doesnt_assemble": 3,
+        "pass": 38,
+        "wrong_answer": 49
+      },
+      "sample_categories": {
+        "doesnt_assemble": 45,
+        "pass": 165,
+        "wrong_answer": 225,
+        "crash": 7,
+        "timeout": 8
+      }
+    },
+    "lora2/asm/heldout": {
+      "model": "lora2",
+      "mode": "asm",
+      "split": "heldout",
+      "n": 78,
+      "pass_at_1": 0.05128205128205128,
+      "pass_at_5": 0.0641025641025641,
+      "size_ratio_vs_gcc_o2": 1.0997835497835498,
+      "insn_ratio_vs_gcc_o2": 1.3095238095238095,
+      "size_ratio_n": 4,
+      "insn_ratio_n": 4,
+      "greedy_categories": {
+        "wrong_answer": 33,
+        "crash": 10,
+        "pass": 4,
+        "timeout": 10,
+        "doesnt_assemble": 21
+      },
+      "sample_categories": {
+        "wrong_answer": 163,
+        "doesnt_assemble": 132,
+        "crash": 46,
+        "timeout": 36,
+        "pass": 13
+      }
+    },
+    "qlora7b-v2/asm/val": {
+      "model": "qlora7b-v2",
+      "mode": "asm",
+      "split": "val",
+      "n": 90,
+      "pass_at_1": 0.45555555555555555,
+      "pass_at_5": 0.5777777777777777,
+      "size_ratio_vs_gcc_o2": 1.0186890716646007,
+      "insn_ratio_vs_gcc_o2": 0.9890799533702515,
+      "size_ratio_n": 41,
+      "insn_ratio_n": 41,
+      "greedy_categories": {
+        "pass": 41,
+        "wrong_answer": 39,
+        "doesnt_assemble": 6,
+        "timeout": 3,
+        "crash": 1
+      },
+      "sample_categories": {
+        "pass": 191,
+        "doesnt_assemble": 32,
+        "wrong_answer": 217,
+        "crash": 7,
+        "timeout": 3
+      }
+    },
+    "qlora7b-v2/asm/heldout": {
+      "model": "qlora7b-v2",
+      "mode": "asm",
+      "split": "heldout",
+      "n": 78,
+      "pass_at_1": 0.0641025641025641,
+      "pass_at_5": 0.15384615384615385,
+      "size_ratio_vs_gcc_o2": 0.9599472990777338,
+      "insn_ratio_vs_gcc_o2": 1.0105263157894737,
+      "size_ratio_n": 5,
+      "insn_ratio_n": 5,
+      "greedy_categories": {
+        "wrong_answer": 40,
+        "crash": 8,
+        "pass": 5,
+        "timeout": 14,
+        "doesnt_assemble": 11
+      },
+      "sample_categories": {
+        "wrong_answer": 177,
+        "pass": 26,
+        "crash": 54,
+        "doesnt_assemble": 88,
+        "timeout": 45
+      }
+    },
+    "dpo/asm/val": {
+      "model": "dpo",
+      "mode": "asm",
+      "split": "val",
+      "n": 90,
+      "pass_at_1": 0.03333333333333333,
+      "pass_at_5": 0.044444444444444446,
+      "size_ratio_vs_gcc_o2": 1.0,
+      "insn_ratio_vs_gcc_o2": 1.0,
+      "size_ratio_n": 3,
+      "insn_ratio_n": 3,
+      "greedy_categories": {
+        "doesnt_assemble": 83,
+        "pass": 3,
+        "wrong_answer": 3,
+        "crash": 1
+      },
+      "sample_categories": {
+        "doesnt_assemble": 419,
+        "pass": 12,
+        "wrong_answer": 18,
+        "crash": 1
+      }
+    },
+    "dpo/asm/heldout": {
+      "model": "dpo",
+      "mode": "asm",
+      "split": "heldout",
+      "n": 78,
+      "pass_at_1": 0.0,
+      "pass_at_5": 0.0,
+      "size_ratio_vs_gcc_o2": null,
+      "insn_ratio_vs_gcc_o2": null,
+      "size_ratio_n": 0,
+      "insn_ratio_n": 0,
+      "greedy_categories": {
+        "doesnt_assemble": 76,
+        "wrong_answer": 2
+      },
+      "sample_categories": {
+        "doesnt_assemble": 381,
+        "wrong_answer": 9
+      }
+    },
+    "base-c/c/heldout": {
+      "model": "base",
+      "mode": "c",
+      "split": "heldout",
+      "n": 78,
+      "pass_at_1": 0.3974358974358974,
+      "pass_at_5": 0.6282051282051282,
+      "size_ratio_vs_gcc_o2": 1.002696718386713,
+      "insn_ratio_vs_gcc_o2": 0.9892526436320325,
+      "size_ratio_n": 31,
+      "insn_ratio_n": 31,
+      "greedy_categories": {
+        "pass": 31,
+        "wrong_answer": 24,
+        "doesnt_assemble": 23
+      },
+      "sample_categories": {
+        "doesnt_assemble": 130,
+        "wrong_answer": 107,
+        "pass": 150,
+        "crash": 2,
+        "timeout": 1
+      }
+    },
+    "dpo2/asm/val": {
+      "model": "dpo2",
+      "mode": "asm",
+      "split": "val",
+      "n": 90,
+      "pass_at_1": 0.28888888888888886,
+      "pass_at_5": 0.4777777777777778,
+      "size_ratio_vs_gcc_o2": 1.120620244133354,
+      "insn_ratio_vs_gcc_o2": 1.366191582167675,
+      "size_ratio_n": 26,
+      "insn_ratio_n": 26,
+      "greedy_categories": {
+        "wrong_answer": 54,
+        "pass": 26,
+        "doesnt_assemble": 8,
+        "crash": 1,
+        "timeout": 1
+      },
+      "sample_categories": {
+        "doesnt_assemble": 97,
+        "wrong_answer": 214,
+        "pass": 116,
+        "timeout": 13,
+        "crash": 10
+      }
+    },
+    "dpo2/asm/heldout": {
+      "model": "dpo2",
+      "mode": "asm",
+      "split": "heldout",
+      "n": 78,
+      "pass_at_1": 0.02564102564102564,
+      "pass_at_5": 0.02564102564102564,
+      "size_ratio_vs_gcc_o2": 0.7272727272727273,
+      "insn_ratio_vs_gcc_o2": 1.0789473684210527,
+      "size_ratio_n": 2,
+      "insn_ratio_n": 2,
+      "greedy_categories": {
+        "wrong_answer": 35,
+        "doesnt_assemble": 28,
+        "timeout": 8,
+        "pass": 2,
+        "crash": 5
+      },
+      "sample_categories": {
+        "wrong_answer": 141,
+        "doesnt_assemble": 182,
+        "timeout": 26,
+        "crash": 33,
+        "pass": 8
+      }
+    },
+    "c-then-asm/c-then-asm/val": {
+      "model": "c-then-asm",
+      "mode": "c-then-asm",
+      "split": "val",
+      "n": 90,
+      "pass_at_1": 0.4444444444444444,
+      "pass_at_5": 0.6,
+      "size_ratio_vs_gcc_o2": 1.0551884742041289,
+      "insn_ratio_vs_gcc_o2": 0.9352716490639917,
+      "size_ratio_n": 40,
+      "insn_ratio_n": 40,
+      "greedy_categories": {
+        "pass": 40,
+        "wrong_answer": 44,
+        "doesnt_assemble": 4,
+        "timeout": 1,
+        "crash": 1
+      },
+      "sample_categories": {
+        "pass": 204,
+        "wrong_answer": 200,
+        "doesnt_assemble": 35,
+        "timeout": 6,
+        "crash": 5
+      },
+      "c_pass_at_1": 0.7,
+      "c_pass_n": 63,
+      "c_asm_agree": 0.7,
+      "c_asm_agree_n": 63,
+      "c_and_asm_pass": 38,
+      "c_only_pass": 25,
+      "asm_only_pass": 2
+    },
+    "c-then-asm/c-then-asm/heldout": {
+      "model": "c-then-asm",
+      "mode": "c-then-asm",
+      "split": "heldout",
+      "n": 78,
+      "pass_at_1": 0.08974358974358974,
+      "pass_at_5": 0.11538461538461539,
+      "size_ratio_vs_gcc_o2": 1.132343146653115,
+      "insn_ratio_vs_gcc_o2": 3.5835583907617807,
+      "size_ratio_n": 7,
+      "insn_ratio_n": 7,
+      "greedy_categories": {
+        "wrong_answer": 36,
+        "crash": 15,
+        "pass": 7,
+        "timeout": 13,
+        "doesnt_assemble": 7
+      },
+      "sample_categories": {
+        "wrong_answer": 184,
+        "doesnt_assemble": 86,
+        "crash": 58,
+        "pass": 31,
+        "timeout": 30,
+        "abi": 1
+      },
+      "c_pass_at_1": 0.6153846153846154,
+      "c_pass_n": 48,
+      "c_asm_agree": 0.44871794871794873,
+      "c_asm_agree_n": 35,
+      "c_and_asm_pass": 6,
+      "c_only_pass": 42,
+      "asm_only_pass": 1
+    }
+  },
+  "loops": {
+    "loop-lora2-val": {
+      "model": "lora2",
+      "split": "val",
+      "n": 90,
+      "passed_full": 60,
+      "passed_visible": 60,
+      "passed_hidden": 60,
+      "pass_full": 0.6666666666666666,
+      "pass_visible": 0.6666666666666666,
+      "pass_hidden": 0.6666666666666666,
+      "mean_calls": 13.922222222222222,
+      "budget_full": {
+        "1": 0.3888888888888889,
+        "4": 0.4666666666666667,
+        "8": 0.5111111111111111,
+        "16": 0.6222222222222222,
+        "32": 0.6666666666666666
+      },
+      "budget_visible": {
+        "1": 0.3888888888888889,
+        "4": 0.4666666666666667,
+        "8": 0.5111111111111111,
+        "16": 0.6222222222222222,
+        "32": 0.6666666666666666
+      },
+      "budget_hidden": {
+        "1": 0.3888888888888889,
+        "4": 0.4666666666666667,
+        "8": 0.5111111111111111,
+        "16": 0.6222222222222222,
+        "32": 0.6666666666666666
+      },
+      "size_ratio_vs_gcc_o2": 1.0687815808991914,
+      "insn_ratio_vs_gcc_o2": 1.2691940088601625,
+      "size_ratio_n": 60,
+      "insn_ratio_n": 60,
+      "final_categories": {
+        "doesnt_assemble": 11,
+        "pass": 60,
+        "wrong_answer": 18,
+        "timeout": 1
+      }
+    },
+    "loop-lora2-heldout": {
+      "model": "lora2",
+      "split": "heldout",
+      "n": 78,
+      "passed_full": 10,
+      "passed_visible": 15,
+      "passed_hidden": 10,
+      "pass_full": 0.1282051282051282,
+      "pass_visible": 0.19230769230769232,
+      "pass_hidden": 0.1282051282051282,
+      "mean_calls": 29.21794871794872,
+      "budget_full": {
+        "1": 0.02564102564102564,
+        "4": 0.038461538461538464,
+        "8": 0.0641025641025641,
+        "16": 0.08974358974358974,
+        "32": 0.1282051282051282
+      },
+      "budget_visible": {
+        "1": 0.02564102564102564,
+        "4": 0.0641025641025641,
+        "8": 0.10256410256410256,
+        "16": 0.1282051282051282,
+        "32": 0.19230769230769232
+      },
+      "budget_hidden": {
+        "1": 0.02564102564102564,
+        "4": 0.038461538461538464,
+        "8": 0.0641025641025641,
+        "16": 0.08974358974358974,
+        "32": 0.1282051282051282
+      },
+      "size_ratio_vs_gcc_o2": 1.006875688463168,
+      "insn_ratio_vs_gcc_o2": 1.1275760243255495,
+      "size_ratio_n": 10,
+      "insn_ratio_n": 10,
+      "final_categories": {
+        "pass": 10,
+        "wrong_answer": 32,
+        "doesnt_assemble": 22,
+        "timeout": 5,
+        "crash": 9
+      }
+    },
+    "loop-qlora7b-v2-heldout": {
+      "model": "qlora7b-v2",
+      "split": "heldout",
+      "n": 78,
+      "passed_full": 12,
+      "passed_visible": 17,
+      "passed_hidden": 12,
+      "pass_full": 0.15384615384615385,
+      "pass_visible": 0.21794871794871795,
+      "pass_hidden": 0.15384615384615385,
+      "mean_calls": 27.794871794871796,
+      "budget_full": {
+        "1": 0.038461538461538464,
+        "4": 0.08974358974358974,
+        "8": 0.10256410256410256,
+        "16": 0.1282051282051282,
+        "32": 0.15384615384615385
+      },
+      "budget_visible": {
+        "1": 0.038461538461538464,
+        "4": 0.10256410256410256,
+        "8": 0.16666666666666666,
+        "16": 0.1794871794871795,
+        "32": 0.21794871794871795
+      },
+      "budget_hidden": {
+        "1": 0.038461538461538464,
+        "4": 0.08974358974358974,
+        "8": 0.10256410256410256,
+        "16": 0.1282051282051282,
+        "32": 0.15384615384615385
+      },
+      "size_ratio_vs_gcc_o2": 1.1717073442486512,
+      "insn_ratio_vs_gcc_o2": 1.657710524264508,
+      "size_ratio_n": 12,
+      "insn_ratio_n": 12,
+      "final_categories": {
+        "pass": 12,
+        "wrong_answer": 33,
+        "timeout": 11,
+        "doesnt_assemble": 11,
+        "crash": 11
+      }
+    },
+    "loop-base-c-heldout": {
+      "model": "base-c",
+      "split": "heldout",
+      "n": 78,
+      "passed_full": 44,
+      "passed_visible": 48,
+      "passed_hidden": 44,
+      "pass_full": 0.5641025641025641,
+      "pass_visible": 0.6153846153846154,
+      "pass_hidden": 0.5641025641025641,
+      "mean_calls": 6.615384615384615,
+      "budget_full": {
+        "1": 0.32051282051282054,
+        "4": 0.47435897435897434,
+        "8": 0.5512820512820513,
+        "16": 0.5641025641025641,
+        "32": 0.5641025641025641
+      },
+      "budget_visible": {
+        "1": 0.34615384615384615,
+        "4": 0.5128205128205128,
+        "8": 0.5897435897435898,
+        "16": 0.6153846153846154,
+        "32": 0.6153846153846154
+      },
+      "budget_hidden": {
+        "1": 0.32051282051282054,
+        "4": 0.47435897435897434,
+        "8": 0.5512820512820513,
+        "16": 0.5641025641025641,
+        "32": 0.5641025641025641
+      },
+      "size_ratio_vs_gcc_o2": 1.0927462727982344,
+      "insn_ratio_vs_gcc_o2": 1.0284492327132684,
+      "size_ratio_n": 44,
+      "insn_ratio_n": 44,
+      "final_categories": {
+        "pass": 44,
+        "doesnt_assemble": 22,
+        "wrong_answer": 11,
+        "crash": 1
+      }
+    },
+    "loop-c-then-asm-heldout": {
+      "model": "c-then-asm",
+      "split": "heldout",
+      "n": 59,
+      "passed_full": 15,
+      "passed_visible": 21,
+      "passed_hidden": 15,
+      "pass_full": 0.2542372881355932,
+      "pass_visible": 0.3559322033898305,
+      "pass_hidden": 0.2542372881355932,
+      "mean_calls": 24.677966101694917,
+      "budget_full": {
+        "1": 0.1016949152542373,
+        "4": 0.1864406779661017,
+        "8": 0.22033898305084745,
+        "16": 0.23728813559322035,
+        "32": 0.2542372881355932
+      },
+      "budget_visible": {
+        "1": 0.1016949152542373,
+        "4": 0.2033898305084746,
+        "8": 0.2711864406779661,
+        "16": 0.3220338983050847,
+        "32": 0.3559322033898305
+      },
+      "budget_hidden": {
+        "1": 0.1016949152542373,
+        "4": 0.1864406779661017,
+        "8": 0.22033898305084745,
+        "16": 0.23728813559322035,
+        "32": 0.2542372881355932
+      },
+      "size_ratio_vs_gcc_o2": 0.9686458913743172,
+      "insn_ratio_vs_gcc_o2": 1.8882660798752888,
+      "size_ratio_n": 15,
+      "insn_ratio_n": 15,
+      "final_categories": {
+        "wrong_answer": 23,
+        "pass": 15,
+        "timeout": 4,
+        "doesnt_assemble": 8,
+        "crash": 9
+      }
+    }
+  },
+  "finished_at": "2026-11-18T14:01:33.969775-08:00",
+  "smoke": false
+}

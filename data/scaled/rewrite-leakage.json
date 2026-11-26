@@ -1,0 +1,30 @@
+{
+  "stats": {
+    "n_tasks": 3020,
+    "n_llm_ok": 2826,
+    "n_llm_fail": 194,
+    "n_kept": 2823,
+    "n_drop_ngram": 1,
+    "n_drop_embed": 2,
+    "n_drop_fail": 194,
+    "elapsed_s": 10113.82,
+    "model": "qwen3:14b",
+    "embed_model": "bge-m3:latest",
+    "embed_error": null,
+    "out": "data/scaled/rewritten.jsonl"
+  },
+  "dropped": [
+    {
+      "task_id": "sum_to",
+      "leak": "embed:he60_sum_to_n:0.879"
+    },
+    {
+      "task_id": "is_prime",
+      "leak": "embed:he82_prime_length:0.868"
+    },
+    {
+      "task_id": "gcd",
+      "leak": "name:gcd"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+dist/
+build/
+
+# Environments and secrets
+.venv/
+venv/
+.env
+.env.*
+*.pem
+*.key
+
+# Model weights, adapters and checkpoints (published separately)
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.gguf
+*.onnx
+adapter/
+checkpoint-*/
+merged/
+/models/
+
+# Logs, run scratch and large data
+logs/
+*.log
+*.pid
+*.exit
+/runs/
+/data/scale/*.jsonl
+/data/scaled/*.jsonl
+/data/*cache*.jsonl
+/tools/
+/datasets/
+qemu-tmp/
+*.jsonl.bak
+
+# Shared-GPU lock used by the training pipelines
+gpu.lock
+
+# Native build outputs
+*.o
+*.elf
+*.so

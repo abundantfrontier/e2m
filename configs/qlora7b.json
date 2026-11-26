@@ -1,0 +1,22 @@
+{
+  "syntax": "att",
+  "goal": "default",
+  "model": "runs/models/Qwen2.5-Coder-7B-Instruct",
+  "train_tasks": 2910,
+  "val_tasks": 90,
+  "train_examples": 2881,
+  "val_examples": 88,
+  "dropped_over_p99": 29,
+  "token_p50": 276,
+  "token_p90": 508,
+  "token_p99": 1472,
+  "max_len": 1472,
+  "epochs": 3.0,
+  "lr": 0.0002,
+  "lora_r": 32,
+  "lora_alpha": 64,
+  "lora_dropout": 0.05,
+  "batch_size": 1,
+  "grad_accum": 16,
+  "load_4bit": true
+}

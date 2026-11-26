@@ -1,0 +1,10 @@
+{"name": "loop-lora2-val", "seconds": 12349.46, "ok": true, "ts": "2026-11-14T14:44:28.710065-08:00"}
+{"name": "dpo-train", "seconds": 27026.52, "ok": true, "ts": "2026-11-14T22:14:55.234824-08:00"}
+{"name": "dpo-eval-val", "seconds": 4210.26, "ok": true, "ts": "2026-11-14T23:25:05.508778-08:00"}
+{"name": "dpo-eval-heldout", "seconds": 4363.42, "ok": true, "ts": "2026-11-15T00:37:48.928525-08:00"}
+{"name": "loop-dpo-heldout", "seconds": 36106.05, "ok": false, "ts": "2026-11-15T10:39:34.983109-08:00"}
+{"name": "7b-base-asm", "seconds": 1105.95, "ok": true, "ts": "2026-11-15T12:39:43.370686-08:00"}
+{"name": "qlora7b-v2-train", "seconds": 10711.71, "ok": true, "ts": "2026-11-15T15:38:15.077454-08:00"}
+{"name": "qlora7b-v2-eval-val", "seconds": 1983.07, "ok": true, "ts": "2026-11-15T16:11:18.145929-08:00"}
+{"name": "qlora7b-v2-eval-heldout", "seconds": 4241.1, "ok": true, "ts": "2026-11-15T17:21:59.249142-08:00"}
+{"name": "loop-qlora7b-v2-heldout", "seconds": 44337.5, "ok": true, "ts": "2026-11-16T05:40:56.747301-08:00"}

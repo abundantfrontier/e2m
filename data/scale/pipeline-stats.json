@@ -1,0 +1,33 @@
+{
+  "scaled_tasks": 3000,
+  "written_this_run": 1500,
+  "llm_seconds": 3137.3,
+  "llm_fail": 1,
+  "verify_cache": 9812,
+  "reasons": {
+    "trivial_source": 25052,
+    "main_or_empty_name": 2200,
+    "too_few_inputs": 9326,
+    "pointer_return": 2096,
+    "heldout": 2488,
+    "forbidden_call": 444,
+    "bad_signature": 3180,
+    "struct_or_union": 1568,
+    "goto": 466,
+    "duplicate_body": 6218,
+    "too_long": 44,
+    "too_many_int_args": 126,
+    "nested_pointer": 82,
+    "too_many_fp_args": 42,
+    "extract": 9318,
+    "assemble_error": 444,
+    "compile_error": 3050,
+    "external_reloc": 82,
+    "external_call": 254,
+    "stub_passes": 2207,
+    "capture_fail": 386,
+    "o0_fail": 57,
+    "o2_mismatch": 71
+  },
+  "llm_wall_s": 1552.3
+}

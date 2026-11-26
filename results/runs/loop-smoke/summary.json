@@ -1,0 +1,45 @@
+{
+  "model": "lora1",
+  "split": "heldout",
+  "n": 1,
+  "passed_full": 0,
+  "passed_visible": 0,
+  "passed_hidden": 0,
+  "pass_full": 0.0,
+  "pass_visible": 0.0,
+  "pass_hidden": 0.0,
+  "mean_calls": 4.0,
+  "budget_full": {
+    "1": 0.0,
+    "4": 0.0,
+    "8": 0.0,
+    "16": 0.0,
+    "32": 0.0
+  },
+  "budget_visible": {
+    "1": 0.0,
+    "4": 0.0,
+    "8": 0.0,
+    "16": 0.0,
+    "32": 0.0
+  },
+  "budget_hidden": {
+    "1": 0.0,
+    "4": 0.0,
+    "8": 0.0,
+    "16": 0.0,
+    "32": 0.0
+  },
+  "size_ratio_vs_gcc_o2": null,
+  "insn_ratio_vs_gcc_o2": null,
+  "size_ratio_n": 0,
+  "insn_ratio_n": 0,
+  "final_categories": {
+    "wrong_answer": 1
+  },
+  "elapsed_s": 45.54,
+  "k": 2,
+  "rounds": 1,
+  "temperature": 0.8,
+  "mode": "asm"
+}

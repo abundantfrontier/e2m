@@ -1,0 +1,32 @@
+{
+  "model": "runs/models/Qwen2.5-Coder-1.5B-Instruct",
+  "init_adapter": "runs/lora2/adapter",
+  "pairs": "data/scaled/pairs.jsonl",
+  "n_pairs_loaded": 46472,
+  "n_blocked_ids": 168,
+  "n_train": 44592,
+  "n_eval": 512,
+  "beta": 0.1,
+  "epochs": 1.0,
+  "lr": 5e-05,
+  "lora_r": 32,
+  "lora_alpha": 64,
+  "lora_dropout": 0.05,
+  "batch_size": 1,
+  "grad_accum": 8,
+  "max_len": 768,
+  "max_steps": 0,
+  "prompt_goal": "default",
+  "train_loss": 0.18589138984680176,
+  "eval": {
+    "eval_loss": 0.20929968636482954,
+    "eval_reward_margin": 4.444016456604004,
+    "eval_accuracy": 0.90234375,
+    "eval_batches": 512
+  },
+  "elapsed_s": 27015.48,
+  "warmup_steps": 167,
+  "global_steps": 5574,
+  "adapter": "runs/dpo/adapter",
+  "merged": "runs/dpo/merged"
+}

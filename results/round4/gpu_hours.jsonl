@@ -1,0 +1,6 @@
+{"name": "c-only-train", "seconds": 7950.19, "ok": true, "gpu": true, "ts": "2026-11-20T22:54:39.130920-08:00"}
+{"name": "c-only-eval-val", "seconds": 751.03, "ok": true, "gpu": true, "ts": "2026-11-20T23:07:10.218329-08:00"}
+{"name": "c-only-eval-heldout", "seconds": 800.51, "ok": true, "gpu": true, "ts": "2026-11-20T23:20:30.827530-08:00"}
+{"name": "hybrid-score", "seconds": 163.89, "ok": true, "gpu": false, "ts": "2026-11-20T23:23:14.751715-08:00"}
+{"name": "loop-c-then-asm-heldout", "seconds": 18602.35, "ok": true, "gpu": true, "ts": "2026-11-21T04:33:17.123585-08:00"}
+{"name": "failure-analysis", "seconds": 0.03, "ok": true, "gpu": false, "ts": "2026-11-21T04:33:17.164003-08:00"}

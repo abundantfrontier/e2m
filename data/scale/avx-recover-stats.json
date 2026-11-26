@@ -1,0 +1,7 @@
+{
+  "unsupported_rows": 2255,
+  "unique_configs": 1542,
+  "qemu_pass": 1212,
+  "qemu_fail": 330,
+  "skip": 0
+}

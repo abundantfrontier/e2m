@@ -1,0 +1,36 @@
+[project]
+name = "e2m"
+version = "0.1.0"
+description = "English-to-machine-code research: safe x86-64 assemble/emulate/score harness"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "unicorn>=2.1.4",
+    "capstone>=5.0.0",
+    "pyelftools>=0.31",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-timeout>=2.3",
+]
+
+[project.scripts]
+e2m-score = "e2m.score:main"
+e2m-fuzz = "e2m.fuzz:main"
+e2m-sweep = "e2m.data.sweep:main"
+e2m-scale = "e2m.scale.pipeline:main"
+e2m-loop = "e2m.loop.__main__:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["e2m*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+timeout = 180
+addopts = "-q --strict-markers"

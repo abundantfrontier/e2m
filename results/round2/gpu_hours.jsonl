@@ -1,0 +1,5 @@
+{"name": "loop-lora2-val", "seconds": 12349.46, "ok": true, "ts": "2026-11-14T14:44:28.710065-08:00"}
+{"name": "dpo-train", "seconds": 27026.52, "ok": true, "ts": "2026-11-14T22:14:55.234824-08:00"}
+{"name": "dpo-eval-val", "seconds": 4210.26, "ok": true, "ts": "2026-11-14T23:25:05.508778-08:00"}
+{"name": "dpo-eval-heldout", "seconds": 4363.42, "ok": true, "ts": "2026-11-15T00:37:48.928525-08:00"}
+{"name": "loop-dpo-heldout", "seconds": 36106.05, "ok": false, "ts": "2026-11-15T10:39:34.983109-08:00"}

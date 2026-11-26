@@ -1,0 +1,10 @@
+{
+  "sft": "data/scaled/sft_lora2.jsonl",
+  "out": "data/scaled/sft_c_then_asm.jsonl",
+  "n_sft": 6781,
+  "n_written": 6781,
+  "n_missing_c": 0,
+  "n_c_sources": 3020,
+  "unique_task_ids": 2930,
+  "delimiter": "===C=== then ===ASM==="
+}

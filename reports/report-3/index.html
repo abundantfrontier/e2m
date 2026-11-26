@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E2M technical report 3: preference optimization and a second 7B (living paper) · Abundant Frontier Institute</title>
+<meta name="description" content="Living technical report: a preference-optimization run whose generation collapsed, a repair loop on the validation set, and a second 7B QLoRA, scored on held-out tasks.">
+<meta name="citation_title" content="Preference optimization, a second 7B, and the validation gap">
+<meta name="citation_author" content="Wilson, Boyd">
+<meta name="citation_publication_date" content="2026/11/16">
+<meta name="citation_technical_report_institution" content="Abundant Frontier Institute">
+<meta name="citation_technical_report_number" content="Revision 1">
+<meta name="citation_public_url" content="https://abundantfrontier.org/lab/e2m/report-3/">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<nav class="nav"><div class="nav-in">
+<a class="brand" href="https://abundantfrontier.org/"><span class="e">🌾</span><span>Abundant Frontier Institute</span></a>
+<div class="nav-links"><a href="/lab/">Lab</a><a href="../concept/index.html" >Concept paper</a><a href="../report-1/index.html" >Technical report 1</a><a href="../report-2/index.html" >Technical report 2</a><a href="../report-3/index.html" class="cur">Technical report 3</a><a href="../report-4/index.html" >Technical report 4</a><a href="../report-5/index.html" >Technical report 5</a><span class="badge">Working paper</span></div>
+</div></nav>
+<main class="page">
+<header class="title">
+<div class="kicker">Technical report · third work product</div>
+<h1>Preference optimization, a second 7B, and the validation gap</h1>
+<p class="sub">Technical report 3 of the <em>E2M</em> program: a DPO run from lora2 whose generation collapsed, the repair loop on the validation set, and a second 7B QLoRA trained on the lora2 mix, compared across all models so far and against the NL-to-C-to-gcc control.</p>
+<p class="byline"><strong>Boyd Wilson</strong>, Abundant Frontier Institute and Omnibond Systems</p>
+<p class="meta">Living paper · Revision 1 · Last updated 16 November 2026 · Companion to the <a href="../concept/index.html">E2M concept paper</a>, <a href="../report-1/index.html">technical report 1</a> and <a href="../report-2/index.html">technical report 2</a> · All results are from one 24 GB RTX 3090 workstation · Code and data: <a href="https://github.com/abundantfrontier/e2m">github.com/abundantfrontier/e2m</a></p>
+</header>
+
+<div class="draftbar"><b>Working paper.</b> You may cite it; see <a href="#cite">How to cite</a>. Numbers are copied from <code>runs/round2b/SUMMARY.md</code>, <code>runs/round2b/RESULTS.json</code>, <code>runs/round2/SUMMARY.md</code>, <code>runs/round2/RESULTS.json</code>, <code>STATUS.md</code> and the training files under <code>runs/dpo</code> and <code>runs/qlora7b-v2</code> on the 3090; nothing here is re-scored. Counts of the form "x of y" that are not in those summaries were tallied from <code>runs/dpo/eval.jsonl</code> and are marked as such.</div>
+
+<div class="abstract"><h2>Abstract</h2>
+<p>Report 2 left three things undone: the repair loop on the validation set, preference optimization (DPO) on the 46,472 compiler preference pairs, and a 7B baseline. This report covers them. The lora2 repair loop on the 90 validation tasks passes 60/90 (k = 8, R = 3), up from 49/90 for lora1. DPO started from lora2 (beta 0.1, 5,574 steps) reached a pair accuracy of 0.902 on 512 held-out pairs, but its generation collapsed: greedy pass@1 is 3/90 on validation and 0/78 on held-out, and 83 of 90 and 76 of 78 greedy outputs do not assemble. We offer hypotheses for the collapse; we did not test any of them. A second 7B QLoRA (qlora7b-v2), trained on the same 6,781-row mix as lora2, is the strongest single-try model on validation (41/90 greedy, 52/90 pass@5) and on held-out pass@5 (12/78), ties qlora7b at 5/78 greedy on held-out, and passes 12/78 on held-out with the repair loop (17/78 on visible tests only). The 7B base model without an adapter passes 0/78 greedy and 3/78 at pass@5. Validation and held-out remain far apart: greedy pass@1 is 0.456 on validation and 0.064 on held-out for qlora7b-v2, and the NL-to-C-to-gcc control still reaches 31/78 greedy and 44/78 with its repair loop. Round 2 and round 2b used 40.68 of 60 additional GPU hours. All numbers are copied from files on the 3090.</p></div>
+
+<nav class="toc" aria-label="Contents"><div class="toc-title">Contents</div><ol>
+<li><a href="#s1"><span class="n">1</span>Goals recap</a></li>
+<li><a href="#s2"><span class="n">2</span>Round 2: the lora2 repair loop on validation</a></li>
+<li><a href="#s3"><span class="n">3</span>Round 2: DPO from lora2 and its collapse</a></li>
+<li><a href="#s4"><span class="n">4</span>Round 2b: base 7B and qlora7b-v2</a></li>
+<li><a href="#s5"><span class="n">5</span>All models compared</a></li>
+<li><a href="#s6"><span class="n">6</span>The validation and held-out gap</a></li>
+<li><a href="#s7"><span class="n">7</span>Compute used</a></li>
+<li><a href="#s8"><span class="n">8</span>Limitations and caveats</a></li>
+<li><a href="#s9"><span class="n">9</span>Proposed next steps</a></li>
+<li><a href="#refs"><span class="n"></span>References</a></li>
+<li><a href="#revhist"><span class="n"></span>Revision history</a></li>
+</ol></nav>
+
+<div class="col">
+
+<h2 id="s1"><span class="n">1</span>Goals recap <span class="upd" title="Section last changed">updated 16 Nov 2026</span></h2>
+<p><a href="../report-2/index.html">Report 2</a> added a visible-test repair loop and one round of rejection sampling, which produced lora2. It ended with a list of unfinished work: the validation loop (<code>loop-lora2-val</code>), DPO on <code>data/scaled/pairs.jsonl</code>, and a 7B baseline. Its next-step list proposed a second rejection round or DPO gated on held-out correctness. This report reports what happened when the pipeline was resumed under a new budget: 60 additional GPU hours and a deadline of 18 November 2026, 18:00 Pacific time. The pipeline ran in two parts. Round 2 ran the validation loop, DPO training, DPO evaluation and the DPO held-out loop, and halted at a stage cap. Round 2b resumed it and ran the 7B stages.</p>
+<p>Terms follow Reports 1 and 2. pass@1 is greedy. pass@5 is the fraction of tasks with at least one passing sample out of five (T = 0.8). A repair loop samples <em>k</em> candidates and repairs for up to <em>R</em> rounds using the visible tests only; scoring uses the full tests. The validation set is 90 scaled tasks from the training distribution, and the held-out set is 78 HumanEval and MBPP tasks.</p>
+
+<h2 id="s2"><span class="n">2</span>Round 2: the lora2 repair loop on validation <span class="upd" title="Section last changed">updated 16 Nov 2026</span></h2>
+<p>Report 2 could not give a validation loop result for lora2 because the pipeline stopped at the GPU-hour gate. That stage ran first in round 2 (<code>loop-lora2-val</code>, 3.43 GPU hours, k = 8, R = 3, T = 0.8). It passes <strong>60 of 90</strong> validation tasks on the full tests (0.667), against 49 of 90 for lora1 (0.544) under the same loop settings. The mean number of model calls per task is 13.9 for lora2 and 18.3 for lora1. Table 1 shows the first full-test pass within a given number of model calls (the same pass-by-budget measure as Report 2, Table 5).</p>
+<div class="tw"><table><caption>Table 1. Repair loop on the 90 validation tasks: tasks with a first full-test pass within <em>m</em> model calls (<code>runs/round2b/RESULTS.json</code>, <code>budget_full</code>; counts are fractions times 90). k = 8, R = 3, T = 0.8.</caption>
+<thead><tr><th>run</th><th class="num">n</th><th class="num">@1</th><th class="num">@4</th><th class="num">@8</th><th class="num">@16</th><th class="num">@32</th><th class="num">mean calls</th></tr></thead><tbody>
+<tr><td>loop-lora1-val</td><td class="num">90</td><td class="num">19/90</td><td class="num">26/90</td><td class="num">32/90</td><td class="num">40/90</td><td class="num">49/90</td><td class="num">18.3</td></tr>
+<tr><td>loop-lora2-val</td><td class="num">90</td><td class="num">35/90</td><td class="num">42/90</td><td class="num">46/90</td><td class="num">56/90</td><td class="num">60/90</td><td class="num">13.9</td></tr>
+</tbody></table></div>
+<p>The first call of the loop is a single sample at T = 0.8, so its @1 differs from greedy pass@1 (lora2 validation: 35/90 at @1 in the loop, 38/90 greedy). For lora2 the curve is still rising at 16 and 32 calls (56/90 and 60/90), so the budget, not the model, may be the limit on validation. Among the passing programs, size is 1.069 and instruction count 1.269 of gcc <code>-O2</code> (n = 60); the final-attempt categories are 60 pass, 18 wrong answer, 11 does not assemble and 1 timeout. The validation tasks are drawn from the training distribution (Report 2, §4), so this result says what the loop can do on familiar tasks; §6 returns to the difference from held-out.</p>
+
+<h2 id="s3"><span class="n">3</span>Round 2: DPO from lora2 and its collapse <span class="upd" title="Section last changed">updated 16 Nov 2026</span></h2>
+
+<h3 id="s3-1"><span class="n">3.1</span>Setup <span class="upd" title="Section last changed">updated 16 Nov 2026</span></h3>
+<p>DPO used the compiler preference pairs in <code>data/scaled/pairs.jsonl</code>. Each pair is a better and a worse verified variant of the same task, ranked by size or instruction count: 46,472 pairs over 2,999 tasks, split into 16,303 <code>default</code>, 15,104 <code>size</code> and 15,065 <code>speed</code> pairs (a tally of the file). After blocking the 168 validation and held-out task ids, 44,592 pairs were used for training and 512 held out for evaluation. The trainable policy is a fresh LoRA on top of the merged lora2 model, and the reference log-probabilities come from the merged lora2 model with the adapter disabled (<code>e2m/train/dpo.py</code>). Every training prompt uses <code>Goal: default</code>, whatever the goal of the pair.</p>
+<div class="tw"><table><caption>Table 2. DPO training configuration (<code>runs/dpo/train_config.json</code>, <code>runs/dpo/summary.json</code>).</caption>
+<thead><tr><th>setting</th><th>value</th></tr></thead><tbody>
+<tr><td>base model, initial adapter</td><td><code>Qwen2.5-Coder-1.5B-Instruct</code>, lora2</td></tr>
+<tr><td>pairs loaded / train / eval</td><td class="num">46,472 / 44,592 / 512</td></tr>
+<tr><td>beta</td><td class="num">0.1</td></tr>
+<tr><td>epochs, steps</td><td class="num">1 epoch, 5,574 steps (167 warmup)</td></tr>
+<tr><td>learning rate</td><td class="num">5e-5</td></tr>
+<tr><td>LoRA</td><td>r = 32, alpha = 64, dropout 0.05</td></tr>
+<tr><td>batch</td><td>1 × accumulation 8; max length 768 tokens</td></tr>
+<tr><td>training time</td><td class="num">27,015.48 s (stage: 7.51 GPU hours)</td></tr>
+</tbody></table></div>
+
+<h3 id="s3-2"><span class="n">3.2</span>Training signal <span class="upd" title="Section last changed">updated 16 Nov 2026</span></h3>
+<p>By the training metrics the run went well. The final train loss is 0.186. On the 512 held-out pairs the eval loss is 0.209, the mean reward margin 4.44, and the <strong>pair accuracy 0.902</strong> (the fraction of pairs where the chosen response gained more implicit reward than the rejected one). Table 3 averages the per-step training log in step ranges.</p>
+<div class="tw"><table><caption>Table 3. DPO training log, mean of the per-step values in each range (<code>runs/dpo/loss.jsonl</code>; a tally of the file).</caption>
+<thead><tr><th>steps</th><th class="num">loss</th><th class="num">reward margin</th><th class="num">pair accuracy</th></tr></thead><tbody>
+<tr><td>1–100</td><td class="num">0.605</td><td class="num">0.46</td><td class="num">0.740</td></tr>
+<tr><td>101–500</td><td class="num">0.345</td><td class="num">2.56</td><td class="num">0.792</td></tr>
+<tr><td>501–1,000</td><td class="num">0.323</td><td class="num">3.62</td><td class="num">0.880</td></tr>
+<tr><td>1,001–2,000</td><td class="num">0.288</td><td class="num">3.62</td><td class="num">0.866</td></tr>
+<tr><td>2,001–3,000</td><td class="num">0.280</td><td class="num">3.67</td><td class="num">0.852</td></tr>
+<tr><td>3,001–4,000</td><td class="num">0.254</td><td class="num">4.16</td><td class="num">0.875</td></tr>
+<tr><td>4,001–5,000</td><td class="num">0.242</td><td class="num">4.27</td><td class="num">0.876</td></tr>
+<tr><td>5,001–5,574</td><td class="num">0.228</td><td class="num">4.50</td><td class="num">0.899</td></tr>
+</tbody></table></div>
+
+<h3 id="s3-3"><span class="n">3.3</span>Generation collapsed <span class="upd" title="Section last changed">updated 16 Nov 2026</span></h3>
+<p>Generation did not follow the training signal. The DPO model passes <strong>3 of 90</strong> validation tasks greedily (0.033; pass@5 4/90) and <strong>0 of 78</strong> held-out tasks (0.000; pass@5 0/78). That is below every model in Reports 1 and 2, including lora2, the model it started from (38/90 and 4/78). Of the 90 validation greedy outputs, 83 do not assemble, 3 are wrong answers, 3 pass and 1 crashes. Of the 78 held-out greedy outputs, 76 do not assemble and 2 are wrong answers. Among the sampled outputs (five per task), 419 of 450 validation samples and 381 of 390 held-out samples do not assemble.</p>
+<p>The failures are visible in the text. In a tally of <code>runs/dpo/eval.jsonl</code>, 70 of the 90 validation greedy outputs and 73 of the 78 held-out greedy outputs contain a run of stray <code>%</code> tokens (the substring <code>% % %</code>); the same tally gives 0 of 90 and 0 of 78 for lora2 and for qlora7b-v2. The first assembler error is most often <code>bad register name</code> (45 of the 83 non-assembling validation outputs and 43 of the 76 held-out ones; first error line of each output, a tally of the file), followed by <code>junk</code> after a register or expression and <code>no such instruction</code>. One validation output starts with a plausible <code>.text</code>, <code>.globl</code> and <code>.type</code> header, then degenerates into lines such as <code>sall %cl, %eax, %const-15</code> and rows of <code>%</code>. The few outputs that assemble and pass are close to the gcc reference (size and instruction ratios of 1.000 over n = 3).</p>
+
+<h3 id="s3-4"><span class="n">3.4</span>Loop on held-out and the stage cap <span class="upd" title="Section last changed">updated 16 Nov 2026</span></h3>
+<p>The DPO held-out repair loop (<code>loop-dpo-heldout</code>, k = 8, R = 3) ran under a 10-hour stage cap (<code>--max-hours 10</code>, the pipeline's stage allowance for this loop) and stopped at 10.03 GPU hours after 62 of the 78 tasks. It passes <strong>0 of 62</strong> on the full tests and on the visible tests, all 62 final attempts are <code>doesnt_assemble</code>, and the mean number of calls is 32.0, so every task used its whole budget. The stage ended with code 3 ("deadline or max-hours"), which halted round 2 before the 7B stages. Round 2b resumed the pipeline and skipped this loop rather than continue it (<code>runs/round2b/SUMMARY.md</code>: "resume does not rerun or continue loop-dpo-heldout"). The 62-task result is therefore incomplete, and it is not comparable to the 78-task rows; but with 62 of 62 final attempts failing to assemble, we do not expect the remaining 16 tasks to change the picture.</p>
+
+<h3 id="s3-5"><span class="n">3.5</span>Possible causes (hypotheses, not tested) <span class="upd" title="Section last changed">updated 16 Nov 2026</span></h3>
+<p>We ran one DPO configuration, evaluated only its final adapter, and logged the pair margin but not the log-probability of the chosen and rejected responses separately. We cannot therefore say which of the following explains the collapse; they are candidates for the next round (§9).</p>
+<ol>
+<li><strong>Likelihood displacement.</strong> The DPO loss depends on the <em>difference</em> between the chosen and rejected log-ratios. It can be driven down while the likelihood of both responses falls. The loss in <code>dpo.py</code> has no supervised term on the chosen response to anchor it. A pair accuracy of 0.902 says that chosen outranks rejected; it says nothing about the absolute probability of well-formed assembly.</li>
+<li><strong>Near-identical pairs.</strong> Both responses in a pair are verified-correct programs for the same task, differing in size or instruction count. In a pair like the first row of <code>pairs.jsonl</code> (the same function compiled two ways), most tokens are shared. The gradient then acts on a few differing tokens and on tokens common to both, and the model may lower the probability of syntax that appears in both.</li>
+<li><strong>Distribution shift from gcc-style output.</strong> The pairs draw on gcc, clang, rustc and llvm-opt variants, whereas lora2 was trained on gcc-default assembly. Clang-style and AVX-encoded text (for example <code>vcvtsi2ss</code> with an <code>%xmm15</code> operand, in the first pair) is a different surface form from the SFT data.</li>
+<li><strong>Goal mismatch.</strong> About two thirds of the pairs are labeled <code>size</code> or <code>speed</code> (30,169 of 46,472), but every training prompt says <code>Goal: default</code>. The model was asked to prefer size- or speed-optimized text under a prompt that does not mention either.</li>
+<li><strong>Aggressive optimization settings.</strong> A learning rate of 5e-5 over 5,574 steps with a logged per-step reward margin of 7.19 at the last step (step 5,574; 4.44 on the held-out pairs) and no checkpoint evaluation along the way. We do not know when generation broke. A smaller learning rate, a larger beta or earlier stopping might avoid it.</li>
+<li><strong>A mismatch between the pair objective and the task.</strong> The pairs come from the verified (passing) variants of the sweeps and rank two programs by size or instruction count; we did not check every pair, but we did not construct any with a non-assembling or wrong-answer program on the rejected side. If so, the objective never told the model to prefer assembling code over code that fails. Round 2's own next step proposed pairs "gated on held-out correctness", which this run did not do.</li>
+</ol>
+
+<h2 id="s4"><span class="n">4</span>Round 2b: base 7B and qlora7b-v2 <span class="upd" title="Section last changed">updated 16 Nov 2026</span></h2>
+
+<h3 id="s4-1"><span class="n">4.1</span>The base 7B without an adapter <span class="upd" title="Section last changed">updated 16 Nov 2026</span></h3>
+<p>Report 1 could not report a 7B base baseline because the run was cut off at 28 of 78 tasks, and the first round 2 summary again showed only 0/28 greedy and 2/28 at pass@5. Round 2b completed it (<code>7b-base-asm</code>, 0.31 GPU hours with the cached 28 tasks reused; <code>Qwen2.5-Coder-7B-Instruct</code>, 4-bit, no adapter). On all 78 held-out tasks it scores <strong>0/78 greedy and 3/78 at pass@5</strong> (0.038). Of the 78 greedy outputs, 77 do not assemble and 1 crashes. Of the 390 sampled outputs, 355 do not assemble and 4 pass. The adapter is therefore doing nearly all the work of producing assemblable AT&amp;T, as it did for the 1.5B model (Report 2, Table 4).</p>
+
+<h3 id="s4-2"><span class="n">4.2</span>Training qlora7b-v2 <span class="upd" title="Section last changed">updated 16 Nov 2026</span></h3>
+<p>qlora7b-v2 trains the 7B on the same mix as lora2 (Report 2, Table 2): <code>train_tasks</code> in <code>runs/qlora7b-v2/summary.json</code> is 6,781, the row count of <code>sft_lora2.jsonl</code>. The first QLoRA 7B (Report 1) is called <code>qlora7b</code> below.</p>
+<div class="tw"><table><caption>Table 4. qlora7b-v2 training (<code>runs/qlora7b-v2/train_config.json</code>, <code>summary.json</code>).</caption>
+<thead><tr><th>setting</th><th>value</th></tr></thead><tbody>
+<tr><td>base model</td><td><code>Qwen2.5-Coder-7B-Instruct</code>, 4-bit</td></tr>
+<tr><td>LoRA</td><td>r = 32, alpha = 64, dropout 0.05</td></tr>
+<tr><td>optimizer</td><td>learning rate 2e-4, 3 epochs, batch 1 × accumulation 16</td></tr>
+<tr><td>data</td><td>6,781 rows; 6,713 examples after dropping 68 over the p99 length of 1,343 tokens (max length 1,344; token p50 291, p90 518)</td></tr>
+<tr><td>steps, train loss</td><td class="num">1,260 steps, 0.1185</td></tr>
+<tr><td>time</td><td class="num">10,699.0 s (stage: 2.98 GPU hours)</td></tr>
+<tr><td>in-training eval</td><td>none (<code>val_tasks=0</code>, as for lora2)</td></tr>
+</tbody></table></div>
+
+<h3 id="s4-3"><span class="n">4.3</span>Greedy and repair-loop results <span class="upd" title="Section last changed">updated 16 Nov 2026</span></h3>
+<p>On validation, qlora7b-v2 passes <strong>41/90 greedy</strong> (0.456) and <strong>52/90 at pass@5</strong> (0.578), the best in the program so far (lora2: 38/90 and 45/90). On held-out it passes <strong>5/78 greedy</strong> (0.064), the same as qlora7b, and <strong>12/78 at pass@5</strong> (0.154), against 8/78 for qlora7b and 5/78 for lora2. Its greedy failures on held-out are 40 wrong answers, 14 timeouts, 11 that do not assemble and 8 crashes (Table 7); fewer outputs fail to assemble than for lora2 (21) or qlora7b (17), but more are wrong or time out.</p>
+<p>With the repair loop (<code>loop-qlora7b-v2-heldout</code>, k = 8, R = 3, T = 0.8, 12.32 GPU hours) it passes <strong>12/78</strong> on the full tests and 17/78 on the visible tests only, against 10/78 and 15/78 for lora2. Its loop result equals its pass@5 (12/78 both), though the two use different protocols. The passing programs are 1.172 of gcc <code>-O2</code> in size and 1.658 in instruction count (n = 12), larger than the greedy passes (0.960 and 1.011, n = 5). The validation loop was not run for qlora7b-v2.</p>
+<div class="tw"><table><caption>Table 5. Repair loop on the 78 held-out tasks: tasks with a first full-test pass within <em>m</em> model calls (<code>RESULTS.json</code>, <code>budget_full</code>; fractions times 78). The loop-dpo row covers 62 of 78 tasks and is incomplete.</caption>
+<thead><tr><th>run</th><th class="num">n</th><th class="num">@1</th><th class="num">@4</th><th class="num">@8</th><th class="num">@16</th><th class="num">@32</th><th class="num">mean calls</th></tr></thead><tbody>
+<tr><td>loop-lora1-heldout</td><td class="num">78</td><td class="num">1/78</td><td class="num">2/78</td><td class="num">3/78</td><td class="num">4/78</td><td class="num">6/78</td><td class="num">30.4</td></tr>
+<tr><td>loop-lora2-heldout</td><td class="num">78</td><td class="num">2/78</td><td class="num">3/78</td><td class="num">5/78</td><td class="num">7/78</td><td class="num">10/78</td><td class="num">29.2</td></tr>
+<tr><td>loop-qlora7b-v2-heldout</td><td class="num">78</td><td class="num">3/78</td><td class="num">7/78</td><td class="num">8/78</td><td class="num">10/78</td><td class="num">12/78</td><td class="num">27.8</td></tr>
+<tr><td>loop-dpo-heldout</td><td class="num">62</td><td class="num">0/62</td><td class="num">0/62</td><td class="num">0/62</td><td class="num">0/62</td><td class="num">0/62</td><td class="num">32.0</td></tr>
+<tr><td>loop-base-c-heldout (k=4, R=2)</td><td class="num">78</td><td class="num">25/78</td><td class="num">37/78</td><td class="num">43/78</td><td class="num">44/78</td><td class="num">44/78</td><td class="num">—</td></tr>
+</tbody></table></div>
+
+<h2 id="s5"><span class="n">5</span>All models compared <span class="upd" title="Section last changed">updated 16 Nov 2026</span></h2>
+<p><strong>Single-try and loop results are not comparable.</strong> The greedy and pass@5 numbers in Table 6 are a single greedy try or five independent samples per task. The loop numbers in Table 8 use up to 32 model calls per task, with feedback from the visible tests, and a model with no repair loop (qlora7b, base7b) has no row there. The C control also uses a smaller loop (k = 4, R = 2). Compare models within a table, and read the loop table only as "what a test-feedback budget buys".</p>
+<div class="tw"><table><caption>Table 6. Greedy pass@1 and sampled pass@5 (<em>n</em> = 5, T = 0.8), all models. Values for the assembly models are from <code>runs/round2b/SUMMARY.md</code> and <code>RESULTS.json</code>; the last two rows (base 1.5B and the C control) are from <code>STATUS.md</code> and Report 2. Size and instruction ratios are means over greedy passes against gcc <code>-O2</code>; <em>n</em> is the number of passing tasks. Instruction counts are emulator retire counts.</caption>
+<thead><tr><th>model</th><th>eval set</th><th class="num">n</th><th class="num">pass@1</th><th class="num">pass@5</th><th class="num">size / gcc -O2</th><th class="num">insn / gcc -O2</th></tr></thead><tbody>
+<tr><td>LoRA 1.5B (lora1)</td><td>scaled val</td><td class="num">90</td><td class="num">0.211 (19/90)</td><td class="num">0.367 (33/90)</td><td class="num">1.033 (n=19)</td><td class="num">1.008 (n=19)</td></tr>
+<tr><td>LoRA 1.5B (lora1)</td><td>held-out</td><td class="num">78</td><td class="num">0.026 (2/78)</td><td class="num">0.064 (5/78)</td><td class="num">1.030 (n=2)</td><td class="num">1.026 (n=2)</td></tr>
+<tr><td>QLoRA 7B (qlora7b)</td><td>scaled val</td><td class="num">90</td><td class="num">0.367 (33/90)</td><td class="num">0.500 (45/90)</td><td class="num">1.037 (n=33)</td><td class="num">1.018 (n=33)</td></tr>
+<tr><td>QLoRA 7B (qlora7b)</td><td>held-out</td><td class="num">78</td><td class="num">0.064 (5/78)</td><td class="num">0.103 (8/78)</td><td class="num">1.008 (n=5)</td><td class="num">1.151 (n=5)</td></tr>
+<tr><td>LoRA 1.5B (lora2)</td><td>scaled val</td><td class="num">90</td><td class="num">0.422 (38/90)</td><td class="num">0.500 (45/90)</td><td class="num">1.111 (n=38)</td><td class="num">1.044 (n=38)</td></tr>
+<tr><td>LoRA 1.5B (lora2)</td><td>held-out</td><td class="num">78</td><td class="num">0.051 (4/78)</td><td class="num">0.064 (5/78)</td><td class="num">1.100 (n=4)</td><td class="num">1.310 (n=4)</td></tr>
+<tr><td>DPO from lora2 (dpo)</td><td>scaled val</td><td class="num">90</td><td class="num">0.033 (3/90)</td><td class="num">0.044 (4/90)</td><td class="num">1.000 (n=3)</td><td class="num">1.000 (n=3)</td></tr>
+<tr><td>DPO from lora2 (dpo)</td><td>held-out</td><td class="num">78</td><td class="num">0.000 (0/78)</td><td class="num">0.000 (0/78)</td><td class="num">—</td><td class="num">—</td></tr>
+<tr><td>base 7B, AT&amp;T, no adapter (base7b)</td><td>held-out</td><td class="num">78</td><td class="num">0.000 (0/78)</td><td class="num">0.038 (3/78)</td><td class="num">—</td><td class="num">—</td></tr>
+<tr><td>QLoRA 7B v2 (qlora7b-v2)</td><td>scaled val</td><td class="num">90</td><td class="num">0.456 (41/90)</td><td class="num">0.578 (52/90)</td><td class="num">1.019 (n=41)</td><td class="num">0.989 (n=41)</td></tr>
+<tr><td>QLoRA 7B v2 (qlora7b-v2)</td><td>held-out</td><td class="num">78</td><td class="num">0.064 (5/78)</td><td class="num">0.154 (12/78)</td><td class="num">0.960 (n=5)</td><td class="num">1.011 (n=5)</td></tr>
+<tr><td>base 1.5B, AT&amp;T</td><td>held-out</td><td class="num">78</td><td class="num">0.000 (0/78)</td><td class="num">0.000 (0/78)</td><td class="num">—</td><td class="num">—</td></tr>
+<tr><td>base 1.5B, C → gcc -O2 (control)</td><td>held-out</td><td class="num">78</td><td class="num">0.397 (31/78)</td><td class="num">0.628 (49/78)</td><td class="num">1.003 (n=31)</td><td class="num">0.989 (n=31)</td></tr>
+</tbody></table></div>
+<div class="tw"><table><caption>Table 7. Greedy failure counts (<code>greedy_categories</code> in <code>RESULTS.json</code>).</caption>
+<thead><tr><th>model</th><th>set</th><th class="num">pass</th><th class="num">wrong_answer</th><th class="num">doesnt_assemble</th><th class="num">crash</th><th class="num">timeout</th><th class="num">abi</th></tr></thead><tbody>
+<tr><td>LoRA 1.5B (lora1)</td><td>val</td><td class="num">19</td><td class="num">60</td><td class="num">5</td><td class="num">2</td><td class="num">4</td><td class="num">0</td></tr>
+<tr><td>LoRA 1.5B (lora1)</td><td>held-out</td><td class="num">2</td><td class="num">40</td><td class="num">20</td><td class="num">9</td><td class="num">7</td><td class="num">0</td></tr>
+<tr><td>QLoRA 7B (qlora7b)</td><td>val</td><td class="num">33</td><td class="num">47</td><td class="num">8</td><td class="num">1</td><td class="num">1</td><td class="num">0</td></tr>
+<tr><td>QLoRA 7B (qlora7b)</td><td>held-out</td><td class="num">5</td><td class="num">37</td><td class="num">17</td><td class="num">8</td><td class="num">11</td><td class="num">0</td></tr>
+<tr><td>LoRA 1.5B (lora2)</td><td>val</td><td class="num">38</td><td class="num">49</td><td class="num">3</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+<tr><td>LoRA 1.5B (lora2)</td><td>held-out</td><td class="num">4</td><td class="num">33</td><td class="num">21</td><td class="num">10</td><td class="num">10</td><td class="num">0</td></tr>
+<tr><td>DPO from lora2 (dpo)</td><td>val</td><td class="num">3</td><td class="num">3</td><td class="num">83</td><td class="num">1</td><td class="num">0</td><td class="num">0</td></tr>
+<tr><td>DPO from lora2 (dpo)</td><td>held-out</td><td class="num">0</td><td class="num">2</td><td class="num">76</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+<tr><td>base 7B, AT&amp;T, no adapter (base7b)</td><td>held-out</td><td class="num">0</td><td class="num">0</td><td class="num">77</td><td class="num">1</td><td class="num">0</td><td class="num">0</td></tr>
+<tr><td>QLoRA 7B v2 (qlora7b-v2)</td><td>val</td><td class="num">41</td><td class="num">39</td><td class="num">6</td><td class="num">1</td><td class="num">3</td><td class="num">0</td></tr>
+<tr><td>QLoRA 7B v2 (qlora7b-v2)</td><td>held-out</td><td class="num">5</td><td class="num">40</td><td class="num">11</td><td class="num">8</td><td class="num">14</td><td class="num">0</td></tr>
+<tr><td>base 1.5B, C → gcc -O2</td><td>held-out</td><td class="num">31</td><td class="num">24</td><td class="num">23</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+</tbody></table></div>
+<div class="tw"><table><caption>Table 8. Repair loops (full-test pass with visible-only feedback). k = 8, R = 3, T = 0.8 unless noted. The qlora7b, base7b and DPO-val loops were not run, and loop-dpo-heldout is incomplete (62 of 78).</caption>
+<thead><tr><th>run</th><th class="num">n</th><th class="num">pass_full</th><th class="num">pass_visible</th><th class="num">@1</th><th class="num">@4</th><th class="num">@8</th><th class="num">@16</th><th class="num">@32</th><th class="num">size / gcc -O2</th><th class="num">insn / gcc -O2</th></tr></thead><tbody>
+<tr><td>loop-lora1-val</td><td class="num">90</td><td class="num">49/90</td><td class="num">51/90</td><td class="num">19/90</td><td class="num">26/90</td><td class="num">32/90</td><td class="num">40/90</td><td class="num">49/90</td><td class="num">0.916 (n=49)</td><td class="num">1.509 (n=49)</td></tr>
+<tr><td>loop-lora2-val</td><td class="num">90</td><td class="num">60/90</td><td class="num">60/90</td><td class="num">35/90</td><td class="num">42/90</td><td class="num">46/90</td><td class="num">56/90</td><td class="num">60/90</td><td class="num">1.069 (n=60)</td><td class="num">1.269 (n=60)</td></tr>
+<tr><td>loop-lora1-heldout</td><td class="num">78</td><td class="num">6/78</td><td class="num">10/78</td><td class="num">1/78</td><td class="num">2/78</td><td class="num">3/78</td><td class="num">4/78</td><td class="num">6/78</td><td class="num">1.241 (n=6)</td><td class="num">1.117 (n=6)</td></tr>
+<tr><td>loop-lora2-heldout</td><td class="num">78</td><td class="num">10/78</td><td class="num">15/78</td><td class="num">2/78</td><td class="num">3/78</td><td class="num">5/78</td><td class="num">7/78</td><td class="num">10/78</td><td class="num">1.007 (n=10)</td><td class="num">1.128 (n=10)</td></tr>
+<tr><td>loop-qlora7b-v2-heldout</td><td class="num">78</td><td class="num">12/78</td><td class="num">17/78</td><td class="num">3/78</td><td class="num">7/78</td><td class="num">8/78</td><td class="num">10/78</td><td class="num">12/78</td><td class="num">1.172 (n=12)</td><td class="num">1.658 (n=12)</td></tr>
+<tr><td>loop-dpo-heldout</td><td class="num">62</td><td class="num">0/62</td><td class="num">0/62</td><td class="num">0/62</td><td class="num">0/62</td><td class="num">0/62</td><td class="num">0/62</td><td class="num">0/62</td><td class="num">—</td><td class="num">—</td></tr>
+<tr><td>loop-base-c-heldout (k=4, R=2)</td><td class="num">78</td><td class="num">44/78</td><td class="num">48/78</td><td class="num">25/78</td><td class="num">37/78</td><td class="num">43/78</td><td class="num">44/78</td><td class="num">44/78</td><td class="num">1.093 (n=44)</td><td class="num">1.028 (n=44)</td></tr>
+</tbody></table></div>
+<div class="tw"><table><caption>Table 9. Repair loops: final-attempt categories on the full tests.</caption>
+<thead><tr><th>run</th><th class="num">pass</th><th class="num">wrong_answer</th><th class="num">doesnt_assemble</th><th class="num">crash</th><th class="num">timeout</th></tr></thead><tbody>
+<tr><td>loop-lora1-val</td><td class="num">49</td><td class="num">32</td><td class="num">7</td><td class="num">1</td><td class="num">1</td></tr>
+<tr><td>loop-lora2-val</td><td class="num">60</td><td class="num">18</td><td class="num">11</td><td class="num">0</td><td class="num">1</td></tr>
+<tr><td>loop-lora1-heldout</td><td class="num">6</td><td class="num">22</td><td class="num">34</td><td class="num">12</td><td class="num">4</td></tr>
+<tr><td>loop-lora2-heldout</td><td class="num">10</td><td class="num">32</td><td class="num">22</td><td class="num">9</td><td class="num">5</td></tr>
+<tr><td>loop-qlora7b-v2-heldout</td><td class="num">12</td><td class="num">33</td><td class="num">11</td><td class="num">11</td><td class="num">11</td></tr>
+<tr><td>loop-dpo-heldout</td><td class="num">0</td><td class="num">0</td><td class="num">62</td><td class="num">0</td><td class="num">0</td></tr>
+</tbody></table></div>
+<p><strong>Reading.</strong> On held-out single tries, the best assembly models are at 5/78 greedy (qlora7b and qlora7b-v2; lora2 is at 4/78) and 12/78 at pass@5 (qlora7b-v2), against 31/78 and 49/78 for the C control. With a repair loop, qlora7b-v2 is at 12/78 and lora2 at 10/78, against 44/78 for the C loop. DPO sits at the bottom of the table. Visible-only feedback overstates held-out success for every loop (qlora7b-v2: 17/78 against 12/78; lora2: 15/78 against 10/78; lora1: 10/78 against 6/78). The size and instruction ratios for held-out are computed over very few passes (n = 2 to 12) and should not be compared across rows.</p>
+
+<h2 id="s6"><span class="n">6</span>The validation and held-out gap <span class="upd" title="Section last changed">updated 16 Nov 2026</span></h2>
+<p>Every model we trained scores far higher on validation than on held-out. Table 10 puts the two side by side.</p>
+<div class="tw"><table><caption>Table 10. Greedy pass@1 and pass@5 on validation (90 tasks, training distribution) and held-out (78 HumanEval/MBPP tasks), same model, same scoring.</caption>
+<thead><tr><th>model</th><th class="num">val pass@1</th><th class="num">held-out pass@1</th><th class="num">val pass@5</th><th class="num">held-out pass@5</th></tr></thead><tbody>
+<tr><td>lora1</td><td class="num">0.211 (19/90)</td><td class="num">0.026 (2/78)</td><td class="num">0.367 (33/90)</td><td class="num">0.064 (5/78)</td></tr>
+<tr><td>qlora7b</td><td class="num">0.367 (33/90)</td><td class="num">0.064 (5/78)</td><td class="num">0.500 (45/90)</td><td class="num">0.103 (8/78)</td></tr>
+<tr><td>lora2</td><td class="num">0.422 (38/90)</td><td class="num">0.051 (4/78)</td><td class="num">0.500 (45/90)</td><td class="num">0.064 (5/78)</td></tr>
+<tr><td>qlora7b-v2</td><td class="num">0.456 (41/90)</td><td class="num">0.064 (5/78)</td><td class="num">0.578 (52/90)</td><td class="num">0.154 (12/78)</td></tr>
+</tbody></table></div>
+<div class="tw"><table><caption>Table 11. Repair loop, full-test pass, validation against held-out (same loop settings).</caption>
+<thead><tr><th>model</th><th class="num">validation</th><th class="num">held-out</th></tr></thead><tbody>
+<tr><td>lora1</td><td class="num">49/90 (0.544)</td><td class="num">6/78 (0.077)</td></tr>
+<tr><td>lora2</td><td class="num">60/90 (0.667)</td><td class="num">10/78 (0.128)</td></tr>
+</tbody></table></div>
+<p>From lora1 to qlora7b-v2, validation greedy pass@1 more than doubles (0.211 to 0.456) while held-out moves from 0.026 to 0.064 (2/78 to 5/78). The loop shows the same shape: lora2 reaches 60/90 on validation and 10/78 on held-out. The held-out set is small, so single-task differences are noise (one task is 0.013), and the held-out improvements from lora1 to qlora7b-v2 are a few tasks.</p>
+<p>What the gap implies, with the evidence available:</p>
+<ol>
+<li><strong>The models fit the validation distribution.</strong> The training and validation tasks come from the same scaled corpus, and lora2 and qlora7b-v2 were additionally trained on rejection-sampled programs for training tasks from that corpus. Gains from more data of that kind (rewrites, rejection sampling, a larger model) show up on validation first. We read the validation numbers as in-distribution fit, not as evidence of transfer, as Reports 1 and 2 did. The gap itself does not tell us whether it comes from a distribution difference (library-style functions against HumanEval/MBPP puzzles), from memorization of near-duplicates, or from both.</li>
+<li><strong>Held-out failures are different failures.</strong> On validation, qlora7b-v2 fails mostly by wrong answer (39 of 90) and rarely by not assembling (6); on held-out, 11 of 78 do not assemble and 14 time out, and the wrong answers are 40. We have not inspected the held-out wrong answers by cause.</li>
+<li><strong>Do not select models on validation alone, or on pair accuracy.</strong> The best model on validation (qlora7b-v2) is also the best or tied on held-out, but the margins on held-out are a few tasks. DPO shows that a training metric can mislead: it looked good on pair accuracy and was the worst model on both sets. A held-out set of 78 tasks is a coarse selector. A larger or fresher held-out set, with confidence intervals, would be a better guide than validation.</li>
+<li><strong>The C control is the reference.</strong> The same family of model, asked to write C and compiled by gcc, passes 31/78 greedy. The task set is solvable; the gap to the control is in producing correct assembly directly.</li>
+</ol>
+
+<h2 id="s7"><span class="n">7</span>Compute used <span class="upd" title="Section last changed">updated 16 Nov 2026</span></h2>
+<p>Round 2 used 23.35 GPU hours and round 2b another 17.33, a total of <strong>40.68 of the 60 additional hours</strong> (<code>gpu_hours_used</code> 40.6764 in <code>runs/round2b/RESULTS.json</code>; the stage rows below sum to 17.34 for round 2b because each row is rounded). The 46.45 hours that round 1 used (Report 2) are not part of this count. The deadline is 18 November 2026, 18:00 Pacific time. Stage rows marked "skipped" in round 2b were already recorded as complete in round 2.</p>
+<div class="tw"><table><caption>Table 12. GPU hours by stage (<code>runs/round2b/SUMMARY.md</code>).</caption>
+<thead><tr><th>round</th><th>stage</th><th class="num">seconds</th><th class="num">hours</th><th>ok</th></tr></thead><tbody>
+<tr><td>2</td><td>loop-lora2-val</td><td class="num">12349.46</td><td class="num">3.43</td><td>yes</td></tr>
+<tr><td>2</td><td>dpo-train</td><td class="num">27026.52</td><td class="num">7.51</td><td>yes</td></tr>
+<tr><td>2</td><td>dpo-eval-val</td><td class="num">4210.26</td><td class="num">1.17</td><td>yes</td></tr>
+<tr><td>2</td><td>dpo-eval-heldout</td><td class="num">4363.42</td><td class="num">1.21</td><td>yes</td></tr>
+<tr><td>2</td><td>loop-dpo-heldout</td><td class="num">36106.05</td><td class="num">10.03</td><td>no (stage cap)</td></tr>
+<tr><td colspan="3"><b>round 2 subtotal</b></td><td class="num"><b>23.35</b></td><td></td></tr>
+<tr><td>2b</td><td>7b-base-asm</td><td class="num">1105.95</td><td class="num">0.31</td><td>yes</td></tr>
+<tr><td>2b</td><td>qlora7b-v2-train</td><td class="num">10711.71</td><td class="num">2.98</td><td>yes</td></tr>
+<tr><td>2b</td><td>qlora7b-v2-eval-val</td><td class="num">1983.07</td><td class="num">0.55</td><td>yes</td></tr>
+<tr><td>2b</td><td>qlora7b-v2-eval-heldout</td><td class="num">4241.10</td><td class="num">1.18</td><td>yes</td></tr>
+<tr><td>2b</td><td>loop-qlora7b-v2-heldout</td><td class="num">44337.50</td><td class="num">12.32</td><td>yes</td></tr>
+<tr><td colspan="3"><b>round 2b subtotal</b></td><td class="num"><b>17.33</b></td><td></td></tr>
+<tr><td colspan="3"><b>total</b></td><td class="num"><b>40.68</b></td><td></td></tr>
+</tbody></table></div>
+<p>The two held-out loop stages are the largest costs: 10.03 hours for the incomplete DPO loop (0/62) and 12.32 hours for the qlora7b-v2 loop (12/78).</p>
+
+<h2 id="s8"><span class="n">8</span>Limitations and caveats <span class="upd" title="Section last changed">updated 16 Nov 2026</span></h2>
+<ol>
+<li><strong>Small held-out set.</strong> At 78 tasks, 5/78 against 4/78 is not a difference. No confidence intervals are reported and no run was repeated with a different seed.</li>
+<li><strong>One DPO configuration.</strong> We ran DPO once, with one beta, learning rate and data mix, and evaluated only the final adapter. The collapse says this configuration failed; it does not say DPO fails on this task.</li>
+<li><strong>The DPO causes in §3.5 are untested.</strong> We did not log chosen and rejected log-probabilities separately, and did not run an ablation.</li>
+<li><strong>The DPO held-out loop is incomplete.</strong> It covers 62 of 78 tasks and stopped at its 10-hour stage cap; it was not resumed.</li>
+<li><strong>Loop budgets are not matched.</strong> The C loop uses k = 4, R = 2; the assembly loops use k = 8, R = 3. There is no loop result for qlora7b or base7b, and none for qlora7b-v2 on validation.</li>
+<li><strong>Loop and single-try results answer different questions.</strong> A loop uses up to 32 model calls and test feedback (§5).</li>
+<li><strong>Ratios over few passes.</strong> Size and instruction ratios are means over passing tasks only, with n between 0 and 60, and the subsets differ between rows.</li>
+<li><strong>No in-training eval loss</strong> for lora2 or qlora7b-v2 (<code>val_tasks=0</code>), because the mix already excluded the validation and held-out ids.</li>
+<li><strong>Tallies computed for this report.</strong> The DPO error and <code>% % %</code> counts in §3.3, the DPO log averages in Table 3 and the pair-goal counts in §3.1 and §3.5 are tallies of <code>eval.jsonl</code>, <code>loss.jsonl</code> and <code>pairs.jsonl</code>, not figures in the summaries. The <code>% % %</code> count is a substring heuristic.</li>
+<li><strong>Rewritten specifications.</strong> The human check of a sample of rewritten specifications is still outstanding (Report 1, §9; Report 2, §8).</li>
+<li><strong>Tests.</strong> The pytest suite was not re-run for this report.</li>
+</ol>
+
+<h2 id="s9"><span class="n">9</span>Proposed next steps <span class="upd" title="Section last changed">updated 16 Nov 2026</span></h2>
+<p><span class="tag plan">proposed</span> None of the following has been started. Each is a proposal for discussion, and none is a commitment.</p>
+<ol>
+<li><strong>Diagnose the DPO collapse before dropping DPO.</strong> Log chosen and rejected log-probabilities separately, add a supervised term on the chosen response, lower the learning rate and raise beta, and evaluate intermediate checkpoints. This tests hypotheses 1, 5 and 6 of §3.5.</li>
+<li><strong>Rebuild the preference pairs.</strong> Use pairs whose rejected side fails (does not assemble or gives a wrong answer) against a passing chosen side, restrict to gcc-style output, and match the prompt goal to the pair goal. This tests hypotheses 3, 4 and 6.</li>
+<li><strong>A second rejection-sampling round from qlora7b-v2,</strong> which is the strongest model so far and passes slightly more held-out tasks than lora2 under the loop (12/78 against 10/78). Measure it on held-out first, not on validation.</li>
+<li><strong>Run the validation loop for qlora7b-v2</strong> so Table 8 has a matched validation row for the 7B.</li>
+<li><strong>A larger or fresher held-out set with confidence intervals,</strong> and repeated seeds for the headline rows, so that differences of a few tasks can be judged.</li>
+<li><strong>Inspect the held-out wrong answers and timeouts</strong> of qlora7b-v2 by cause (for example, wrong calling convention, off-by-one in a loop, missed edge case) to see whether there is a pattern a data fix could address.</li>
+<li><strong>Close the gap to the control.</strong> Held-out is qlora7b-v2 loop at 12/78 against 44/78 for the C loop. One option is to use the C control's compiled output as a training source for the same specifications.</li>
+<li><strong>Human check of a sample of rewritten specifications</strong>, as in Reports 1 and 2.</li>
+</ol>
+
+<h2 id="cite">How to cite</h2>
+<p>This is a working paper. It is shared so others can read, discuss and cite it, and it is updated as the work moves forward. Please cite the revision you read, give its date, and say when you accessed the page. Earlier revisions are listed in the revision history. Results here have not been peer reviewed.</p>
+<p class="cite-ref">Wilson, B. (2026). <em>Preference optimization, a second 7B, and the validation gap</em> (Working paper, Revision 1, 16 November 2026). Abundant Frontier Institute. <a href="https://abundantfrontier.org/lab/e2m/report-3/">https://abundantfrontier.org/lab/e2m/report-3/</a></p>
+<pre class="cite-bib"><code>@techreport{wilson2026e2mreport3,
+  author      = {Wilson, Boyd},
+  title       = {Preference optimization, a second 7B, and the validation gap},
+  institution = {Abundant Frontier Institute},
+  type        = {Working paper},
+  number      = {Revision 1},
+  year        = {2026},
+  month       = {nov},
+  url         = {https://abundantfrontier.org/lab/e2m/report-3/},
+  note        = {Living document; last updated 16 November 2026. Accessed YYYY-MM-DD}
+}</code></pre>
+
+<h2 id="refs">References</h2>
+<ol class="refs">
+<li><a href="../report-1/index.html">E2M technical report 1</a>: harness, sweeps, scale-up and the first LoRA results.</li>
+<li><a href="../report-2/index.html">E2M technical report 2</a>: repair loop, rejection sampling and lora2 (baselines for this report).</li>
+<li><a href="../concept/index.html">E2M concept paper</a>.</li>
+<li>Rafael Rafailov et al. <em>Direct Preference Optimization: Your Language Model Is Secretly a Reward Model.</em> 2023. <a href="https://arxiv.org/abs/2305.18290">arXiv:2305.18290</a>.</li>
+<li>Mark Chen et al. <em>Evaluating Large Language Models Trained on Code.</em> 2021. <a href="https://arxiv.org/abs/2107.03374">arXiv:2107.03374</a>. Pass@k uses the unbiased estimator from this paper.</li>
+<li>Binyuan Hui et al. <em>Qwen2.5-Coder Technical Report.</em> 2024. <a href="https://arxiv.org/abs/2409.12186">arXiv:2409.12186</a>.</li>
+<li>Edward J. Hu et al. <em>LoRA: Low-Rank Adaptation of Large Language Models.</em> 2021. <a href="https://arxiv.org/abs/2106.09685">arXiv:2106.09685</a>.</li>
+<li>Tim Dettmers et al. <em>QLoRA: Efficient Finetuning of Quantized LLMs.</em> 2023. <a href="https://arxiv.org/abs/2305.14314">arXiv:2305.14314</a>.</li>
+</ol>
+
+<section class="revhist" id="revhist">
+<h2>Revision history</h2>
+<ol>
+<li><b>Revision 1</b> <span class="when">16 November 2026 (America/Los_Angeles)</span><br>First draft of technical report 3: the lora2 validation loop, DPO from lora2 and its collapse, the 7B base baseline and qlora7b-v2, the all-model comparison, the validation and held-out gap, compute, caveats and proposed next steps. Numbers copied from <code>runs/round2b/SUMMARY.md</code> and <code>RESULTS.json</code>, <code>runs/round2/SUMMARY.md</code> and <code>RESULTS.json</code>, <code>STATUS.md</code>, and the training files under <code>runs/dpo</code> and <code>runs/qlora7b-v2</code>.</li>
+</ol>
+</section>
+
+<footer>Living paper · Revision 1 · Last updated 16 November 2026 · Abundant Frontier Institute Lab · Working paper · <a href="../report-2/index.html">Technical report 2</a> · <a href="../report-1/index.html">Technical report 1</a> · <a href="../concept/index.html">Concept paper</a></footer>
+</div>
+</main>
+</body>
+</html>
