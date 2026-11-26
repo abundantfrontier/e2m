@@ -112,6 +112,7 @@ each round's `results/<round>/SUMMARY.md` and `RESULTS.json`.
 | 3. Preference optimization and a second 7B (rounds 2 and 2b) | [report-3](https://abundantfrontier.org/lab/e2m/report-3/) | [reports/report-3](reports/report-3/index.html) |
 | 4. Preference training with a supervised term, and C then assembly (round 3) | [report-4](https://abundantfrontier.org/lab/e2m/report-4/) | [reports/report-4](reports/report-4/index.html) |
 | 5. A matched C control, a gcc hybrid, and where the model's assembly goes wrong (round 4) | [report-5](https://abundantfrontier.org/lab/e2m/report-5/) | [reports/report-5](reports/report-5/index.html) |
+| 6. Distilling gcc's lowering into direct assembly (rounds 5 and 5b) | [report-6](https://abundantfrontier.org/lab/e2m/report-6/) | [reports/report-6](reports/report-6/index.html) |
 
 The repo copies are the HTML sources (open them locally or through a static
 file server; `reports/style.css` is shared). `reports/CHANGELOG.md` lists

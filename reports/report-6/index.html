@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E2M technical report 6: Distilling gcc's lowering into direct assembly: rounds 5 and 5b (living paper) · Abundant Frontier Institute</title>
+<meta name="description" content="Living technical report: a 7B QLoRA trained to write x86-64 assembly from gcc's lowering of the model's own passing C (round 5), a distill-heavy retrain (round 5b), full held-out and validation scores, and why validation runs so far above held-out.">
+<meta name="citation_title" content="Distilling gcc's lowering into direct assembly: rounds 5 and 5b">
+<meta name="citation_author" content="Wilson, Boyd">
+<meta name="citation_publication_date" content="2026/11/26">
+<meta name="citation_technical_report_institution" content="Abundant Frontier Institute">
+<meta name="citation_technical_report_number" content="Revision 1">
+<meta name="citation_public_url" content="https://abundantfrontier.org/lab/e2m/report-6/">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<nav class="nav"><div class="nav-in">
+<a class="brand" href="https://abundantfrontier.org/"><span class="e">🌾</span><span>Abundant Frontier Institute</span></a>
+<div class="nav-links"><a href="/lab/">Lab</a><a href="../concept/index.html" >Concept paper</a><a href="../report-1/index.html" >Technical report 1</a><a href="../report-2/index.html" >Technical report 2</a><a href="../report-3/index.html" >Technical report 3</a><a href="../report-4/index.html" >Technical report 4</a><a href="../report-5/index.html" >Technical report 5</a><a href="../report-6/index.html" class="cur">Technical report 6</a><span class="badge">Working paper</span></div>
+</div></nav>
+<main class="page">
+<header class="title">
+<div class="kicker">Technical report · sixth work product</div>
+<h1>Distilling gcc's lowering into direct assembly: rounds 5 and 5b</h1>
+<p class="sub">Technical report 6 of the <em>E2M</em> program covers two things. First, a 7B QLoRA trained to write x86-64 assembly straight from English, using as targets the gcc lowerings of C that the model's own C writer got right (round 5, <code>asm-distill-7b</code>). Second, a distill-heavy retrain of that model with the earlier English-to-assembly pairs capped at a quarter of the mix (round 5b, <code>asm-distill-7b-v2</code>). It also gives the first full held-out and validation scores for the round 5 model and looks at why validation scores run so far above held-out scores.</p>
+<p class="byline"><strong>Boyd Wilson</strong>, Abundant Frontier Institute and Omnibond Systems</p>
+<p class="meta">Living paper · Revision 1 · Last updated 26 November 2026 · Companion to the <a href="../concept/index.html">E2M concept paper</a> and technical reports <a href="../report-1/index.html">1</a>, <a href="../report-2/index.html">2</a>, <a href="../report-3/index.html">3</a>, <a href="../report-4/index.html">4</a> and <a href="../report-5/index.html">5</a> · All results are from one 24 GB RTX 3090 workstation · Code and data: <a href="https://github.com/abundantfrontier/e2m">github.com/abundantfrontier/e2m</a> · Weights: <a href="https://huggingface.co/AbundantFrontierInstitute/e2m">huggingface.co/AbundantFrontierInstitute/e2m</a></p>
+</header>
+
+<div class="draftbar"><b>Working paper.</b> You may cite it; see <a href="#cite">How to cite</a>. Numbers are copied from <code>runs/round5/SUMMARY.md</code>, <code>runs/round5/SUMMARY_full.md</code>, <code>runs/round5b/SUMMARY.md</code>, <code>runs/round5b/RESULTS.json</code>, <code>runs/round5b/failure_analysis.md</code>, <code>runs/round5b/data_stats.json</code>, <code>runs/round5b/gpu_hours.jsonl</code>, <code>logs/round5b.done</code>, and <code>runs/asm-distill-7b{,-v2}/summary.json</code>. Round 4 rows were copied by the pipeline from <code>runs/round4/SUMMARY.md</code> and were not re-scored. Counts that are not in those summaries were tallied from the raw files (<code>runs/asm-distill-7b{,-v2}/eval.jsonl</code>, the loop <code>loop.jsonl</code> files, <code>eval/val_split.json</code>, <code>tasks/scaled.jsonl</code>, and the two <code>sft.jsonl</code> mixes). They are marked "tally" where they appear.</div>
+
+<div class="abstract"><h2>Abstract</h2>
+<p><a href="../report-5/index.html">Report 5</a> found that the fine-tuned 7B writes correct C for about 60% of the 78 held-out tasks, while its own assembly passes only 7. Its assembly usually looks like gcc output but does not implement the C above it. <a href="../report-5/index.html">Report 5</a> therefore proposed training the assembly on gcc's lowering of the model's own passing C.</p>
+<p>Round 5 did that. <code>c-only-7b</code> was the teacher. Its passing C on 346 screened ExeBench training tasks, 182 MBPP training tasks and a few synthetic tasks was compiled with gcc <code>-O2</code> and <code>-Os</code>, and the resulting assembly became the target for an English-to-assembly QLoRA (<code>asm-distill-7b</code>). Because the earlier pairs are much more numerous, they made up 87% of the 5,886-row mix. Round 5 stopped its held-out eval at a 0.7-hour cap after 52 tasks (4/52).</p>
+<p>Round 5b finished that evaluation and then retrained with the distilled rows in the majority (1,211 of 1,614) and stricter leakage de-duplication (<code>asm-distill-7b-v2</code>).</p>
+<p>On the full held-out set, <code>asm-distill-7b</code> passes <strong>5/78</strong> greedy (pass@5 0.103) and <code>asm-distill-7b-v2</code> passes <strong>4/78</strong> (0.090). Both are below round 4's best direct assembly (7/78, <code>c-then-asm</code>), and far below the 48/78 of the hybrid in which the model writes C and gcc lowers it. The round 5b target of at least 20/78 was not met.</p>
+<p>On validation, the same two models pass 29/90 and 22/90. Both are below the earlier direct-assembly models (38 to 41 of 90). The large validation-versus-held-out gap, which has been present since Report 3, is mostly a difference in the task sets, not in what was learned:</p>
+<ul>
+<li>Validation is 90 ExeBench tasks drawn from the training distribution. Their reference functions are much smaller (median 26.5 bytes at gcc <code>-O2</code>, against 84.5 for held-out), and their specifications are written in the same templated style as the training specifications.</li>
+<li>We found no exact or near-duplicate leakage at the de-dup threshold.</li>
+</ul>
+<p>The C-then-assembly repair loops on both models stopped at the hour cap after 20 and 10 held-out tasks. On those same tasks they match round 4's <code>c-then-asm</code> loop (8/20 against 9/20, and 4/10 against 4/10) and do not improve on it.</p>
+<p>Distilling gcc's lowering as plain English-to-assembly targets does not teach a 7B to lower unfamiliar programs. The practical system is still "the model writes C, gcc lowers it", and <a href="#s10">Section 10</a> proposes work on that path instead of a further distillation run.</p>
+</div>
+
+<nav class="toc" aria-label="Contents"><div class="toc-title">Contents</div><ol>
+<li><a href="#s1"><span class="n">1</span>Goals recap</a></li>
+<li><a href="#s2"><span class="n">2</span>Method: rounds 5 and 5b</a></li>
+<li><a href="#s3"><span class="n">3</span>Results: direct assembly</a></li>
+<li><a href="#s4"><span class="n">4</span>Results: repair loops (partial)</a></li>
+<li><a href="#s5"><span class="n">5</span>Where the assembly fails</a></li>
+<li><a href="#s6"><span class="n">6</span>Why validation is so much higher than held-out</a></li>
+<li><a href="#s7"><span class="n">7</span>All models compared</a></li>
+<li><a href="#s8"><span class="n">8</span>Compute used</a></li>
+<li><a href="#s9"><span class="n">9</span>Limitations and caveats</a></li>
+<li><a href="#s10"><span class="n">10</span>Proposed next steps</a></li>
+<li><a href="#cite"><span class="n"></span>How to cite</a></li>
+<li><a href="#revhist"><span class="n"></span>Revision history</a></li>
+</ol></nav>
+
+<div class="col">
+
+<h2 id="s1"><span class="n">1</span>Goals recap <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<p><a href="../report-5/index.html">Report 5</a> ended with three facts.</p>
+<ul>
+<li>Letting gcc lower the model's C passes 48/78 held-out tasks greedy (61/78 at pass@5).</li>
+<li>The same model's own assembly passes 7/78.</li>
+<li>In 42 held-out tasks the C passes and the assembly fails, and the failure is almost always semantic: 23 wrong answers, 9 crashes and 9 timeouts, with 1 that does not assemble.</li>
+</ul>
+<p>The first proposal in <a href="../report-5/index.html#s9">Report 5, §9</a>, was distillation: train the assembly to reproduce gcc's lowering of the C the model actually writes.</p>
+<p>Round 5 (<code>BRIEF-round5.md</code>, 25 November 2026) implemented that proposal with an 8 GPU-hour budget, and set a target of at least 20/78 held-out direct assembly with no compiler.</p>
+<p>Round 5b (<code>BRIEF-round5b.md</code>, 25 November 2026, 8 GPU hours) had two stages:</p>
+<ul>
+<li>Stage A completed round 5's evaluation, which had stopped early.</li>
+<li>Stage B retrained with the distilled rows as the majority.</li>
+</ul>
+<p>The round 5b pipeline ran from 6:45 PM PT on 25 November to 2:55 AM PT on 26 November and wrote <code>logs/round5b.done</code> with every required stage ok.</p>
+<p>Terms follow Reports 1 to 5:</p>
+<ul>
+<li>pass@1 is greedy.</li>
+<li>pass@5 is the fraction of tasks with at least one passing sample out of five (T = 0.8).</li>
+<li>Validation is 90 scaled tasks from the training distribution (<code>eval/val_split.json</code>).</li>
+<li>Held-out is 78 HumanEval and MBPP tasks.</li>
+<li>Size and instruction ratios are means over greedy passes against gcc <code>-O2</code> on the task's reference C.</li>
+</ul>
+<h2 id="s2"><span class="n">2</span>Method: rounds 5 and 5b <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<h3 id="s2-1"><span class="n">2.1</span>Teacher and distillation targets <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h3>
+<p>The teacher in both rounds is <code>c-only-7b</code> (round 4; 46/78 held-out C at gcc <code>-O2</code>, 56/78 at pass@5). For each training task, the teacher wrote C. Each C that passed the task's tests was compiled by gcc <code>-O2</code> and <code>-Os</code>, and the AT&amp;T assembly became the target for the task's English prompt, with the <code>default</code> goal for <code>-O2</code> and the <code>size</code> goal for <code>-Os</code>. Every distinct passing assembly was kept.</p>
+<p>There was no C-to-assembly auxiliary task. The eval prompt is English to assembly, and a row containing both C and assembly would be trained as C-then-assembly text.</p>
+<p>Round 5b reused round 5's samples and topped each task up to k = 8 temperature samples. Teacher sampling covered 588 tasks: 346 screened ExeBench training tasks, 182 MBPP training tasks and 60 synthetic tasks. At least one passing C was found for 527 of them (342, 125 and 60; tally of <code>runs/round5b/sample_c.jsonl</code>). Lowering produced 1,220 new rows.</p>
+<h3 id="s2-2"><span class="n">2.2</span>Leakage de-duplication (round 5b) <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h3>
+<p>Every candidate row was checked against the 78 held-out and 90 validation tasks.</p>
+<ul>
+<li>Text checks: function name, word 5-grams, a specification ratio of 0.85 or more, and a C ratio of 0.85 or more.</li>
+<li>Embedding check: <code>bge-m3</code> cosine of 0.85 or more, run on the CPU.</li>
+</ul>
+<p>The text checks dropped 1,146 of 8,001 rows, all from the earlier <code>sft_lora2</code> pairs: 652 on word 5-grams, 320 on name, 108 on specification ratio and 66 on C ratio. The embedding check dropped 547 of the remaining 6,855. No distilled, MBPP or synthetic row was dropped.</p>
+<h3 id="s2-3"><span class="n">2.3</span>Mixes and training <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h3>
+<div class="tw"><table><caption>Table 1. Training mixes and runs (<code>runs/round5/SUMMARY.md</code>, <code>runs/round5b/SUMMARY.md</code>, <code>runs/asm-distill-7b{,-v2}/summary.json</code>).</caption><thead><tr><th>setting</th><th>asm-distill-7b (round 5)</th><th>asm-distill-7b-v2 (round 5b)</th></tr></thead><tbody>
+<tr><td>base model</td><td>Qwen2.5-Coder-7B-Instruct, 4-bit</td><td>same</td></tr>
+<tr><td>rows</td><td>5,886</td><td>1,614</td></tr>
+<tr><td>by origin</td><td>sft_lora2 5,097 (86.6%), train 544 (9.2%), mbpp 207 (3.5%), synth 38 (0.6%)</td><td>train 630 (39.0%), mbpp 444 (27.5%), sft_lora2 403 (25.0%, capped), synth 137 (8.5%)</td></tr>
+<tr><td>distilled rows</td><td>789 (13.4%)</td><td>1,211 (75.0%)</td></tr>
+<tr><td>goals</td><td>default 5,576, size 310</td><td>default 1,097, size 517</td></tr>
+<tr><td>examples after p99 length drop</td><td>5,856 (30 dropped)</td><td>1,608 (6 dropped)</td></tr>
+<tr><td>LoRA, optimizer</td><td>r = 32, alpha = 64, dropout 0.05; lr 2e-4; 2 epochs; batch 1 × accumulation 16; max length 2,048</td><td>same</td></tr>
+<tr><td>steps, train loss</td><td>732, 0.1696</td><td>202, 0.2256</td></tr>
+<tr><td>time</td><td>6,619 s (1.84 GPU h)</td><td>1,902 s (0.53 GPU h)</td></tr>
+</tbody></table></div>
+<p>The training task pool was not enlarged past round 5's 346 screened ExeBench tasks, so the budget could cover Stage A's evaluation. As a result, Stage B is a much smaller run than round 5 (1,614 rows against 5,886, and 202 steps against 732), not just a reweighting of the same data.</p>
+<p>The two training losses are over different mixes and are not comparable.</p>
+<h2 id="s3"><span class="n">3</span>Results: direct assembly <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<div class="tw"><table><caption>Table 2. Direct English-to-assembly, greedy pass@1 and pass@5 (<code>runs/round5/SUMMARY_full.md</code>, <code>runs/round5b/SUMMARY.md</code>). Ratios are against gcc <code>-O2</code> on the reference C; <em>n</em> is the number of greedy passes.</caption><thead><tr><th>model</th><th style="white-space:nowrap">set</th><th class="num">pass@1</th><th class="num">pass@5</th><th class="num">size / gcc -O2</th><th class="num">insn / gcc -O2</th></tr></thead><tbody>
+<tr><td>asm-distill-7b (round 5, scored in 5b)</td><td style="white-space:nowrap">val</td><td class="num">0.322 (29/90)</td><td class="num">0.500 (45/90)</td><td class="num">1.068 (n=29)</td><td class="num">1.278 (n=29)</td></tr>
+<tr><td>asm-distill-7b-v2 (round 5b)</td><td style="white-space:nowrap">val</td><td class="num">0.244 (22/90)</td><td class="num">0.311 (28/90)</td><td class="num">0.962 (n=22)</td><td class="num">1.080 (n=22)</td></tr>
+<tr><td>asm-distill-7b</td><td style="white-space:nowrap">held-out</td><td class="num">0.064 (5/78)</td><td class="num">0.103 (8/78)</td><td class="num">0.937 (n=5)</td><td class="num">0.942 (n=5)</td></tr>
+<tr><td>asm-distill-7b-v2</td><td style="white-space:nowrap">held-out</td><td class="num">0.051 (4/78)</td><td class="num">0.090 (7/78)</td><td class="num">0.818 (n=4)</td><td class="num">1.181 (n=4)</td></tr>
+<tr><td>c-then-asm, asm half (round 4, copied)</td><td style="white-space:nowrap">held-out</td><td class="num">0.090 (7/78)</td><td class="num">0.115 (9/78)</td><td class="num">1.132 (n=7)</td><td class="num">3.584 (n=7)</td></tr>
+<tr><td>c-then-asm, C → gcc -O2 (round 4, copied)</td><td style="white-space:nowrap">held-out</td><td class="num">0.615 (48/78)</td><td class="num">0.782 (61/78)</td><td class="num">1.031 (n=48)</td><td class="num">1.877 (n=48)</td></tr>
+</tbody></table></div>
+<p>Round 5's partial score (4/52) was not misleading. The full 78 tasks add one pass, giving 5/78. By source, the held-out passes are:</p>
+<ul>
+<li><code>asm-distill-7b</code>: 3 of 23 MBPP and 2 of 55 HumanEval.</li>
+<li><code>asm-distill-7b-v2</code>: 2 of 23 MBPP and 2 of 55 HumanEval.</li>
+</ul>
+<p>The two models share two passes (<code>he138_sum_of_four_evens</code>, <code>he23_strlen</code>; tally of <code>eval.jsonl</code>). Every held-out pass for either model is also a pass for the round 4 hybrid.</p>
+<p>The distill-heavy retrain is not better anywhere:</p>
+<ul>
+<li>Held-out: 4/78 against 5/78.</li>
+<li>Validation: 22/90 against 29/90; at pass@5, 28/90 against 45/90.</li>
+<li>Code that does not assemble almost doubled (held-out 6 → 11, validation 5 → 11). Most of the new failures are "operand type mismatch" assembler errors.</li>
+</ul>
+<p>Its passing code is smaller (size ratio 0.818 on held-out, 0.962 on validation), but at n = 4 and n = 22 that is not a result. It may also reflect the larger share of <code>size</code>-goal rows in its mix (32% against 5%).</p>
+<h2 id="s4"><span class="n">4</span>Results: repair loops (partial) <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<p>Both C-then-asm repair loops (k = 8, R = 3, T = 0.8, visible-test feedback, scoring the assembly) stopped at their hour caps:</p>
+<ul>
+<li><code>asm-distill-7b</code>: 20 tasks.</li>
+<li><code>asm-distill-7b-v2</code>: 10 tasks.</li>
+</ul>
+<p>Both loops process tasks in the same order, and the first 20 held-out tasks are all MBPP. These loops therefore cover only the MBPP part of the held-out set.</p>
+<div class="tw"><table><caption>Table 3. Partial held-out repair loops against round 4's <code>c-then-asm</code> loop on the same tasks (<code>runs/round5b/RESULTS.json</code>; same-task comparison is a tally of the three <code>loop.jsonl</code> files).</caption><thead><tr><th>loop</th><th class="num">tasks scored</th><th class="num">pass (all tests)</th><th class="num">pass (visible tests)</th><th class="num">mean calls</th><th class="num">round 4 full</th><th class="num">round 4 visible</th></tr></thead><tbody>
+<tr><td><code>asm-distill-7b</code>, C-then-asm</td><td class="num">20 of 78</td><td class="num">8/20</td><td class="num">11/20</td><td class="num">22.3</td><td class="num">9/20</td><td class="num">11/20</td></tr>
+<tr><td><code>asm-distill-7b-v2</code>, C-then-asm</td><td class="num">10 of 78</td><td class="num">4/10</td><td class="num">5/10</td><td class="num">19.9</td><td class="num">4/10</td><td class="num">5/10</td></tr>
+</tbody></table></div>
+<p>A 40% pass rate looks better than the full-set loops in <a href="../report-5/index.html">Report 5</a>, but that comes from the task selection. On the same 20 MBPP tasks, round 4's <code>c-then-asm</code> loop passed 9, and 8 of <code>asm-distill-7b</code>'s 8 passes are tasks that the <code>c-then-asm</code> loop also passed.</p>
+<p>The direct-assembly loop for <code>asm-distill-7b</code> and the validation loops were skipped when the GPU-hour budget ran out.</p>
+<h2 id="s5"><span class="n">5</span>Where the assembly fails <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<div class="tw"><table><caption>Table 4. Held-out greedy failures by bucket (<code>runs/round5b/failure_analysis.md</code>; <code>wrong_answer</code> is <code>logic_mismatch</code>). The last column counts each model's failures on the 48 tasks the round 4 hybrid passes.</caption><thead><tr><th>model</th><th class="num">pass</th><th class="num">logic_mismatch</th><th class="num">crash</th><th class="num">timeout</th><th class="num">doesnt_assemble</th><th class="num">abi</th><th>fails on the 48 hybrid-pass tasks</th></tr></thead><tbody>
+<tr><td>asm-distill-7b</td><td class="num">5</td><td class="num">49</td><td class="num">9</td><td class="num">8</td><td class="num">6</td><td class="num">1</td><td>43: logic 31, assemble 5, crash 4, timeout 3</td></tr>
+<tr><td>asm-distill-7b-v2</td><td class="num">4</td><td class="num">46</td><td class="num">11</td><td class="num">6</td><td class="num">11</td><td class="num">0</td><td>44: logic 30, crash 7, assemble 6, timeout 1</td></tr>
+</tbody></table></div>
+<p>The pattern from <a href="../report-5/index.html#s5">Report 5, §5</a> is unchanged. The assembly almost always assembles, uses the right argument registers, and in most failures runs to completion and returns the wrong value.</p>
+<p>Distillation was meant to close the gap between the C the model can write and the assembly it emits. It did not: of the 48 tasks where the hybrid passes, the distilled models pass 5 and 4.</p>
+<p>The targets were gcc lowerings of the teacher's C on ExeBench and MBPP training tasks. The model learned to produce that kind of code for training-like specifications (<a href="#s6">Section 6</a>), but not to carry out a new program's logic in registers.</p>
+<h2 id="s6"><span class="n">6</span>Why validation is so much higher than held-out <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<p>The gap is large for both models: 29/90 against 5/78 for <code>asm-distill-7b</code>, and 22/90 against 4/78 for v2. It is not new. <a href="../report-5/index.html">Report 5</a> had 40/90 against 7/78 for <code>c-then-asm</code>'s assembly and 41/90 against 5/78 for <code>qlora7b-v2</code>. We checked three explanations (all tallies computed for this report).</p>
+<p><strong>Leakage: not found at the de-dup threshold.</strong></p>
+<ul>
+<li>No validation task ID, signature or normalized specification appears in either training mix.</li>
+<li>Against the round 5b mix, no validation specification has a difflib ratio of 0.85 or more to any training specification.</li>
+<li>Against the larger round 5 mix, four do, at 0.850 to 0.858. On inspection they are different tasks that share ExeBench boilerplate. For example, "returns the integer value 128 …" against "returns the smaller of the two input values …", where the shared tail is "it does not modify any external variables or buffers".</li>
+<li>The training script also removes validation tasks by ID (<code>--val-split</code>).</li>
+</ul>
+<p><strong>Validation is easier: yes, by a wide margin.</strong></p>
+<ul>
+<li>Validation reference functions are much smaller: median 26.5 bytes at gcc <code>-O2</code>, against 84.5 for held-out.</li>
+<li>59 of 90 validation tasks compile to 40 bytes or less, against 14 of 78 held-out tasks.</li>
+<li><code>asm-distill-7b</code> passes 27 of the 59 small validation tasks and only 2 of the other 31.</li>
+<li>On held-out it passes 4 of the 14 small tasks and 1 of the other 64.</li>
+</ul>
+<p>Most of the gap is therefore the share of very small functions: constant returns, one-line arithmetic and simple predicates.</p>
+<p><strong>Same distribution as training: yes.</strong></p>
+<ul>
+<li>Validation is a seeded 3% split of the scaled ExeBench pool, the same source as the <code>train</code> and <code>sft_lora2</code> rows.</li>
+<li>Its specifications use the same rewritten, templated style.</li>
+<li>Against the round 5 mix, 41 of 90 validation specifications have a training specification with a ratio of 0.70 or more. <code>asm-distill-7b</code> passes 19 of those 41 and 10 of the other 49.</li>
+<li>Held-out specifications are HumanEval and MBPP prose that the model has not seen in that style.</li>
+</ul>
+<p><strong>Overfit to the old mix: consistent with the data.</strong></p>
+<ul>
+<li>Cutting the earlier ExeBench-style pairs from 87% to 25% of the mix lowered validation from 29/90 to 22/90 (pass@5 45 to 28) and left held-out at 4 to 5 of 78.</li>
+<li>The validation passes depend on those in-distribution pairs. The distilled rows did not transfer to unfamiliar tasks.</li>
+</ul>
+<p><strong>Reading.</strong> Validation as built measures in-distribution, mostly very small functions, and it should not be read as a proxy for generalization. From this report on, we treat held-out as the headline. Validation will be reported alongside a size-bucketed breakdown, and we propose a harder, non-ExeBench validation split (<a href="#s10">Section 10</a>).</p>
+<h2 id="s7"><span class="n">7</span>All models compared <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<div class="tw"><table><caption>Table 5. Greedy pass@1 and pass@5 on validation and held-out (round 4 rows copied from <code>runs/round4/SUMMARY.md</code> via <a href="../report-5/index.html">Report 5</a>, Table 9). Rows marked "gcc" are the model's C compiled by gcc.</caption><thead><tr><th>model and path</th><th class="num">val pass@1</th><th class="num">val pass@5</th><th class="num">held-out pass@1</th><th class="num">held-out pass@5</th></tr></thead><tbody>
+<tr><td>LoRA 1.5B (lora2), asm</td><td class="num">38/90</td><td class="num">45/90</td><td class="num">4/78</td><td class="num">5/78</td></tr>
+<tr><td>QLoRA 7B v2 (qlora7b-v2), asm</td><td class="num">41/90</td><td class="num">52/90</td><td class="num">5/78</td><td class="num">12/78</td></tr>
+<tr><td>QLoRA 7B C then asm (c-then-asm), asm half</td><td class="num">40/90</td><td class="num">54/90</td><td class="num">7/78</td><td class="num">9/78</td></tr>
+<tr><td>asm-distill-7b (round 5), asm</td><td class="num">29/90</td><td class="num">45/90</td><td class="num">5/78</td><td class="num">8/78</td></tr>
+<tr><td>asm-distill-7b-v2 (round 5b), asm</td><td class="num">22/90</td><td class="num">28/90</td><td class="num">4/78</td><td class="num">7/78</td></tr>
+<tr><td>c-then-asm, C half → gcc -O2 (hybrid)</td><td class="num">63/90</td><td class="num">70/90</td><td class="num">48/78</td><td class="num">61/78</td></tr>
+<tr><td>c-only-7b → gcc -O2</td><td class="num">62/90</td><td class="num">72/90</td><td class="num">46/78</td><td class="num">56/78</td></tr>
+</tbody></table></div>
+<p>Across seven training recipes, every route in which the model writes the assembly stays at 4 to 7 of 78 held-out tasks greedy. Every route in which a fine-tuned 7B writes C and gcc lowers it passes 46 to 48.</p>
+<h2 id="s8"><span class="n">8</span>Compute used <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<p>Round 5 used 4.17 of its 8 GPU hours (4.1684). Round 5b used 8.10 of its 8 (8.0957, in <code>logs/round5b.done</code>). Round 5b overran by 0.0957 h because the last stage, a loop, stops at a step boundary.</p>
+<div class="tw"><table><caption>Table 6. Round 5b hours by stage (<code>runs/round5b/gpu_hours.jsonl</code>).</caption><thead><tr><th>stage</th><th class="num">seconds</th><th class="num">hours</th><th>GPU</th><th>ok</th></tr></thead><tbody>
+<tr><td>a-eval-heldout (26 remaining tasks)</td><td class="num">1,139.88</td><td class="num">0.32</td><td>yes</td><td>yes</td></tr>
+<tr><td>a-eval-val (90)</td><td class="num">2,312.93</td><td class="num">0.64</td><td>yes</td><td>yes</td></tr>
+<tr><td>b-synth (60 tasks: 22 carried over + 38 new; stopped at 0.35 h cap)</td><td class="num">1,260.93</td><td class="num">0.35</td><td>yes</td><td>cap</td></tr>
+<tr><td>b-sample (k = 8 top-up, 588 tasks)</td><td class="num">2,991.21</td><td class="num">0.83</td><td>yes</td><td>yes</td></tr>
+<tr><td>b-lower, leakage-text, leakage-embed, mix</td><td class="num">290.35</td><td class="num">0.08</td><td>no</td><td>yes</td></tr>
+<tr><td>b-train</td><td class="num">1,901.78</td><td class="num">0.53</td><td>yes</td><td>yes</td></tr>
+<tr><td>b-eval-heldout (78)</td><td class="num">3,280.15</td><td class="num">0.91</td><td>yes</td><td>yes</td></tr>
+<tr><td>a-loop-c-then-asm (20 of 78; cap)</td><td class="num">9,585.19</td><td class="num">2.66</td><td>yes</td><td>cap</td></tr>
+<tr><td>b-eval-val (90)</td><td class="num">2,425.05</td><td class="num">0.67</td><td>yes</td><td>yes</td></tr>
+<tr><td>b-loop-c-then-asm (10 of 78; cap)</td><td class="num">4,247.52</td><td class="num">1.18</td><td>yes</td><td>cap</td></tr>
+<tr><td>failure-analysis</td><td class="num">0.04</td><td class="num">0.00</td><td>no</td><td>yes</td></tr>
+<tr><td><b>GPU total</b></td><td class="num"><b>29,144.64</b></td><td class="num"><b>8.10</b></td><td></td><td></td></tr>
+</tbody></table></div>
+<p>The two partial loops took 3.84 GPU hours, 47% of the round, for 30 of 156 loop tasks. That works out to about 460 s per task, roughly twice the 238 s per task budgeted from round 4.</p>
+<p>Including rounds 5 and 5b, the program has used 125.80 GPU hours across the pipelines that record a total (113.54 through round 4, + 4.17 + 8.10).</p>
+<h2 id="s9"><span class="n">9</span>Limitations and caveats <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<ul>
+<li><strong>Small sets, one seed.</strong> At 78 tasks, 4 against 5 against 7 is not a difference. Each model is one run with one seed, and no confidence intervals are reported.</li>
+<li><strong>Stage B is not a clean ablation.</strong> It changes the mix proportions and also shrinks the run: 1,614 rows and 202 steps, against 5,886 rows and 732 steps. It also adds the stricter de-dup and more <code>size</code>-goal rows. A smaller run doing worse on validation is expected on its own, and the held-out comparison (4 against 5) cannot separate these factors.</li>
+<li><strong>Partial loops cover only MBPP tasks.</strong> Both loops stopped at the cap after the first 20 and 10 tasks, all MBPP. Table 3 compares them only with the round 4 loop on the same tasks.</li>
+<li><strong>Synthetic tasks were few.</strong> In round 5 the synthetic stage failed after an ollama HTTP 500. In round 5b it carried over 22 tasks and added 38 new ones (60 in all; cap 80) before its 0.35 h cap. It retried one transient HTTP 500 without stopping. Of 182 rejected candidates, 97 were harness errors in the generated tests (for example, "<code>'int' object is not iterable</code>"), so the synthetic generator's test format is the bottleneck.</li>
+<li><strong>Copied numbers.</strong> Round 4 and earlier rows are copied, not re-scored.</li>
+<li><strong>Similarity tallies are approximate.</strong> <a href="#s6">Section 6</a> uses difflib ratios on normalized specifications. These are coarse and are not the pipeline's de-dup checks.</li>
+<li><strong>The harness.</strong> A pass means the tests pass in the emulator, not that the program is correct (<a href="../report-5/index.html#s8">Report 5, §8</a>).</li>
+</ul>
+<h2 id="s10"><span class="n">10</span>Proposed next steps <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<p><span class="tag plan">proposed</span> None of the following has been started; each is for discussion.</p>
+<ul>
+<li><strong>Stop scaling direct-assembly distillation in its current form.</strong> Seven direct-assembly recipes, including two distillation mixes, are all at 4 to 7 of 78 on held-out. Another long run of the same kind is unlikely to reach 20/78.</li>
+<li><strong>Measure the ceiling of the practical system: a C repair loop on the fine-tuned 7B.</strong> In this loop, <code>c-only-7b</code> writes C, gcc <code>-O2</code> compiles it, and the visible tests give feedback. Use k = 8, R = 3, matching the assembly loops, on all 78 held-out tasks. The 1.5B untrained C loop reached 44/78 with a smaller budget, and the 7B starts from 46/78 greedy. This was proposed in <a href="../report-5/index.html">Report 5</a> and has not been run.</li>
+<li><strong>Close the size and fine-tuning confound.</strong> Run the untrained 7B in C mode on held-out and validation (<a href="../report-5/index.html#s8">Report 5, §8</a>).</li>
+<li><strong>Fix validation.</strong> Report validation by size bucket, and add a harder validation split that is not from ExeBench (held-out-like prose, functions above about 40 bytes), so model selection stops rewarding trivial in-distribution tasks.</li>
+<li><strong>Make assembly an edit of gcc's output, not a generation from scratch.</strong> Use superoptimization on the hybrid: start from gcc's code for the model's passing C, propose smaller or faster variants, and keep a variant only if it passes the tests and matches the original on generated inputs. The floor is the hybrid's 48/78. The question is how often the model can beat gcc.</li>
+<li><strong>Differential testing inside the loop.</strong> When the model writes both C and assembly, test the assembly against the compiled C on generated inputs, and feed back the first disagreement (<a href="../report-5/index.html#s9">Report 5, §9</a>).</li>
+</ul>
+
+<h2 id="cite">How to cite</h2>
+<p>This is a working paper. It is shared so others can read, discuss and cite it, and it is updated as the work moves forward. Please cite the revision you read, give its date, and say when you accessed the page. Earlier revisions are listed in the revision history. Results here have not been peer reviewed.</p>
+<p class="cite-ref">Wilson, B. (2026). <em>Distilling gcc's lowering into direct assembly: rounds 5 and 5b</em> (Working paper, Revision 1, 26 November 2026). Abundant Frontier Institute. <a href="https://abundantfrontier.org/lab/e2m/report-6/">https://abundantfrontier.org/lab/e2m/report-6/</a></p>
+<pre class="cite-bib"><code>@techreport{wilson2026e2mreport6,
+  author      = {Wilson, Boyd},
+  title       = {Distilling gcc's lowering into direct assembly: rounds 5 and 5b},
+  institution = {Abundant Frontier Institute},
+  type        = {Working paper},
+  number      = {Revision 1},
+  year        = {2026},
+  month       = {nov},
+  url         = {https://abundantfrontier.org/lab/e2m/report-6/},
+  note        = {Living document; last updated 26 November 2026. Accessed YYYY-MM-DD}
+}</code></pre>
+
+<section class="revhist" id="revhist">
+<h2>Revision history</h2>
+<ol>
+<li><b>Revision 1</b> <span class="when">26 November 2026 (America/Los_Angeles)</span><br>First version of technical report 6: rounds 5 and 5b. <code>asm-distill-7b</code> (a QLoRA trained on gcc's lowering of the teacher's passing C) scores 5/78 held-out greedy (pass@5 0.103) and 29/90 on validation; <code>asm-distill-7b-v2</code> (a distill-heavy retrain) scores 4/78 and 22/90. Both are below round 4's best direct assembly (7/78) and the 48/78 hybrid. Partial C-then-assembly repair loops match the round 4 loop on the same tasks and do not improve on it. The validation-versus-held-out gap is attributed mainly to smaller, in-distribution validation tasks. Numbers copied from <code>runs/round5/SUMMARY.md</code>, <code>SUMMARY_full.md</code>, <code>runs/round5b/SUMMARY.md</code>, <code>RESULTS.json</code> and related files; some counts are tallies of raw files, marked in the text.</li>
+</ol>
+</section>
+
+<footer>Living paper · Revision 1 · Last updated 26 November 2026 · Abundant Frontier Institute Lab · Working paper · <a href="../report-5/index.html">Technical report 5</a> · <a href="../report-4/index.html">Technical report 4</a> · <a href="../report-3/index.html">Technical report 3</a> · <a href="../report-2/index.html">Technical report 2</a> · <a href="../report-1/index.html">Technical report 1</a> · <a href="../concept/index.html">Concept paper</a></footer>
+</div>
+</main>
+</body>
+</html>

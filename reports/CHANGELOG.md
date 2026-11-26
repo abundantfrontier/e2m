@@ -2,6 +2,12 @@
 
 Dates are America/Los_Angeles.
 
+## Revision 1 (report-6, new) — 26 November 2026
+
+- `report-6/index.html` (new, Revision 1): technical report 6, rounds 5 and 5b. Round 5 trained `asm-distill-7b`, a 7B QLoRA whose targets are gcc `-O2` and `-Os` lowerings of the C that `c-only-7b` wrote and that passed the tests (5,886-row mix, 87% earlier pairs). Round 5b finished the round 5 held-out evaluation and retrained as `asm-distill-7b-v2` with distilled rows in the majority (1,211 of 1,614) and stricter leakage de-duplication. On the full held-out set, `asm-distill-7b` passes 5/78 greedy (pass@5 0.103) and `asm-distill-7b-v2` passes 4/78 (0.090), both below round 4's best direct assembly (7/78, `c-then-asm`) and far below the 48/78 hybrid. On validation the same models pass 29/90 and 22/90, below earlier direct-assembly models (38 to 41 of 90). The validation-versus-held-out gap is attributed mainly to the task sets (validation median 26.5 bytes against 84.5 for held-out; same templated ExeBench style as training; no leakage at the de-dup threshold). Partial C-then-assembly repair loops stopped at the hour cap after 20 and 10 held-out tasks and match the round 4 `c-then-asm` loop on those same tasks (8/20 against 9/20, and 4/10 against 4/10). The round 5b target of at least 20/78 was not met. Number sources: `runs/round5/SUMMARY.md`, `runs/round5/SUMMARY_full.md`, `runs/round5b/SUMMARY.md`, `RESULTS.json`, `failure_analysis.md`, `data_stats.json`, `gpu_hours.jsonl`, `logs/round5b.done`, and `runs/asm-distill-7b{,-v2}/summary.json`. Round 4 rows were copied by the pipeline from `runs/round4/SUMMARY.md` and were not re-scored. Tallies of raw files are marked in the text.
+- `concept/index.html`, `report-1/index.html`, `report-2/index.html`, `report-3/index.html`, `report-4/index.html`, `report-5/index.html`: added a "Technical report 6" nav link only. Revision numbers, dates and body text are unchanged (no content change).
+- Lab index (`/lab/index.html`): added a card for technical report 6 in the E2M `PROJECTS` array.
+
 ## Repository link — 25 November 2026
 
 - `concept/index.html`, `report-1/index.html`, `report-2/index.html`, `report-3/index.html`, `report-4/index.html`, `report-5/index.html`: added "Code and data: github.com/abundantfrontier/e2m" (a link to the public E2M repository) at the end of the header meta line. Revision numbers, dates and body text are unchanged (no content change).
