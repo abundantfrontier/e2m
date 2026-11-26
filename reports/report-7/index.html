@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E2M technical report 7: The C path's ceiling: a matched repair loop, and an untrained 7B that writes better C than the fine-tuned one (living paper) · Abundant Frontier Institute</title>
+<meta name="description" content="Living technical report: a matched C repair loop on c-only-7b reaches 64/78 held-out, the untrained 7B writes better greedy C than the fine-tuned model (63/78 against 46/78), and together they cover 70/78. The remaining problem is beating gcc on programs that already pass.">
+<meta name="citation_title" content="The C path's ceiling: a matched repair loop, and an untrained 7B that writes better C than the fine-tuned one">
+<meta name="citation_author" content="Wilson, Boyd">
+<meta name="citation_publication_date" content="2026/11/26">
+<meta name="citation_technical_report_institution" content="Abundant Frontier Institute">
+<meta name="citation_technical_report_number" content="Revision 1">
+<meta name="citation_public_url" content="https://abundantfrontier.org/lab/e2m/report-7/">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<nav class="nav"><div class="nav-in">
+<a class="brand" href="https://abundantfrontier.org/"><span class="e">🌾</span><span>Abundant Frontier Institute</span></a>
+<div class="nav-links"><a href="/lab/">Lab</a><a href="../concept/index.html" >Concept paper</a><a href="../report-1/index.html" >Technical report 1</a><a href="../report-2/index.html" >Technical report 2</a><a href="../report-3/index.html" >Technical report 3</a><a href="../report-4/index.html" >Technical report 4</a><a href="../report-5/index.html" >Technical report 5</a><a href="../report-6/index.html" >Technical report 6</a><a href="../report-7/index.html" class="cur">Technical report 7</a><span class="badge">Working paper</span></div>
+</div></nav>
+<main class="page">
+<header class="title">
+<div class="kicker">Technical report · seventh work product</div>
+<h1>The C path's ceiling: a matched repair loop, and an untrained 7B that writes better C than the fine-tuned one</h1>
+<p class="sub">Technical report 7 of the <em>E2M</em> program. It covers round 6, the first round since round 1 with no training. Round 6 measured the ceiling of the practical system, "the model writes C and gcc lowers it", with a repair loop matched to the assembly loops. It also ran the untrained 7B in C mode, a control <a href="../report-5/index.html">Report 5</a> left open, and re-scored existing results by function size and against gcc <code>-Os</code>.</p>
+<p class="byline"><strong>Boyd Wilson</strong>, Abundant Frontier Institute and Omnibond Systems</p>
+<p class="meta">Living paper · Revision 1 · Last updated 26 November 2026 · Companion to the <a href="../concept/index.html">E2M concept paper</a> and technical reports <a href="../report-1/index.html">1</a>, <a href="../report-2/index.html">2</a>, <a href="../report-3/index.html">3</a>, <a href="../report-4/index.html">4</a>, <a href="../report-5/index.html">5</a> and <a href="../report-6/index.html">6</a> · All results are from one 24 GB RTX 3090 workstation · Code and data: <a href="https://github.com/abundantfrontier/e2m">github.com/abundantfrontier/e2m</a> · Weights: <a href="https://huggingface.co/AbundantFrontierInstitute/e2m">huggingface.co/AbundantFrontierInstitute/e2m</a></p>
+</header>
+
+<div class="draftbar"><b>Working paper.</b> You may cite it; see <a href="#cite">How to cite</a>. Numbers are copied from <code>runs/round6/SUMMARY.md</code>, <code>RESULTS.json</code>, <code>failure_analysis.md</code>, <code>os_reference.json</code> and <code>gpu_hours.jsonl</code>, and from <code>logs/round6.done</code>, <code>runs/loop-c-only-7b-{heldout,val}/summary.json</code> and <code>runs/base7b-c/eval.jsonl</code>. Round 4 rows (c-only-7b greedy C, the hybrid, the 1.5B C control and its loop) were copied from <code>runs/round4/</code> and were not re-scored. The exception is <a href="#s3-2">§3.2</a>, where the stored c-only-7b outputs were re-scored with the current harness as a check. Counts not in those summaries were tallied from the raw files and are marked "tally".</div>
+
+<div class="abstract"><h2>Abstract</h2>
+<p><a href="../report-6/index.html">Report 6</a> closed the direct-assembly line of work. Across seven recipes the model's own assembly passes 4 to 7 of the 78 held-out tasks, while letting gcc lower the model's C passes 46 to 48. Round 6 ran on a 5 GPU-hour budget and used 2.00 hours. It asked how far the C path goes.</p>
+<ol>
+<li><strong>The C repair loop clears the bar set before the run.</strong>
+<ul>
+<li>Setup: <code>c-only-7b</code> writes C, gcc <code>-O2</code> compiles it, and the visible tests give feedback (k = 8, R = 3, the same settings as the assembly loops).</li>
+<li>Held-out: <strong>64/78</strong> pass the full tests (69/78 pass the visible tests), with a mean of 8.2 model calls per task. Validation: 76/90.</li>
+<li>That is above the 55/78 decision threshold stated before the run, 16 tasks above the best single-try hybrid (48/78), and more than three times the best assembly loop (19/78).</li>
+</ul></li>
+<li><strong>The untrained Qwen2.5-Coder-7B-Instruct writes better C than our fine-tuned C model.</strong>
+<ul>
+<li>Greedy with no loop, it passes <strong>63/78</strong> held-out (66/78 at pass@5), against 46/78 for <code>c-only-7b</code> under the same eval protocol. On validation the two are level (61/90 against 62/90).</li>
+<li>On held-out the base model passes 19 tasks the fine-tuned model fails, and the fine-tuned model passes 2 the base fails.</li>
+<li>We checked the protocol: same weights directory, same 4-bit loading, same prompt and token limit, and the stored <code>c-only-7b</code> outputs re-score to exactly 46/78 with today's harness. The gap is real.</li>
+<li>Fine-tuning on our training mix cost the C model about 17 held-out tasks. It also means <a href="../report-5/index.html">Report 5</a>'s step from the 1.5B C control (31/78) to about 47/78 came from model size, not from fine-tuning.</li>
+</ul></li>
+<li><strong>With a loop and the base model together, 70 of 78 held-out tasks have a correct C program.</strong>
+<ul>
+<li>Of the 14 loop failures, 5 pass the visible tests but fail hidden ones, 7 end in wrong answers, 1 crashes, and 1 is blocked by the harness rule against GOT references.</li>
+<li>The untrained 7B's greedy C passes 6 of the 14.</li>
+</ul></li>
+<li><strong>gcc is a strong bar on code quality.</strong>
+<ul>
+<li>On the 64 loop passes, the code is the same size as gcc <code>-O2</code> on the reference C at the median (mean 1.052) and has the same instruction count at the median (mean 1.595, driven by one task at 34×).</li>
+<li>Against gcc <code>-Os</code> on the reference, the passing code is 1.51× larger at the median, and only 7 of 64 programs are smaller.</li>
+<li>So the open problem is code quality: beating the compiler on programs that are already correct.</li>
+</ul></li>
+</ol>
+<p>The next step is a round that tries to beat gcc <code>-O2</code> and <code>-Os</code>, and clang, on size and speed for the programs that already pass, with no further correctness training (<a href="#s9">§9</a>).</p>
+</div>
+
+<nav class="toc" aria-label="Contents"><div class="toc-title">Contents</div><ol>
+<li><a href="#s1"><span class="n">1</span>Goals recap</a></li>
+<li><a href="#s2"><span class="n">2</span>Method</a></li>
+<li><a href="#s3"><span class="n">3</span>Results</a></li>
+<li><a href="#s4"><span class="n">4</span>The 14 held-out failures</a></li>
+<li><a href="#s5"><span class="n">5</span>Code quality against gcc</a></li>
+<li><a href="#s6"><span class="n">6</span>All C-path results compared</a></li>
+<li><a href="#s7"><span class="n">7</span>Compute used</a></li>
+<li><a href="#s8"><span class="n">8</span>Limitations and caveats</a></li>
+<li><a href="#s9"><span class="n">9</span>Proposed next steps</a></li>
+<li><a href="#cite"><span class="n"></span>How to cite</a></li>
+<li><a href="#revhist"><span class="n"></span>Revision history</a></li>
+</ol></nav>
+
+<div class="col">
+
+<h2 id="s1"><span class="n">1</span>Goals recap <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<p><a href="../report-6/index.html#s10">Report 6 (§10)</a> proposed measuring the ceiling of the C path, closing the model-size versus fine-tuning confound, and fixing the validation signal. Round 6 (<code>BRIEF-round6.md</code>, approved 26 November 2026, 7:48 AM PT) did this in four GPU stages plus a CPU summary. It used no training and no courtesy time gate, and had a 5.0 GPU-hour hard cap.</p>
+<p>The decision rule was set before the run:</p>
+<ul>
+<li>A C loop result of 55/78 or more makes the C path the system, and the next round works on beating gcc's output.</li>
+<li>A result below 50/78 makes C quality the bottleneck.</li>
+</ul>
+<p>The pipeline held the GPU lock from 7:53 to 9:53 AM PT on 26 November, and every stage finished OK.</p>
+<p>Terms follow Reports 1 to 6:</p>
+<ul>
+<li>pass@1 is greedy, and pass@5 is at least one pass in five samples at T = 0.8.</li>
+<li>The held-out set is 78 HumanEval and MBPP tasks. Validation is 90 ExeBench tasks.</li>
+<li>Loop scores are "passed all tests" out of n, with feedback from the visible tests only.</li>
+<li>Size and instruction ratios are means over passes against gcc <code>-O2</code> on the task's reference C, unless stated otherwise.</li>
+</ul>
+<h2 id="s2"><span class="n">2</span>Method <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<h3 id="s2-1"><span class="n">2.1</span>C repair loop <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h3>
+<p>The loop used the existing <code>e2m.loop run --mode c</code> with the <code>c-only-7b</code> adapter (round 4) on 4-bit Qwen2.5-Coder-7B-Instruct, with k = 8, R = 3 and T = 0.8. Each candidate C is compiled by gcc <code>-O2</code> and run on the visible tests. Failures are fed back, and the final program is scored on the full tests.</p>
+<p>The held-out tasks were run in an order that interleaves MBPP and HumanEval (<code>runs/round6/heldout_order.json</code>), so a run stopped at its cap would still cover both. Neither loop hit its cap: held-out took 0.90 h and validation 0.86 h.</p>
+<h3 id="s2-2"><span class="n">2.2</span>Untrained 7B in C mode <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h3>
+<p>The base model was the same weights directory as every 7B adapter (<code>runs/models/Qwen2.5-Coder-7B-Instruct</code>, the Hugging Face Qwen2.5-Coder-7B-Instruct, with no E2M adapter). It was loaded in 4 bits, prompted with the same C prompt through <code>eval_generate --mode c</code>, and scored greedy plus five samples, on held-out and validation.</p>
+<p>The round 4 <code>c-only-7b</code> evaluation used the same script, mode, 4-bit loading and token limit (1,536 new tokens). The only difference is the adapter.</p>
+<h3 id="s2-3"><span class="n">2.3</span>CPU re-scores <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h3>
+<p>The CPU work had two parts:</p>
+<ul>
+<li>Existing greedy results were bucketed by the size of gcc <code>-O2</code> on the reference C: small (40 bytes or less) or large.</li>
+<li>The reference C of every held-out and validation task was compiled with gcc <code>-Os</code> as well as <code>-O2</code>. This makes the size comparison with the model like for like, an open caveat in <a href="../report-5/index.html#s8">Report 5, §8</a>.</li>
+</ul>
+<h2 id="s3"><span class="n">3</span>Results <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<h3 id="s3-1"><span class="n">3.1</span>The C repair loop <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h3>
+<div class="tw"><table><caption>Table 1. <code>c-only-7b</code> C repair loops: first full-test pass within m model calls (<code>runs/loop-c-only-7b-*/summary.json</code>; fractions times n).</caption><thead><tr><th>set</th><th class="num">n</th><th class="num">@1</th><th class="num">@4</th><th class="num">@8</th><th class="num">@16</th><th class="num">@32</th><th class="num">visible, final</th><th class="num">mean calls</th></tr></thead><tbody>
+<tr><td>held-out</td><td class="num">78</td><td class="num">45</td><td class="num">48</td><td class="num">54</td><td class="num">61</td><td class="num"><strong>64</strong></td><td class="num">69</td><td class="num">8.2</td></tr>
+<tr><td>validation</td><td class="num">90</td><td class="num">65</td><td class="num">66</td><td class="num">70</td><td class="num">75</td><td class="num"><strong>76</strong></td><td class="num">76</td><td class="num">6.8</td></tr>
+</tbody></table></div>
+<p>On held-out, 18 tasks that the greedy C failed were rescued by the loop, and no task that the greedy C passed was lost. By source, the loop passes 18 of 23 MBPP tasks and 46 of 55 HumanEval tasks (tally).</p>
+<p>Most of the gain comes late. The loop is at 54/78 after 8 calls and adds 10 tasks between 8 and 32 calls, so the second and third repair rounds matter.</p>
+<h3 id="s3-2"><span class="n">3.2</span>Untrained 7B against fine-tuned c-only-7b <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h3>
+<div class="tw"><table><caption>Table 2. Greedy C compiled by gcc <code>-O2</code> (<code>runs/round6/SUMMARY.md</code>; c-only-7b and the 1.5B rows copied from round 4).</caption><thead><tr><th>model</th><th>set</th><th class="num">pass@1</th><th class="num">pass@5</th><th class="num">size / gcc -O2</th><th class="num">insn / gcc -O2</th></tr></thead><tbody>
+<tr><td>Qwen2.5-Coder-7B-Instruct, untrained</td><td>held-out</td><td class="num"><strong>63/78</strong></td><td class="num">66/78</td><td class="num">1.073 (n=63)</td><td class="num">1.244 (n=63)</td></tr>
+<tr><td>c-only-7b (fine-tuned 7B, C only)</td><td>held-out</td><td class="num">46/78</td><td class="num">56/78</td><td class="num">1.110 (n=46)</td><td class="num">1.863 (n=46)</td></tr>
+<tr><td>Qwen2.5-Coder-1.5B-Instruct, untrained (round 4)</td><td>held-out</td><td class="num">31/78</td><td class="num">49/78</td><td class="num">1.003 (n=31)</td><td class="num">0.989 (n=31)</td></tr>
+<tr><td>Qwen2.5-Coder-7B-Instruct, untrained</td><td>val</td><td class="num">61/90</td><td class="num">65/90</td><td class="num">1.040 (n=61)</td><td class="num">1.171 (n=61)</td></tr>
+<tr><td>c-only-7b</td><td>val</td><td class="num">62/90</td><td class="num">72/90</td><td class="num">1.089 (n=62)</td><td class="num">1.200 (n=62)</td></tr>
+</tbody></table></div>
+<div class="tw"><table><caption>Table 3. Per-task agreement of greedy C on the same tasks (tally of the two <code>eval.jsonl</code> files; <code>runs/round6/failure_analysis.md</code>).</caption><thead><tr><th>set</th><th class="num">both pass</th><th class="num">untrained only</th><th class="num">fine-tuned only</th><th class="num">neither</th></tr></thead><tbody>
+<tr><td>held-out</td><td class="num">44</td><td class="num">19</td><td class="num">2</td><td class="num">13</td></tr>
+<tr><td>validation</td><td class="num">55</td><td class="num">6</td><td class="num">7</td><td class="num">22</td></tr>
+</tbody></table></div>
+<p><strong>Is the comparison fair?</strong> We checked four things:</p>
+<ol>
+<li>The base model is the Instruct checkpoint that every 7B adapter was trained on (its README identifies it as Qwen2.5-Coder-7B-Instruct).</li>
+<li>The eval command for <code>c-only-7b</code> in round 4 (<code>logs/build-round4.log</code>) differs from round 6's only in <code>--adapter</code>.</li>
+<li>Re-scoring the 78 stored <code>c-only-7b</code> greedy held-out programs with the current harness reproduces 46/78 exactly (78/78 agreement), so the harness has not drifted.</li>
+<li>No stored output was truncated: the longest is 788 characters, against a stored limit of 1,500.</li>
+</ol>
+<p><strong>What fine-tuning changed.</strong></p>
+<ul>
+<li>On the 19 tasks where only the base model passes, the fine-tuned model's C fails by wrong answer in 14, does not compile in 3, and crashes or times out once each.</li>
+<li>The fine-tuned model writes shorter code (median 167.5 characters against 236.5) and, like its training targets, never uses a code fence. In the examples we read by hand, it takes shortcuts the specification does not support:
+<ul>
+<li>In <code>mbpp78_odd_setbit_count</code> it returns a popcount-parity formula, where the base model counts in a loop.</li>
+<li>In <code>mbpp76_count_squares</code> it counts square positions along one dimension only, where the base model computes the sum over both dimensions.</li>
+<li>In <code>mbpp32_max_prime_factor</code> its trial-division bound is off by one.</li>
+</ul></li>
+<li>On validation, which has the same ExeBench style as the training data, the two models are level.</li>
+</ul>
+<p><strong>Reading.</strong> The training data for <code>c-only-7b</code> was the 6,781-task mix: rewritten specifications of mostly very small ExeBench functions, with their terse reference C as the whole response. Fine-tuning on it narrowed the model toward that style, which is neutral in distribution and costly on unfamiliar HumanEval and MBPP prose.</p>
+<p>This is the likely explanation, not a tested one. We have not varied the learning rate, epochs or mix (<a href="#s8">§8</a>).</p>
+<p>It also corrects <a href="../report-5/index.html#s2-3">Report 5, §2.3</a>. There, the step from the untrained 1.5B C control (31/78) to about 47/78 was attributed to "the fine-tuned 7B". The untrained 7B alone gives 63/78, so the step is model size, and our fine-tuning removed part of it.</p>
+<h3 id="s3-3"><span class="n">3.3</span>Size buckets <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h3>
+<div class="tw"><table><caption>Table 4. Greedy passes by reference size (gcc <code>-O2</code> on the reference C, 40 bytes or less is "small"; <code>runs/round6/RESULTS.json</code>, <code>size_buckets</code>).</caption><thead><tr><th>model / output</th><th class="num">held-out small (14)</th><th class="num">held-out large (64)</th><th class="num">val small (59)</th><th class="num">val large (31)</th></tr></thead><tbody>
+<tr><td>untrained 7B, C</td><td class="num">13</td><td class="num"><strong>50</strong></td><td class="num">48</td><td class="num">13</td></tr>
+<tr><td>c-only-7b, C</td><td class="num">12</td><td class="num">34</td><td class="num">49</td><td class="num">13</td></tr>
+<tr><td>c-then-asm, own asm</td><td class="num">6</td><td class="num">1</td><td class="num">37</td><td class="num">3</td></tr>
+<tr><td>asm-distill-7b, own asm</td><td class="num">4</td><td class="num">1</td><td class="num">27</td><td class="num">2</td></tr>
+<tr><td>asm-distill-7b-v2, own asm</td><td class="num">4</td><td class="num">0</td><td class="num">19</td><td class="num">3</td></tr>
+</tbody></table></div>
+<p>The difference between the base and fine-tuned C models is almost entirely on large held-out tasks (50 against 34). The assembly-writing models pass at most one large held-out task each.</p>
+<p>The breakdown also confirms <a href="../report-6/index.html#s6">Report 6, §6</a>. Validation is mostly small functions, and on large functions no model does better on validation than on held-out.</p>
+<h2 id="s4"><span class="n">4</span>The 14 held-out failures <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<div class="tw"><table><caption>Table 5. The 14 held-out tasks the C loop did not pass (tally of <code>runs/loop-c-only-7b-heldout/loop.jsonl</code>, <code>runs/base7b-c/eval.jsonl</code> and <code>runs/round6/os_reference.json</code>).</caption><thead><tr><th>task</th><th>loop outcome</th><th class="num">ref -O2 / -Os bytes</th><th>untrained 7B greedy</th></tr></thead><tbody>
+<tr><td>mbpp3_is_not_prime</td><td>passes visible, fails hidden</td><td class="num">75 / 52</td><td>wrong answer</td></tr>
+<tr><td>mbpp78_odd_setbit_count</td><td>passes visible, fails hidden</td><td class="num">84 / 55</td><td><strong>pass</strong></td></tr>
+<tr><td>he102_choose_num</td><td>passes visible, fails hidden</td><td class="num">40 / 43</td><td><strong>pass</strong></td></tr>
+<tr><td>he155_even_odd_count</td><td>passes visible, fails hidden</td><td class="num">108 / 77</td><td><strong>pass</strong></td></tr>
+<tr><td>he104_unique_digits</td><td>visible pass mid-loop; final does not compile</td><td class="num">125 / 82</td><td>wrong answer</td></tr>
+<tr><td>he8_sum_product</td><td>wrong answer (output buffer)</td><td class="num">78 / 46</td><td><strong>pass</strong></td></tr>
+<tr><td>he26_remove_duplicates</td><td>wrong answer</td><td class="num">118 / 61</td><td><strong>pass</strong></td></tr>
+<tr><td>he120_k_largest</td><td>wrong answer (output buffer)</td><td class="num">149 / 90</td><td><strong>pass</strong></td></tr>
+<tr><td>mbpp24_binary_to_decimal</td><td>wrong answer</td><td class="num">116 / 46</td><td>wrong answer</td></tr>
+<tr><td>mbpp48_set_odd_bits</td><td>wrong answer</td><td class="num">59 / 49</td><td>wrong answer</td></tr>
+<tr><td>mbpp155_toggle_even_bits</td><td>wrong answer</td><td class="num">59 / 49</td><td>wrong answer</td></tr>
+<tr><td>he131_odd_digit_product</td><td>wrong answer</td><td class="num">126 / 77</td><td>does not compile</td></tr>
+<tr><td>he163_generate_integers</td><td>crash (memory protection)</td><td class="num">102 / 71</td><td>wrong answer</td></tr>
+<tr><td>he16_count_distinct_chars</td><td>blocked: object references the GOT</td><td class="num">195 / 78</td><td>does not compile</td></tr>
+</tbody></table></div>
+<p>Three patterns:</p>
+<ul>
+<li><strong>Visible-test overfitting (5).</strong> The loop's feedback can only see half of each task's tests. Five tasks end with a program that passes those and fails at least one hidden test.</li>
+<li><strong>Persistent misreadings (7 wrong answers, 1 crash).</strong> Three of these are bit-manipulation specifications (<code>mbpp48</code>, <code>mbpp155</code>, <code>mbpp24</code>) that neither model reads correctly.</li>
+<li><strong>Harness limitation (1).</strong> <code>he16</code> needs a lookup table, and the harness rejects any object that references the global offset table. This is a constraint of the evaluation, not a model failure.</li>
+</ul>
+<p>The untrained 7B's greedy C passes 6 of the 14, so the two together cover 70/78 (71/78 counting its pass@5 samples). The loop has not been run on the untrained model; Table 5 suggests it would be stronger than the fine-tuned loop.</p>
+<h2 id="s5"><span class="n">5</span>Code quality against gcc <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<div class="tw"><table><caption>Table 6. Size and instruction count of the 64 held-out loop passes, per task against gcc on the reference C (tally of <code>loop.jsonl</code> best passes and <code>os_reference.json</code>).</caption><thead><tr><th>comparison</th><th class="num">mean</th><th class="num">median</th><th class="num">programs better than the reference</th></tr></thead><tbody>
+<tr><td>size / gcc -O2 on reference</td><td class="num">1.052</td><td class="num">1.000</td><td class="num">26 of 64 smaller</td></tr>
+<tr><td>size / gcc -Os on reference</td><td class="num">1.728</td><td class="num">1.508</td><td class="num">7 of 64 smaller</td></tr>
+<tr><td>instructions / gcc -O2 on reference</td><td class="num">1.595</td><td class="num">1.000</td><td class="num">21 of 64 fewer</td></tr>
+</tbody></table></div>
+<p>Across all 78 held-out tasks, gcc <code>-Os</code> on the reference C is 0.671 of <code>-O2</code>'s size on average, and 0.863 on validation.</p>
+<p><a href="../report-5/index.html">Report 5</a>'s <code>-Os</code> hybrid ratio (0.691) compared the model's C at <code>-Os</code> with the reference at <code>-O2</code>. Compared at the same flag, the hybrid's passing code is 0.999 (<code>c-only-7b</code>) and 0.975 (<code>c-then-asm</code>) of the reference at <code>-Os</code>. Most of the earlier saving was the flag.</p>
+<p>The instruction mean is dominated by algorithm choices in a few tasks:</p>
+<ul>
+<li><code>he75_is_multiply_prime</code> runs 34× the reference's instructions, as in <a href="../report-5/index.html">Report 5</a>.</li>
+<li>Four other tasks run 1.85× to 3.23× the reference (<code>he77_iscube</code>, <code>mbpp76_count_squares</code>, <code>he139_special_factorial</code>, <code>he114_min_subarray_sum</code>).</li>
+</ul>
+<p><strong>Reading.</strong> On correctness, the C path is close to saturating this held-out set. On code quality, it matches gcc at the median, because it is gcc. Beating a compiler at <code>-O2</code> or <code>-Os</code> is the remaining research question, and it now has a correct starting point on 64 to 70 of 78 tasks.</p>
+<h2 id="s6"><span class="n">6</span>All C-path results compared <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<div class="tw"><table><caption>Table 7. Held-out, the routes in which a model writes C and gcc lowers it (round 4 rows copied).</caption><thead><tr><th>route</th><th class="num">held-out</th><th>notes</th></tr></thead><tbody>
+<tr><td>1.5B untrained, greedy C</td><td class="num">31/78</td><td>round 4</td></tr>
+<tr><td>1.5B untrained, C loop (k = 4, R = 2)</td><td class="num">44/78</td><td>round 3/4; smaller budget</td></tr>
+<tr><td>c-only-7b, greedy C</td><td class="num">46/78</td><td>round 4</td></tr>
+<tr><td>c-then-asm, C half, greedy (hybrid)</td><td class="num">48/78</td><td>round 4</td></tr>
+<tr><td><strong>7B untrained, greedy C</strong></td><td class="num"><strong>63/78</strong></td><td>round 6</td></tr>
+<tr><td><strong>c-only-7b, C loop (k = 8, R = 3)</strong></td><td class="num"><strong>64/78</strong></td><td>round 6</td></tr>
+<tr><td>union: loop or untrained greedy</td><td class="num">70/78</td><td>tally</td></tr>
+<tr><td>best model-written assembly: c-then-asm loop</td><td class="num">19/78</td><td>round 4</td></tr>
+<tr><td>best model-written assembly: single try</td><td class="num">7/78</td><td>round 4</td></tr>
+</tbody></table></div>
+<h2 id="s7"><span class="n">7</span>Compute used <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<p>Round 6 used 2.00 of its 5 GPU hours (1.999, in <code>logs/round6.done</code>). No stage reached its cap.</p>
+<div class="tw"><table><caption>Table 8. Round 6 hours by stage (<code>runs/round6/gpu_hours.jsonl</code>).</caption><thead><tr><th>stage</th><th class="num">seconds</th><th class="num">hours</th><th class="num">cap</th></tr></thead><tbody>
+<tr><td>loop-c-only-7b-heldout (78)</td><td class="num">3,246.36</td><td class="num">0.90</td><td class="num">2.5</td></tr>
+<tr><td>base7b-c-eval-heldout (78)</td><td class="num">497.34</td><td class="num">0.14</td><td class="num">0.35</td></tr>
+<tr><td>base7b-c-eval-val (90)</td><td class="num">354.43</td><td class="num">0.10</td><td class="num">0.40</td></tr>
+<tr><td>loop-c-only-7b-val (90)</td><td class="num">3,098.31</td><td class="num">0.86</td><td class="num">1.25</td></tr>
+<tr><td>CPU summary (size buckets, gcc -Os reference)</td><td class="num">about 10</td><td class="num">—</td><td class="num">—</td></tr>
+<tr><td><b>GPU total</b></td><td class="num"><b>7,196.44</b></td><td class="num"><b>2.00</b></td><td class="num"><b>5.0</b></td></tr>
+</tbody></table></div>
+<p>Including round 6, the program has used 127.80 GPU hours across the pipelines that record a total.</p>
+<h2 id="s8"><span class="n">8</span>Limitations and caveats <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<ul>
+<li><strong>Small set, one seed.</strong> At 78 tasks, 63 against 64 is not a difference, and the base-against-fine-tuned gap (17 tasks) is one run of each, with no confidence interval.</li>
+<li><strong>Fine-tuning was not ablated.</strong> The explanation in <a href="#s3-2">§3.2</a>, a narrow and terse training target, has not been tested. A lower learning rate, fewer epochs, a mix with held-out-like prose, or keeping the base model's code-fence and comment style could each change the result.</li>
+<li><strong>The loop used the fine-tuned model.</strong> We did not run the loop on the untrained 7B, which on this evidence would probably do at least as well.</li>
+<li><strong>Visible-test overfitting.</strong> Five loop failures pass the visible tests only. Any loop or search that accepts programs on the visible tests needs a second check, such as differential testing against a reference on generated inputs.</li>
+<li><strong>Harness constraints.</strong> Leaf functions only, with no GOT references. A pass means the tests pass in the emulator, not that the program is correct (<a href="../report-5/index.html#s3-3">Report 5, §3.3</a>).</li>
+<li><strong>Ratios.</strong> Ratios are against gcc on the reference C, not against the best available compiler. clang and <code>-O3</code> were not measured.</li>
+<li><strong>Copied numbers.</strong> Round 4 rows are copied, not re-scored, except the <code>c-only-7b</code> re-score check in <a href="#s3-2">§3.2</a>.</li>
+</ul>
+<h2 id="s9"><span class="n">9</span>Proposed next steps <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<p><span class="tag plan">proposed</span> None of the following has been started; each is for discussion.</p>
+<ol>
+<li><strong>Beat the compiler on correct programs (round 7).</strong> Start from the programs that already pass. Build a compiler-portfolio baseline per task: gcc <code>-O2</code>, <code>-O3</code> and <code>-Os</code>, and clang <code>-O2</code> and <code>-Oz</code>. Then let the model propose smaller or faster assembly, or faster C, for a stated goal. Accept a variant only if it passes the full tests and agrees with the compiled C on generated inputs. Success means strictly beating the best compiler on a meaningful number of tasks with zero accepted regressions.</li>
+<li><strong>Use the untrained 7B as the C writer, and run its loop.</strong> The base model is the better C writer. A base-model C loop (about 1 GPU hour) is a cheap check of the 70/78 union.</li>
+<li><strong>No more correctness fine-tuning on the current mix.</strong> If C fine-tuning is revisited, it should be a small ablation (learning rate, epochs, prose specifications, keeping the base model's style) measured on held-out, not on validation.</li>
+<li><strong>Differential testing everywhere.</strong> Use it to catch visible-test overfitting in loops, and as the acceptance check for any optimized variant.</li>
+<li><strong>Harder validation split.</strong> As in <a href="../report-6/index.html#s10">Report 6, §10</a>: tasks that are not from ExeBench and functions larger than about 40 bytes.</li>
+</ol>
+
+<h2 id="cite">How to cite</h2>
+<p>This is a working paper. It is shared so others can read, discuss and cite it, and it is updated as the work moves forward. Please cite the revision you read, give its date, and say when you accessed the page. Earlier revisions are listed in the revision history. Results here have not been peer reviewed.</p>
+<p class="cite-ref">Wilson, B. (2026). <em>The C path's ceiling: a matched repair loop, and an untrained 7B that writes better C than the fine-tuned one</em> (Working paper, Revision 1, 26 November 2026). Abundant Frontier Institute. <a href="https://abundantfrontier.org/lab/e2m/report-7/">https://abundantfrontier.org/lab/e2m/report-7/</a></p>
+<pre class="cite-bib"><code>@techreport{wilson2026e2mreport7,
+  author      = {Wilson, Boyd},
+  title       = {The C path's ceiling: a matched repair loop, and an untrained 7B that writes better C than the fine-tuned one},
+  institution = {Abundant Frontier Institute},
+  type        = {Working paper},
+  number      = {Revision 1},
+  year        = {2026},
+  month       = {nov},
+  url         = {https://abundantfrontier.org/lab/e2m/report-7/},
+  note        = {Living document; last updated 26 November 2026. Accessed YYYY-MM-DD}
+}</code></pre>
+
+<section class="revhist" id="revhist">
+<h2>Revision history</h2>
+<ol>
+<li><b>Revision 1</b> <span class="when">26 November 2026 (America/Los_Angeles)</span><br>First version of technical report 7: round 6, with no training. A C repair loop on <code>c-only-7b</code> (k = 8, R = 3) reaches 64/78 held-out (69/78 visible; validation 76/90), above the 55/78 decision threshold set before the run. The untrained Qwen2.5-Coder-7B-Instruct writes better greedy C than the fine-tuned model (63/78 against 46/78 held-out); together they cover 70/78. Fine-tuning on the current mix cost about 17 held-out tasks, so Report 5's step from the 1.5B C control is attributed to model size. On the 64 loop passes, size and instruction count match gcc <code>-O2</code> at the median; against gcc <code>-Os</code> the passing code is 1.51× larger at the median. Proposed next work is beating the compiler on programs that already pass. Numbers copied from <code>runs/round6/SUMMARY.md</code>, <code>RESULTS.json</code> and related files; some counts are tallies of raw files, marked in the text.</li>
+</ol>
+</section>
+
+<footer>Living paper · Revision 1 · Last updated 26 November 2026 · Abundant Frontier Institute Lab · Working paper · <a href="../report-6/index.html">Technical report 6</a> · <a href="../report-5/index.html">Technical report 5</a> · <a href="../report-4/index.html">Technical report 4</a> · <a href="../report-3/index.html">Technical report 3</a> · <a href="../report-2/index.html">Technical report 2</a> · <a href="../report-1/index.html">Technical report 1</a> · <a href="../concept/index.html">Concept paper</a></footer>
+</div>
+</main>
+</body>
+</html>
