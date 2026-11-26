@@ -240,8 +240,14 @@ def emulate(
     syntax: str = "auto",
     count_instructions: bool = True,
     backend: str | None = None,
+    entry_noise: int | None = None,
 ) -> EmuResult:
     """Run one function. Always returns; never raises to the caller.
+
+    ``entry_noise`` (round 7, unicorn only): when an int seed is given, the
+    entry state is made adversarial within what the SysV ABI allows: random
+    arithmetic flags, random caller-saved scratch registers (rax, r10, r11 and
+    unused argument registers), and random upper bits above narrow int args.
 
     ``backend`` is ``unicorn`` (default) or ``qemu``. ``E2M_EMU_BACKEND``
     overrides the default when ``backend`` is omitted.
@@ -272,6 +278,7 @@ def emulate(
             check_abi=check_abi,
             syntax=syntax,
             count_instructions=count_instructions,
+            entry_noise=entry_noise,
         )
     except Exception as exc:  # noqa: BLE001 — harness must survive any input
         return EmuResult(
@@ -292,6 +299,7 @@ def _emulate_inner(
     check_abi: bool,
     syntax: str,
     count_instructions: bool,
+    entry_noise: int | None = None,
 ) -> EmuResult:
     if isinstance(source, Assembled):
         image = source
@@ -349,6 +357,8 @@ def _emulate_inner(
     uc.reg_write(UC_X86_REG_RFLAGS, 0x202)
     for name, reg in _CANARY_REGS.items():
         uc.reg_write(reg, CANARY[name])
+    if entry_noise is not None:
+        _apply_entry_noise(uc, sig, entry_noise)
 
     ctx: dict[str, Any] = {
         "status": None,
@@ -663,6 +673,40 @@ def _elem_from_tag(tag: str) -> CType:
     if spelling in ("char",) or tag in ("cstr", "str"):
         t = CType(kind="int", size=1, signed=True, cstr=True, spelling="char")
     return t
+
+
+def _apply_entry_noise(uc: Uc, sig: Signature, seed: int) -> None:
+    import random as _random
+
+    from unicorn.x86_const import UC_X86_REG_R10, UC_X86_REG_R11, UC_X86_REG_RAX
+
+    rng = _random.Random(seed)
+    # CF PF AF ZF SF OF random; IF set; DF must be clear at entry per the ABI.
+    flags = 0x202
+    for bit in (0, 2, 4, 6, 7, 11):
+        if rng.random() < 0.5:
+            flags |= 1 << bit
+    uc.reg_write(UC_X86_REG_RFLAGS, flags)
+    for reg in (UC_X86_REG_RAX, UC_X86_REG_R10, UC_X86_REG_R11):
+        uc.reg_write(reg, rng.getrandbits(64))
+    n_int = 0
+    for param in sig.params:
+        ctype = param.ctype
+        if ctype.kind == "float":
+            continue
+        reg = INT_ARG_REGS[n_int]
+        n_int += 1
+        if ctype.kind != "ptr" and ctype.size < 8:
+            # gcc and clang both extend char/short/bool args to 32 bits (de facto ABI);
+            # only bits 32..63 are truly undefined.
+            bits = ctype.size * 8
+            v = uc.reg_read(reg) & ((1 << bits) - 1)
+            if ctype.signed and v >> (bits - 1):
+                v -= 1 << bits
+            low = v & 0xFFFFFFFF
+            uc.reg_write(reg, (rng.getrandbits(32) << 32) | low)
+    for reg in INT_ARG_REGS[n_int:]:
+        uc.reg_write(reg, rng.getrandbits(64))
 
 
 def _load_args(uc: Uc, sig: Signature, args: list[Any], buffers: list[_PlacedBuf]) -> None:

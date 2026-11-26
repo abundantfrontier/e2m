@@ -31,12 +31,14 @@ Files larger than the repository limits are left out. Each can be rebuilt from t
 | `runs/loop-lora2-heldout/loop.jsonl` | 2.3 MB | per-task outputs; kept with the run |
 | `runs/loop-lora2-val/loop.jsonl` | 1.0 MB | per-task outputs; kept with the run |
 | `runs/loop-pipeline/stage.txt` | 19 B | pipeline resume state; not a result |
+| `runs/loop-pipeline/wrapper.pid` | 8 B | pipeline resume state; not a result |
 | `runs/loop-qlora7b-v2-heldout/loop.jsonl` | 2.2 MB | per-task outputs; kept with the run |
 | `runs/loop-reject-rewritten/loop.jsonl` | 3.5 MB | per-task outputs; kept with the run |
 | `runs/loop-reject-train/loop.jsonl` | 7.3 MB | per-task outputs; kept with the run |
 | `runs/lora1/eval.jsonl` | 1.7 MB | per-task outputs; kept with the run |
 | `runs/round2/stage.txt` | 17 B | pipeline resume state; not a result |
 | `runs/round2b/stage.txt` | 24 B | pipeline resume state; not a result |
+| `runs/round2b/wrapper.pid` | 8 B | pipeline resume state; not a result |
 | `runs/round3/stage.txt` | 24 B | pipeline resume state; not a result |
 | `runs/round4/hybrid.jsonl` | 3.0 MB | per-task outputs; kept with the run, available on request |
 | `runs/round4/stage.txt` | 17 B | pipeline resume state; not a result |
@@ -62,6 +64,14 @@ Files larger than the repository limits are left out. Each can be rebuilt from t
 | `runs/round6/heldout_order.json` | 1.7 KB | derived held-out task order; rebuilt by round6_run.sh |
 | `runs/round6/pipeline.pid` | 8 B | pipeline resume state; not a result |
 | `runs/round6/stage.txt` | 8 B | pipeline resume state; not a result |
+| `runs/round7/diff_selftest.json` | 8.1 KB | round 7 per-task rows (assembly, counterexamples); kept with the run |
+| `runs/round7/edits.jsonl` | 93.5 KB | round 7 per-task rows (assembly, counterexamples); kept with the run |
+| `runs/round7/fasterc.jsonl` | 4.0 KB | round 7 per-task rows (assembly, counterexamples); kept with the run |
+| `runs/round7/pipeline-cpu.pid` | 7 B | pipeline resume state; not a result |
+| `runs/round7/pipeline-gpu.pid` | 7 B | pipeline resume state; not a result |
+| `runs/round7/portfolio.jsonl` | 1.3 MB | round 7 per-task rows (assembly, counterexamples); kept with the run |
+| `runs/round7/search.jsonl` | 111.5 KB | round 7 per-task rows (assembly, counterexamples); kept with the run |
+| `runs/round7/stage.txt` | 8 B | pipeline resume state; not a result |
 | `tasks/scaled.jsonl` | 5.0 MB | ExeBench/AnghaBench-derived pool; rebuild with `python -m e2m.scale` (docs/DATA.md) |
 
 ## Rebuilding

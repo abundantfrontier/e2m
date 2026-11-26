@@ -1,0 +1,30 @@
+{
+ "heldout": {
+  "tasks": 73,
+  "best_size_winner": {
+   "clang -Oz": 34,
+   "gcc -Os": 28,
+   "gcc -O2": 9,
+   "clang -O2": 2
+  },
+  "median_best_size_over_gcc_O2": 0.544,
+  "median_best_size_over_gcc_Os": 0.957,
+  "median_best_speed_over_gcc_O2": 1.0,
+  "best_size_from_model_c": 18,
+  "best_speed_from_model_c": 20
+ },
+ "val": {
+  "tasks": 77,
+  "best_size_winner": {
+   "gcc -O2": 31,
+   "gcc -Os": 20,
+   "clang -Oz": 19,
+   "clang -O2": 7
+  },
+  "median_best_size_over_gcc_O2": 0.818,
+  "median_best_size_over_gcc_Os": 1.0,
+  "median_best_speed_over_gcc_O2": 1.0,
+  "best_size_from_model_c": 14,
+  "best_speed_from_model_c": 14
+ }
+}

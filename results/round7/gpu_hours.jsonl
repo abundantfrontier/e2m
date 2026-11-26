@@ -1,0 +1,5 @@
+{"name": "s0-diff-selftest", "seconds": 13.0, "ok": true, "code": 0, "gpu": false, "ts": "2026-11-26T11:42:32-08:00"}
+{"name": "s1-portfolio", "seconds": 200.0, "ok": true, "code": 0, "gpu": false, "ts": "2026-11-26T11:45:52-08:00"}
+{"name": "s3-search", "seconds": 7350.0, "ok": true, "code": 0, "gpu": false, "ts": "2026-11-26T13:48:22-08:00"}
+{"name": "s2-model-edits", "seconds": 9024.06, "ok": true, "code": 0, "gpu": true, "ts": "2026-11-26T14:16:46-08:00"}
+{"name": "s4-faster-c", "seconds": 141.21, "ok": true, "code": 0, "gpu": true, "ts": "2026-11-26T14:19:07-08:00"}

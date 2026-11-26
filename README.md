@@ -41,6 +41,7 @@ configs, small data and the results behind them.
 - Round 5: done ([results](results/round5/SUMMARY.md)).
 - Round 5b: done ([results](results/round5b/SUMMARY.md)).
 - Round 6: done ([results](results/round6/SUMMARY.md)).
+- Round 7: done ([results](results/round7/SUMMARY.md)).
 
 Headline (round 4, held-out, 78 tasks, greedy pass@1 unless noted):
 
@@ -108,6 +109,15 @@ Repair loops (k = 8, R = 3) on the held-out set:
 | loop-asm-distill-7b-heldout-c-then-asm (partial, of 78) | asm-distill-7b | 5b | 20 | 8/20 | — |
 | loop-asm-distill-7b-v2-heldout-c-then-asm (partial, of 78) | asm-distill-7b-v2 | 5b | 10 | 4/10 | — |
 | loop-c-only-7b-heldout | c-only-7b | 6 | 78 | 64/78 | 69/78 |
+
+Beating the best of five compiler settings on programs that already pass (round 7; decision: Partial). Size wins are strictly smaller; speed wins are at most 0.9x the executed instructions. Every win passes all tests and a 5,000-input differential re-check.
+
+| Set | Goal | Tasks | Model wins | Search wins | Either | Median ratio (either) |
+|---|---|---:|---:|---:|---:|---:|
+| heldout | size | 73 | 4 | 26 | 29 | 1.0 |
+| heldout | speed | 73 | 2 | 6 | 7 | 1.0 |
+| val | size | 77 | 0 | 11 | 11 | 1.0 |
+| val | speed | 77 | 1 | 11 | 12 | 1.0 |
 
 Validation (90 tasks) numbers, size and instruction ratios, and GPU hours are in
 each round's `results/<round>/SUMMARY.md` and `RESULTS.json`.
