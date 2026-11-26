@@ -110,14 +110,14 @@ Repair loops (k = 8, R = 3) on the held-out set:
 | loop-asm-distill-7b-v2-heldout-c-then-asm (partial, of 78) | asm-distill-7b-v2 | 5b | 10 | 4/10 | — |
 | loop-c-only-7b-heldout | c-only-7b | 6 | 78 | 64/78 | 69/78 |
 
-Beating the best of five compiler settings on programs that already pass (round 7; decision: Partial). Size wins are strictly smaller; speed wins are at most 0.9x the executed instructions. Every win passes all tests and a 5,000-input differential re-check.
+Beating the best of five compiler settings on programs that already pass (round 7; decision: Partial). Size wins are strictly smaller; speed wins are at most 0.9x the executed instructions. Counts are after the post-run audit, which re-checked every win on wider input families and removed 16 of 61 as wrong (the run's own counts are in its SUMMARY.md).
 
-| Set | Goal | Tasks | Model wins | Search wins | Either | Median ratio (either) |
+| Set | Goal | Tasks | Model wins | Search wins | Either | Median ratio of the wins |
 |---|---|---:|---:|---:|---:|---:|
-| heldout | size | 73 | 4 | 26 | 29 | 1.0 |
-| heldout | speed | 73 | 2 | 6 | 7 | 1.0 |
-| val | size | 77 | 0 | 11 | 11 | 1.0 |
-| val | speed | 77 | 1 | 11 | 12 | 1.0 |
+| heldout | size | 73 | 3 | 25 | 27 | 0.923 |
+| heldout | speed | 73 | 2 | 2 | 3 | 0.883 |
+| val | size | 77 | 0 | 7 | 7 | 0.897 |
+| val | speed | 77 | 0 | 6 | 6 | 0.817 |
 
 Validation (90 tasks) numbers, size and instruction ratios, and GPU hours are in
 each round's `results/<round>/SUMMARY.md` and `RESULTS.json`.

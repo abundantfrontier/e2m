@@ -114,6 +114,91 @@ def mutate_case(args: list[Any], rng: random.Random, unsigned: list[bool] | None
     return out
 
 
+WIDE_CHARS = PRINTABLE + "\n\t\r0123456789;:/\\\"'()[]{}<>=+*&^%$#@~|`"
+
+
+def mutate_case_v2(args: list[Any], rng: random.Random, unsigned: list[bool] | None = None) -> list[Any]:
+    """Round-8 families on top of v1 (added after the round-7 audit found constant-output 'wins'):
+    log-uniform float magnitudes, the full printable alphabet incl. newline/tab, equal or
+    shared-prefix string pairs, length ints decoupled from their buffer, and tiny ints."""
+    out = mutate_case(args, rng, unsigned)
+    strs = [i for i, a in enumerate(out) if isinstance(a, dict) and isinstance(a.get("data"), str)]
+    for i, a in enumerate(out):
+        if isinstance(a, float) and not isinstance(a, bool) and rng.random() < 0.5:
+            mag = 10 ** rng.uniform(-3, 9)
+            out[i] = (-mag if rng.random() < 0.3 else mag) if rng.random() < 0.7 else args[i] * 10 ** rng.randint(1, 6)
+        elif isinstance(a, bool):
+            continue
+        elif isinstance(a, int):
+            r = rng.random()
+            if r < 0.15:
+                out[i] = rng.randint(0, 3)
+            elif r < 0.35 and strs:
+                n = len(out[rng.choice(strs)]["data"])
+                out[i] = rng.randint(0, n + 3)
+            if unsigned and i < len(unsigned) and unsigned[i]:
+                out[i] = abs(out[i])
+        elif isinstance(a, dict) and isinstance(a.get("data"), str) and rng.random() < 0.4:
+            n = len(args[i]["data"]) if isinstance(args[i], dict) else len(a["data"])
+            n = rng.choice([0, 1, n, rng.randint(0, 2 * n + 20)])
+            a["data"] = "".join(rng.choice(WIDE_CHARS) for _ in range(n))
+    # resize: grow or shrink every list buffer of one length together with the ints equal to it
+    lists = [i for i, a in enumerate(out) if isinstance(a, dict) and isinstance(a.get("data"), list)]
+    if lists and rng.random() < 0.3:
+        L = len(out[rng.choice(lists)]["data"])
+        newL = rng.choice([0, 1, 2, rng.randint(0, 40), rng.randint(250, 700)])
+        coupled = [i for i, a in enumerate(out) if isinstance(a, int) and not isinstance(a, bool) and a == L]
+        if coupled or L == 0:
+            for i in lists:
+                d = out[i]["data"]
+                if len(d) != L:
+                    continue
+                if newL <= L:
+                    out[i]["data"] = d[:newL]
+                else:
+                    fill = d if d else [0]
+                    if out[i].get("out") and not _is_input_output(out[i]):
+                        extra = [fill[0]] * (newL - L)
+                    elif all(isinstance(x, int) for x in fill):
+                        m = max(16, 2 * max(abs(x) for x in fill))
+                        extra = [rng.randint(-m, m) for _ in range(newL - L)]
+                        if str(out[i].get("ptr", "")).startswith("u"):
+                            extra = [abs(x) for x in extra]
+                    else:
+                        extra = [rng.uniform(-100, 100) for _ in range(newL - L)]
+                    out[i]["data"] = d + extra
+            for i in coupled:
+                out[i] = newL
+    # equal values: copy one numeric buffer into another of the same length, or one scalar into another
+    if len(lists) >= 2 and rng.random() < 0.25:
+        i, j = rng.sample(lists, 2)
+        if not out[j].get("out") or _is_input_output(out[j]):
+            k = min(len(out[i]["data"]), len(out[j]["data"]))
+            if rng.random() < 0.5:
+                out[j]["data"] = list(out[i]["data"][:k]) + list(out[j]["data"][k:])
+            else:  # equal on a random subset of positions
+                out[j]["data"] = [out[i]["data"][q] if q < k and rng.random() < 0.5 else x for q, x in enumerate(out[j]["data"])]
+    for kind in (int, float):
+        sc = [i for i, a in enumerate(out) if isinstance(a, kind) and not isinstance(a, bool)]
+        if len(sc) >= 2 and rng.random() < 0.2:
+            i, j = rng.sample(sc, 2)
+            out[j] = out[i]
+    for i in lists:
+        d = out[i]["data"]
+        if d and all(isinstance(x, float) for x in d) and rng.random() < 0.2:
+            v = d[rng.randrange(len(d))]
+            out[i]["data"] = [v if rng.random() < 0.5 else x for x in d]
+    if len(strs) >= 2 and rng.random() < 0.35:
+        i, j = rng.sample(strs, 2)
+        src = out[i]["data"]
+        if rng.random() < 0.5:
+            out[j]["data"] = src
+        else:
+            k = rng.randint(0, len(src))
+            out[j]["data"] = src[:k] + "".join(rng.choice(WIDE_CHARS) for _ in range(rng.randint(0, 5)))
+    return out
+
+
 def _is_input_output(b: dict[str, Any]) -> bool:
     """An 'out' buffer whose initial data is not a constant fill is treated as in/out."""
     d = b.get("data")
@@ -142,7 +227,7 @@ def _same(a, b) -> bool:
 def diff_check(task: Task, candidate: Assembled | str, reference: Assembled | str, *, n: int = 500,
                seed: int = 0, insn_limit: int | None = None, timeout_s: float = 0.3,
                time_budget_s: float = 120.0,
-               seed_tests: list | None = None, include_originals: bool = True) -> DiffResult:
+               seed_tests: list | None = None, include_originals: bool = True, families: str = "v1") -> DiffResult:
     try:
         cand = _image(candidate)
     except (AssembleError, Exception) as exc:  # noqa: BLE001
@@ -161,7 +246,8 @@ def diff_check(task: Task, candidate: Assembled | str, reference: Assembled | st
     except Exception:  # noqa: BLE001
         unsigned = None
     while len(cases) < n:
-        cases.append(mutate_case(rng.choice(seeds), rng, unsigned))
+        mut = mutate_case_v2 if (families == "v2" and rng.random() < 0.6) else mutate_case
+        cases.append(mut(rng.choice(seeds), rng, unsigned))
     if insn_limit is None:
         # generated inputs may make the reference loop for a long time (e.g. an unsigned count of 2^40);
         # bound it relative to the reference's own cost on the task's tests, and skip such inputs

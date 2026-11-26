@@ -387,5 +387,190 @@
   "model_beats_search": true,
   "recheck_failures": 3
  },
- "gpu_hours": 2.546
+ "gpu_hours": 2.546,
+ "audit": {
+  "what": "post-run audit (Thu 26 Nov 2026, after the run): every win that passed the 5,000-input re-check was checked again on 5,000 inputs from wider generator families (diff.py families='v2': log-uniform float magnitudes, newline/tab and full printable strings, equal and shared-prefix string pairs, equal numeric buffers/scalars, buffers resized together with their length argument (0..700), tiny ints).",
+  "checked": 61,
+  "failed": 16,
+  "failures": [
+   {
+    "src": "model",
+    "task_id": "he3_below_zero",
+    "goal": "size",
+    "detail": "mismatch: ref ret=1 cand ret=513 cand status=ok",
+    "counterexample_args": "[{\"id\": \"ops\", \"ptr\": \"i64\", \"data\": [9, -1, 2, 3, 3, 15, -14, 18, 9, 10, -5, -4, -7, 18, 14, -13, 11, -4, 15, -8, -15, -3, 12, -6, -4, 11, 18, 8, 16, 6, 0, 18, -14, -7, -7, -1, 17, -7, -15, 13, 17, -9, -8, -6, -3, -5, -12, 9, -12, 13, 4, -8, 2, 4, 0, 11, -4, -4, 11, 9, 16, -12, 1, -14, 7, -17, 16, "
+   },
+   {
+    "src": "model",
+    "task_id": "exebench_CmpDoubles_1153267d175b",
+    "goal": "speed",
+    "detail": "mismatch: ref ret=0 cand ret=-1 cand status=ok",
+    "counterexample_args": "[{\"id\": \"keyval\", \"ptr\": \"f64\", \"data\": [47.810131849032416, 57.126256449341454, -14.401441616997445, -3.045777230417264, -11.612241232686237, -61.56324062018845, 26.509849485017305, -14.039253064258814, 3.2579832742390393, 3.570806926194063, 34.16797958865384, -16.458928361288766, 105.4292817139604"
+   },
+   {
+    "src": "search",
+    "task_id": "he85_sum_even_odd_idx",
+    "goal": "speed",
+    "detail": "mismatch: ref ret=-62 cand ret=None cand status=unmapped unmapped",
+    "counterexample_args": "[{\"id\": \"a\", \"ptr\": \"i64\", \"data\": [-3, 0, 12, -8, 3, -11, 13, 0, 10, -1, -16, -10, 11, -6, 11, 5, -9, -9, 7, -15, 14, 12, 5, 8, -8, -16, -12, -10, 3, -14, -13, -14, -8, -1, -14, -2, -15, 1, -12, -13, 7, 12, 12, 13, -7, 2, -15, 0, -1, 1, -9, 12, 6, -7, 5, -14, -2, -9, -12, -7, -5, -5, 11, -13, -2, -"
+   },
+   {
+    "src": "search",
+    "task_id": "he100_make_a_pile",
+    "goal": "speed",
+    "detail": "mismatch: ref ret=None cand ret=None cand status=prot prot",
+    "counterexample_args": "[0, {\"id\": \"out\", \"ptr\": \"i64\", \"data\": [0, 0, 0, 0], \"out\": true}]"
+   },
+   {
+    "src": "search",
+    "task_id": "he114_min_subarray_sum",
+    "goal": "size",
+    "detail": "mismatch: ref ret=0 cand ret=2 cand status=ok",
+    "counterexample_args": "[{\"id\": \"a\", \"ptr\": \"i64\", \"data\": [2, 7, 2, 6, 8, 12]}, 0]"
+   },
+   {
+    "src": "search",
+    "task_id": "he120_k_largest",
+    "goal": "speed",
+    "detail": "mismatch: ref ret=3 cand ret=None cand status=prot prot",
+    "counterexample_args": "[{\"id\": \"arr\", \"ptr\": \"i64\", \"data\": [100, 16, 1], \"out\": true}, 1, 3, {\"id\": \"out\", \"ptr\": \"i64\", \"data\": [0, 0, 0], \"out\": true}]"
+   },
+   {
+    "src": "search",
+    "task_id": "he152_compare_scores",
+    "goal": "speed",
+    "detail": "mismatch: ref ret=None cand ret=None cand status=prot prot",
+    "counterexample_args": "[{\"id\": \"g\", \"ptr\": \"i64\", \"data\": [-1, -1, 10, 1]}, {\"id\": \"h\", \"ptr\": \"i64\", \"data\": [14, 14, 0, -8]}, 0, {\"id\": \"out\", \"ptr\": \"i64\", \"data\": [0, 0, 0, 0], \"out\": true}]"
+   },
+   {
+    "src": "search",
+    "task_id": "exebench_az_paragraph_num_lines_23afebeee5fd",
+    "goal": "size",
+    "detail": "mismatch: ref ret=2 cand ret=1 cand status=ok",
+    "counterexample_args": "[{\"id\": \"paragraph\", \"ptr\": \"cstr\", \"data\": \"h+l69;;|T\\npF7cO5ekYT\\r4%>6 0=yy<PM\", \"out\": true}]"
+   },
+   {
+    "src": "search",
+    "task_id": "exebench_az_paragraph_num_lines_23afebeee5fd",
+    "goal": "speed",
+    "detail": "mismatch: ref ret=2 cand ret=1 cand status=ok",
+    "counterexample_args": "[{\"id\": \"paragraph\", \"ptr\": \"cstr\", \"data\": \"h+l69;;|T\\npF7cO5ekYT\\r4%>6 0=yy<PM\", \"out\": true}]"
+   },
+   {
+    "src": "search",
+    "task_id": "exebench_checkmd5_f5e6fad22803",
+    "goal": "size",
+    "detail": "mismatch: ref ret=0 cand ret=-1 cand status=ok",
+    "counterexample_args": "[{\"id\": \"src\", \"ptr\": \"cstr\", \"data\": \"zzkis\", \"out\": true}, {\"id\": \"dst\", \"ptr\": \"cstr\", \"data\": \"zzkis\", \"out\": true}]"
+   },
+   {
+    "src": "search",
+    "task_id": "exebench_checkmd5_f5e6fad22803",
+    "goal": "speed",
+    "detail": "mismatch: ref ret=0 cand ret=-1 cand status=ok",
+    "counterexample_args": "[{\"id\": \"src\", \"ptr\": \"cstr\", \"data\": \"zzkis\", \"out\": true}, {\"id\": \"dst\", \"ptr\": \"cstr\", \"data\": \"zzkis\", \"out\": true}]"
+   },
+   {
+    "src": "search",
+    "task_id": "exebench_delta_AT_b6ca07e07493",
+    "goal": "size",
+    "detail": "mismatch: ref ret=35.0 cand ret=10.0 cand status=ok",
+    "counterexample_args": "[7820275.615427153]"
+   },
+   {
+    "src": "search",
+    "task_id": "exebench_delta_AT_b6ca07e07493",
+    "goal": "speed",
+    "detail": "mismatch: ref ret=35.0 cand ret=10.0 cand status=ok",
+    "counterexample_args": "[7820275.615427153]"
+   },
+   {
+    "src": "search",
+    "task_id": "exebench_ehnlc_strncmp_9353c4ce09ba",
+    "goal": "speed",
+    "detail": "mismatch: ref ret=0 cand ret=None cand status=insn_limit insn_limit",
+    "counterexample_args": "[{\"id\": \"s1\", \"ptr\": \"cstr\", \"data\": \"a\", \"out\": true}, {\"id\": \"s2\", \"ptr\": \"cstr\", \"data\": \"a\", \"out\": true}, 0]"
+   },
+   {
+    "src": "search",
+    "task_id": "exebench_ehstrnlen_ad3e8426bbc9",
+    "goal": "speed",
+    "detail": "mismatch: ref ret=1 cand ret=27 cand status=ok",
+    "counterexample_args": "[{\"id\": \"str\", \"ptr\": \"cstr\", \"data\": \"T\", \"out\": true}, 27]"
+   },
+   {
+    "src": "search",
+    "task_id": "exebench_ehstrnlen_ad3e8426bbc9",
+    "goal": "size",
+    "detail": "mismatch: ref ret=1 cand ret=27 cand status=ok",
+    "counterexample_args": "[{\"id\": \"str\", \"ptr\": \"cstr\", \"data\": \"T\", \"out\": true}, 27]"
+   }
+  ],
+  "questionable": [
+   {
+    "src": "search",
+    "task_id": "he24_largest_divisor",
+    "goal": "size",
+    "why": "drops the d*d<=n bound and tests the remainder with testl: same results on every reachable input, but correct only while divisors stay below 2^32 and asymptotically slower"
+   }
+  ],
+  "compiler_beat_audited": {
+   "heldout": {
+    "size": {
+     "model": 3,
+     "search": 25,
+     "either": 27,
+     "model_only": [
+      "he131_odd_digit_product",
+      "mbpp234_cube_volume"
+     ],
+     "both": [
+      "mbpp32_max_prime_factor"
+     ],
+     "median_ratio_of_wins": 0.923,
+     "mean_ratio_all_tasks": 0.9674
+    },
+    "speed": {
+     "model": 2,
+     "search": 2,
+     "either": 3,
+     "model_only": [
+      "mbpp224_count_set_bits"
+     ],
+     "both": [
+      "he121_sum_odd_even_idx"
+     ],
+     "median_ratio_of_wins": 0.883,
+     "mean_ratio_all_tasks": 0.9865
+    }
+   },
+   "val": {
+    "size": {
+     "model": 0,
+     "search": 7,
+     "either": 7,
+     "model_only": [],
+     "both": [],
+     "median_ratio_of_wins": 0.897,
+     "mean_ratio_all_tasks": 0.9894
+    },
+    "speed": {
+     "model": 0,
+     "search": 6,
+     "either": 6,
+     "model_only": [],
+     "both": [],
+     "median_ratio_of_wins": 0.817,
+     "mean_ratio_all_tasks": 0.9856
+    }
+   }
+  },
+  "decision_audited": {
+   "outcome": "Partial",
+   "heldout_size_wins": 27,
+   "heldout_speed_wins": 3,
+   "model_beats_search": true,
+   "note": "Partial under the fixed rule: 3 accepted variants failed the 5,000-input re-check, and the audit found 16 more that the run's checker accepted wrongly."
+  }
+ }
 }

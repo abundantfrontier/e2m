@@ -41,3 +41,37 @@ Ratios are against the best compiler, over all pass-set tasks, with a task witho
 ## Files
 
 portfolio.jsonl, edits.jsonl, search.jsonl, fasterc.jsonl and diff_selftest.json hold the per-task rows (kept with the run; not published because they carry raw assembly and counterexample buffers). recheck.json lists every re-check.
+
+## Post-run audit (added after the run)
+
+The checker used in the run missed whole input families. Every one of the 61 wins that passed the 5,000-input re-check was checked again on 5,000 inputs from wider families (equal values, resized buffers with their length argument, newline and other characters in strings, large float magnitudes). **16 of them are wrong** and are removed below. The run's own table above is kept for the record.
+
+| Set | Goal | Model wins | Search wins | Either | Model-only tasks | Median ratio of the wins |
+|---|---|---:|---:|---:|---|---:|
+| heldout | size | 3 | 25 | 27 | he131_odd_digit_product, mbpp234_cube_volume | 0.923 |
+| heldout | speed | 2 | 2 | 3 | mbpp224_count_set_bits | 0.883 |
+| val | size | 0 | 7 | 7 | - | 0.897 |
+| val | speed | 0 | 6 | 6 | - | 0.817 |
+
+Wrong wins found by the audit:
+
+- model he3_below_zero (size): mismatch: ref ret=1 cand ret=513 cand status=ok
+- model exebench_CmpDoubles_1153267d175b (speed): mismatch: ref ret=0 cand ret=-1 cand status=ok
+- search he85_sum_even_odd_idx (speed): mismatch: ref ret=-62 cand ret=None cand status=unmapped unmapped
+- search he100_make_a_pile (speed): mismatch: ref ret=None cand ret=None cand status=prot prot
+- search he114_min_subarray_sum (size): mismatch: ref ret=0 cand ret=2 cand status=ok
+- search he120_k_largest (speed): mismatch: ref ret=3 cand ret=None cand status=prot prot
+- search he152_compare_scores (speed): mismatch: ref ret=None cand ret=None cand status=prot prot
+- search exebench_az_paragraph_num_lines_23afebeee5fd (size): mismatch: ref ret=2 cand ret=1 cand status=ok
+- search exebench_az_paragraph_num_lines_23afebeee5fd (speed): mismatch: ref ret=2 cand ret=1 cand status=ok
+- search exebench_checkmd5_f5e6fad22803 (size): mismatch: ref ret=0 cand ret=-1 cand status=ok
+- search exebench_checkmd5_f5e6fad22803 (speed): mismatch: ref ret=0 cand ret=-1 cand status=ok
+- search exebench_delta_AT_b6ca07e07493 (size): mismatch: ref ret=35.0 cand ret=10.0 cand status=ok
+- search exebench_delta_AT_b6ca07e07493 (speed): mismatch: ref ret=35.0 cand ret=10.0 cand status=ok
+- search exebench_ehnlc_strncmp_9353c4ce09ba (speed): mismatch: ref ret=0 cand ret=None cand status=insn_limit insn_limit
+- search exebench_ehstrnlen_ad3e8426bbc9 (speed): mismatch: ref ret=1 cand ret=27 cand status=ok
+- search exebench_ehstrnlen_ad3e8426bbc9 (size): mismatch: ref ret=1 cand ret=27 cand status=ok
+
+Questionable but kept: he24_largest_divisor (size): drops the d*d<=n bound and tests the remainder with testl: same results on every reachable input, but correct only while divisors stay below 2^32 and asymptotically slower.
+
+Decision after the audit: still **Partial** (held-out size wins 27, speed wins 3; model-only wins on held-out: 3).
