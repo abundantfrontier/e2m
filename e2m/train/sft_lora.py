@@ -12,6 +12,8 @@ import json
 import time
 from pathlib import Path
 
+from e2m.loop.guard import hold_requested
+
 import torch
 from torch.utils.data import Dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer, Trainer, TrainerCallback, TrainingArguments
@@ -57,6 +59,31 @@ class _LossJsonl(TrainerCallback):
                 fh.write(json.dumps(row) + "\n")
 
 
+class _StopCallback(TrainerCallback):
+    """Save and stop when the hold file appears or the stage hour cap is hit.
+
+    Checked at step end so a checkpoint lands at least every ``save_steps``
+    and, with the hour cap, well under the 20-minute hold bound.
+    """
+
+    def __init__(self, hold_file: Path | None, max_hours: float, started: float):
+        self.hold_file = hold_file
+        self.max_hours = max_hours
+        self.started = started
+        self.reason: str | None = None
+
+    def on_step_end(self, args, state, control, **kwargs):  # noqa: ANN001
+        held = (self.hold_file is not None and self.hold_file.is_file()) or hold_requested()
+        overtime = self.max_hours > 0 and (time.time() - self.started) / 3600.0 >= self.max_hours
+        if not held and not overtime:
+            return control
+        self.reason = "held" if held else "max-hours"
+        control.should_save = True
+        control.should_training_stop = True
+        print(f"train stop: {self.reason}", flush=True)
+        return control
+
+
 def _load_default_rows(path: Path) -> list[dict]:
     rows = []
     with path.open(encoding="utf-8") as fh:
@@ -67,6 +94,19 @@ def _load_default_rows(path: Path) -> list[dict]:
             if obj.get("goal") != "default":
                 continue
             rows.append(obj)
+    return rows
+
+
+def _load_goal_rows(path: Path, goals: set[str]) -> list[dict]:
+    """Load rows whose goal is in ``goals``. Parses every line (size rows have no "default")."""
+    rows = []
+    with path.open(encoding="utf-8") as fh:
+        for line in fh:
+            if not line.strip():
+                continue
+            obj = json.loads(line)
+            if str(obj.get("goal") or "") in goals:
+                rows.append(obj)
     return rows
 
 
@@ -195,11 +235,20 @@ def train(
     limit: int = 0,
     target: str = "asm",
     max_len: int = 0,
+    goals: set[str] | None = None,
+    hold_file: Path | None = None,
+    save_steps: int = 0,
+    max_hours: float = 0.0,
+    resume: bool = False,
 ) -> dict:
     from peft import LoraConfig, TaskType, get_peft_model
 
     out_dir.mkdir(parents=True, exist_ok=True)
-    rows = _load_default_rows(sft_path)
+    goal_set = set(goals) if goals else {"default"}
+    if goal_set == {"default"}:
+        rows = _load_default_rows(sft_path)
+    else:
+        rows = _load_goal_rows(sft_path, goal_set)
     if limit > 0:
         rows = rows[:limit]
     ids = [r["task_id"] for r in rows]
@@ -286,6 +335,10 @@ def train(
         "load_4bit": load_4bit,
         "max_steps": max_steps,
         "limit": limit,
+        "goals": sorted(goal_set),
+        "save_steps": save_steps,
+        "max_hours": max_hours,
+        "resume": resume,
     }
     (out_dir / "train_config.json").write_text(json.dumps(stats, indent=2) + "\n", encoding="utf-8")
     print("train config", json.dumps(stats), flush=True)
@@ -336,10 +389,21 @@ def train(
     total_steps = planned if max_steps <= 0 else min(planned, max_steps)
     warmup = max(1, int(0.03 * total_steps))
     loss_path = out_dir / "loss.jsonl"
-    if loss_path.exists():
+    trainer_dir = out_dir / "trainer"
+    resume_from = None
+    if resume and trainer_dir.is_dir():
+        ckpts = []
+        for path in trainer_dir.glob("checkpoint-*"):
+            suffix = path.name.split("-")[-1]
+            if suffix.isdigit():
+                ckpts.append((int(suffix), path))
+        if ckpts:
+            resume_from = str(max(ckpts)[1])
+    if resume_from is None and loss_path.exists():
         loss_path.unlink()
+    save_strategy = "steps" if save_steps > 0 else "epoch"
     args = TrainingArguments(
-        output_dir=str(out_dir / "trainer"),
+        output_dir=str(trainer_dir),
         num_train_epochs=epochs,
         max_steps=max_steps if max_steps > 0 else -1,
         learning_rate=lr,
@@ -352,8 +416,9 @@ def train(
         bf16=True,
         logging_steps=5,
         eval_strategy="epoch" if val_items else "no",
-        save_strategy="epoch",
-        save_total_limit=1,
+        save_strategy=save_strategy,
+        save_steps=save_steps if save_steps > 0 else 500,
+        save_total_limit=2 if save_steps > 0 else 1,
         report_to=[],
         seed=0,
         max_grad_norm=1.0,
@@ -362,6 +427,8 @@ def train(
         gradient_checkpointing=True,
         optim="adamw_torch",
     )
+    started = time.time()
+    stopper = _StopCallback(hold_file, max_hours, started)
     trainer = Trainer(
         model=model,
         args=args,
@@ -369,10 +436,13 @@ def train(
         eval_dataset=_JsonDataset(val_items) if val_items else None,
         data_collator=_PadCollator(tokenizer.pad_token_id),
         processing_class=tokenizer,
-        callbacks=[_LossJsonl(loss_path)],
+        callbacks=[_LossJsonl(loss_path), stopper],
     )
-    started = time.time()
-    result = trainer.train()
+    result = trainer.train(resume_from_checkpoint=resume_from)
+    if stopper.reason == "held":
+        (out_dir / "stop_reason").write_text("held\n", encoding="utf-8")
+        print("train held; checkpoint saved, adapter not finalized", flush=True)
+        return {**stats, "stopped": "held", "elapsed_s": round(time.time() - started, 2)}
     adapter_dir = out_dir / "adapter"
     trainer.save_model(str(adapter_dir))
     tokenizer.save_pretrained(adapter_dir)
@@ -383,6 +453,7 @@ def train(
         "elapsed_s": round(time.time() - started, 2),
         "warmup_steps": warmup,
         "global_steps": int(result.global_step) if hasattr(result, "global_step") else None,
+        "stopped": stopper.reason,
     }
     log_history = []
     for row in trainer.state.log_history:
@@ -412,10 +483,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--target", choices=("asm", "c", "c-then-asm"), default="asm")
     parser.add_argument("--max-len", type=int, default=0, help="0 = p99 rounded up; raise for C-then-asm")
+    parser.add_argument("--goals", default="default", help="Comma-separated goals to train (default,size)")
+    parser.add_argument("--hold-file", type=Path, default=None)
+    parser.add_argument("--save-steps", type=int, default=0)
+    parser.add_argument("--max-hours", type=float, default=0.0)
+    parser.add_argument("--resume", action="store_true")
     args = parser.parse_args(argv)
     if not (args.model / "config.json").is_file():
         raise SystemExit(f"model not found: {args.model}")
-    train(
+    goals = {part.strip() for part in str(args.goals).split(",") if part.strip()}
+    summary = train(
         model_path=args.model,
         sft_path=args.sft,
         out_dir=args.out,
@@ -432,7 +509,17 @@ def main(argv: list[str] | None = None) -> int:
         limit=args.limit,
         target=args.target,
         max_len=args.max_len,
+        goals=goals,
+        hold_file=args.hold_file,
+        save_steps=args.save_steps,
+        max_hours=args.max_hours,
+        resume=args.resume,
     )
+    stopped = (summary or {}).get("stopped")
+    if stopped == "held":
+        return 4
+    if stopped == "max-hours":
+        return 3
     return 0
 
 

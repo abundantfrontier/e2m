@@ -1,0 +1,5767 @@
+{
+  "checked": 7579,
+  "kept_text": 6433,
+  "dropped_text": 1146,
+  "by_check": {
+    "c_ratio": 66,
+    "name": 320,
+    "word5": 652,
+    "spec_ratio": 108
+  },
+  "by_source": {
+    "sft_lora2": {
+      "checked": 6781,
+      "kept": 5635,
+      "dropped": 1146,
+      "c_ratio": 66,
+      "name": 320,
+      "word5": 652,
+      "spec_ratio": 108
+    },
+    "mbpp": {
+      "checked": 207,
+      "kept": 207
+    },
+    "synth": {
+      "checked": 38,
+      "kept": 38
+    },
+    "train": {
+      "checked": 553,
+      "kept": 553
+    }
+  },
+  "dropped_ids": [
+    {
+      "task_id": "exebench_ADD_ASSIGN_6d5be7236aa7",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MUL_ASSIGN_209444b3512e:0.917"
+    },
+    {
+      "task_id": "exebench_AND_ASSIGN_71896dfa23a3",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MUL_ASSIGN_209444b3512e:0.917"
+    },
+    {
+      "task_id": "exebench_A_7831fdfbade5",
+      "origin": "sft_lora2",
+      "reason": "name:a"
+    },
+    {
+      "task_id": "exebench_A_7ae7af1d882d",
+      "origin": "sft_lora2",
+      "reason": "name:a"
+    },
+    {
+      "task_id": "exebench_BKDRHash_b9d8c50b5561",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_Base64_EncodedLength_bcdf96f58d8a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32decsize_ddda025106ec"
+    },
+    {
+      "task_id": "exebench_BiSearch_363741866bfb",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_BinaryRecursiveSearch_0f4d2d0a96d1",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_BitSize_f213e2c153ec",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bits_required_unsigned_200063803eca"
+    },
+    {
+      "task_id": "exebench_CA_RSqrt_1c7caad66731",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Q_rsqrt_378984cfbbd5"
+    },
+    {
+      "task_id": "exebench_CStrings__len_6a9c3b1c5419",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_ehstrnlen_ad3e8426bbc9"
+    },
+    {
+      "task_id": "exebench_Com_HashKey_903f29535db5",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_DIV_ASSIGN_bb03440cbb70",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_MUL_ASSIGN_209444b3512e"
+    },
+    {
+      "task_id": "exebench_DMAX_a0ebbaef2809",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_abs_val_379abcbc0d6a:0.882"
+    },
+    {
+      "task_id": "exebench_DOT_da710b8ac981",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dotProd_ba0bb06aa3d1"
+    },
+    {
+      "task_id": "exebench_DotProduct_996b7b44353a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dotProd_ba0bb06aa3d1"
+    },
+    {
+      "task_id": "exebench_FastAtan2_2f176b643061",
+      "origin": "sft_lora2",
+      "reason": "name:fastatan2"
+    },
+    {
+      "task_id": "exebench_Fatorial_59813f162420",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_FinF1_fbb7a9759b9b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_FindStringLength_df80265792bb",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bufcon_lens_09235210ff58"
+    },
+    {
+      "task_id": "exebench_FloorPowerOfTwo_f38054753bfe",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_foo_23303579f55d"
+    },
+    {
+      "task_id": "exebench_Function1Float_321e5302e815",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Function1Double_3b9c4af32f1d"
+    },
+    {
+      "task_id": "exebench_Function1IntPtr_134d53cd9ea6",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Function1Double_3b9c4af32f1d"
+    },
+    {
+      "task_id": "exebench_GeometryImplicit_7fb808dc330e",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_R_8cc6e1096d31:0.856"
+    },
+    {
+      "task_id": "exebench_Greatest_3680ec9f52bd",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_fakt_57f76aedb35f:0.850"
+    },
+    {
+      "task_id": "exebench_HashOpcode_5d10a8744e72",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_HashSymbol_e808513e2560",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_Hash_KeyInsensative_81174f662170",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_Increment_540950be6ecf",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_IncrementaIndice_91a7d2410d20",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_Index_06171615c875",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fls_49f6119f1d94"
+    },
+    {
+      "task_id": "exebench_Inner_Product_6d8f23a69d4f",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dotProd_ba0bb06aa3d1"
+    },
+    {
+      "task_id": "exebench_JHKeyframeAnimationFunctionEaseInBack_e847ea95dae3",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_JHKeyframeAnimationFunctionEaseInOutQuad_6b4431db5704"
+    },
+    {
+      "task_id": "exebench_JHKeyframeAnimationFunctionEaseInOutBack_107fe4211c25",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_JHKeyframeAnimationFunctionEaseInOutQuad_6b4431db5704"
+    },
+    {
+      "task_id": "exebench_JHKeyframeAnimationFunctionEaseInOutCubi_3447d2329222",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_JHKeyframeAnimationFunctionEaseInOutQuad_6b4431db5704"
+    },
+    {
+      "task_id": "exebench_JHKeyframeAnimationFunctionEaseInOutQuar_f9f697782d9b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_JHKeyframeAnimationFunctionEaseInOutQuad_6b4431db5704"
+    },
+    {
+      "task_id": "exebench_JHKeyframeAnimationFunctionEaseInOutQuin_9ed9210d0ecc",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_JHKeyframeAnimationFunctionEaseInOutQuad_6b4431db5704"
+    },
+    {
+      "task_id": "exebench_JHKeyframeAnimationFunctionEaseInQuart_96aaee8009eb",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_JHKeyframeAnimationFunctionEaseInOutQuad_6b4431db5704"
+    },
+    {
+      "task_id": "exebench_JHKeyframeAnimationFunctionEaseInQuint_180516a40c11",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_JHKeyframeAnimationFunctionEaseInOutQuad_6b4431db5704"
+    },
+    {
+      "task_id": "exebench_JHKeyframeAnimationFunctionEaseOutQuart_0a8c542337cf",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_JHKeyframeAnimationFunctionEaseInOutQuad_6b4431db5704"
+    },
+    {
+      "task_id": "exebench_JHKeyframeAnimationFunctionEaseOutQuint_cbcbd3c3271e",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_JHKeyframeAnimationFunctionEaseInOutQuad_6b4431db5704"
+    },
+    {
+      "task_id": "exebench_KeywordHash_Key_0163881dccac",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_Least_cd557d958d32",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Cube_f7659ed4128c"
+    },
+    {
+      "task_id": "exebench_Log2_242fbdd02dac",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_foo_1947adf539e7"
+    },
+    {
+      "task_id": "exebench_MAX_20d242132850",
+      "origin": "sft_lora2",
+      "reason": "name:max"
+    },
+    {
+      "task_id": "exebench_MAX_4a297e611ba6",
+      "origin": "sft_lora2",
+      "reason": "name:max"
+    },
+    {
+      "task_id": "exebench_MAX_e74171d2ee8f",
+      "origin": "sft_lora2",
+      "reason": "name:max"
+    },
+    {
+      "task_id": "exebench_MAX_f1c2748af154",
+      "origin": "sft_lora2",
+      "reason": "name:max"
+    },
+    {
+      "task_id": "exebench_MIN_6581f37cac54",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MAX_8ae956bfefda:0.868"
+    },
+    {
+      "task_id": "exebench_MIN_e099cb578437",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MAX_8ae956bfefda:0.894"
+    },
+    {
+      "task_id": "exebench_MOD_ASSIGN_a04aeebc5327",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MUL_ASSIGN_209444b3512e:0.938"
+    },
+    {
+      "task_id": "exebench_MSG_HashKey_0219889fa49b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_MSG_HashKey_467e744f8e7a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_Max_97d2b22a191b",
+      "origin": "sft_lora2",
+      "reason": "name:max"
+    },
+    {
+      "task_id": "exebench_Min_12d22653afd8",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_compute_total_credits_492de2557d72:0.854"
+    },
+    {
+      "task_id": "exebench_MulDiv_0edfa0074b99",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_flt_mul_add_5c918fdb5307"
+    },
+    {
+      "task_id": "exebench_MyTestFunction_4617fd0dcb2a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dobro_f5584d7594de"
+    },
+    {
+      "task_id": "exebench_NiceTime_c6a8c8f9f33a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bar_c3147f1d23f5"
+    },
+    {
+      "task_id": "exebench_OPENSSL_LH_strhash_b8520904efad",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_OR_ASSIGN_aa621d76e1cb",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MUL_ASSIGN_209444b3512e:0.926"
+    },
+    {
+      "task_id": "exebench_OSCPaddedStrlen_4a521b94f0ed",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bufcon_lens_09235210ff58"
+    },
+    {
+      "task_id": "exebench_PC_NameHash_c21749051ec5",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_Q_UTF8Width_8fd4271f8258",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32encsize_a88ad611a3b9"
+    },
+    {
+      "task_id": "exebench_Q_islower_1b6ce20ba158",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_digit_60059d0225b9:0.853"
+    },
+    {
+      "task_id": "exebench_Q_rsqrt_c9e5c26b4b25",
+      "origin": "sft_lora2",
+      "reason": "name:q_rsqrt"
+    },
+    {
+      "task_id": "exebench_Q_strncmp_0ccd36e22a36",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_CmpDoubles_1153267d175b"
+    },
+    {
+      "task_id": "exebench_QuarticEaseInOut_f2754220a622",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_JHKeyframeAnimationFunctionEaseInOutQuad_6b4431db5704"
+    },
+    {
+      "task_id": "exebench_RGB16_ae5692107930",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bm_rgba_55789085024c"
+    },
+    {
+      "task_id": "exebench_RIGHT_6d313987b849",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_csub_df399cc82869"
+    },
+    {
+      "task_id": "exebench_Reverse_22dd283a20b2",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_Round_6f645b0e2fbf",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dob_to_int_2aa8fea91899"
+    },
+    {
+      "task_id": "exebench_Round_off_de34fdd374f7",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dob_to_int_2aa8fea91899"
+    },
+    {
+      "task_id": "exebench_SLF_75eabf5263f5",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bufcon_lens_09235210ff58"
+    },
+    {
+      "task_id": "exebench_SLib_checkLength_4b18ec40d993",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bufcon_lens_09235210ff58"
+    },
+    {
+      "task_id": "exebench_SQ_fb8d0100d1d2",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_Cube_f7659ed4128c:0.851"
+    },
+    {
+      "task_id": "exebench_SSL_DegreeToRadians_36012f15b209",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dob_to_int_2aa8fea91899"
+    },
+    {
+      "task_id": "exebench_SUB_ASSIGN_354b17c465d4",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MUL_ASSIGN_209444b3512e:0.938"
+    },
+    {
+      "task_id": "exebench_SignOfDouble_96fda5aba2ef",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_cl_signum_554fae4b5831"
+    },
+    {
+      "task_id": "exebench_Sign_8937f432b3c7",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_cl_signum_554fae4b5831"
+    },
+    {
+      "task_id": "exebench_Soma_2228839496e2",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_R_8cc6e1096d31:0.865"
+    },
+    {
+      "task_id": "exebench_Sqr_b73e00ef71b2",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_Cube_f7659ed4128c:0.884"
+    },
+    {
+      "task_id": "exebench_StaticTestFunction_c28434c940a2",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.878"
+    },
+    {
+      "task_id": "exebench_StrCmpNoCase_3261daac024c",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_CmpDoubles_1153267d175b"
+    },
+    {
+      "task_id": "exebench_StrComp_9d2ce8bd3c9d",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_ehnlc_strncmp_9353c4ce09ba"
+    },
+    {
+      "task_id": "exebench_StringComp_c895c9bba8c3",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_ehnlc_strncmp_9353c4ce09ba"
+    },
+    {
+      "task_id": "exebench_String_Compare_1f84f1abe213",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_CmpDoubles_1153267d175b"
+    },
+    {
+      "task_id": "exebench_Strncasecmp_3771a2c274ca",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_ehnlc_strncmp_9353c4ce09ba"
+    },
+    {
+      "task_id": "exebench_TestingDescending_dd729c14d6c5",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_abs_val_379abcbc0d6a:0.872"
+    },
+    {
+      "task_id": "exebench_TransStste_ebba70152e4a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_flt_mul_add_5c918fdb5307"
+    },
+    {
+      "task_id": "exebench_UTF8_encoded_len_d4a5c81ddef8",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32encsize_a88ad611a3b9"
+    },
+    {
+      "task_id": "exebench_VisibleContents_e4d8a64d9959",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bitscanforward_fb74b402bbd6"
+    },
+    {
+      "task_id": "exebench_XOR_ASSIGN_fc7829cacc09",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MUL_ASSIGN_209444b3512e:0.917"
+    },
+    {
+      "task_id": "exebench_X_feb4e4233c21",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_fakt_57f76aedb35f:0.851"
+    },
+    {
+      "task_id": "exebench__cd30005_1_829a9b900e7a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench__div_4654f3fa8672",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_div_0f0b601cd591"
+    },
+    {
+      "task_id": "exebench__ilog_5d88ae8dda69",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bits_required_unsigned_200063803eca"
+    },
+    {
+      "task_id": "exebench__p3dOtsuThresholding_u_bd3c80d2f37b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_digit_10_d5d63111cdfe"
+    },
+    {
+      "task_id": "exebench__testfunc_L_HIL_582e84d33721",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_add2_d788d98459b0"
+    },
+    {
+      "task_id": "exebench__testfunc_f_bhilfd_bf7ec54e72f6",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench__testfunc_d_bhilfd_a1ea48389977"
+    },
+    {
+      "task_id": "exebench__testfunc_i_bhilfd_30068bb309d1",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench__testfunc_d_bhilfd_a1ea48389977"
+    },
+    {
+      "task_id": "exebench_a_e4361bbb820a",
+      "origin": "sft_lora2",
+      "reason": "name:a"
+    },
+    {
+      "task_id": "exebench_abs_df_095eadf95f4b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dob_to_int_2aa8fea91899"
+    },
+    {
+      "task_id": "exebench_abs_diff_102e65745337",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_abs_val_379abcbc0d6a"
+    },
+    {
+      "task_id": "exebench_absdiff2_3f005649b1d7",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_abs_val_379abcbc0d6a"
+    },
+    {
+      "task_id": "exebench_absdiff_511ff85d95d5",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_abs_val_379abcbc0d6a"
+    },
+    {
+      "task_id": "exebench_absdiff_cm_731551c609c3",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_abs_val_379abcbc0d6a"
+    },
+    {
+      "task_id": "exebench_absdiff_d9de6b313d7e",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_abs_val_379abcbc0d6a"
+    },
+    {
+      "task_id": "exebench_add10_09b93f8fb247",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench__testfunc_d_bhilfd_a1ea48389977"
+    },
+    {
+      "task_id": "exebench_add10_1a11bed702ae",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.912"
+    },
+    {
+      "task_id": "exebench_add15_d5e7b61aaaf1",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.912"
+    },
+    {
+      "task_id": "exebench_add1_fb48ec2a7462",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_Function1Double_3b9c4af32f1d:0.983"
+    },
+    {
+      "task_id": "exebench_add2_d492a64732d8",
+      "origin": "sft_lora2",
+      "reason": "name:add2"
+    },
+    {
+      "task_id": "exebench_add5_3bf0ba2690ad",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.919"
+    },
+    {
+      "task_id": "exebench_add5_5318889e5276",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.919"
+    },
+    {
+      "task_id": "exebench_addDigits_220484d16b83",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_addNumbers_51d6ac0bbcf5",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Cube_f7659ed4128c"
+    },
+    {
+      "task_id": "exebench_addNumbers_cb44650bebca",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Cube_f7659ed4128c"
+    },
+    {
+      "task_id": "exebench_addOne_578542c1f6db",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_addOne_b1d993c63af1",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dobro_f5584d7594de:0.857"
+    },
+    {
+      "task_id": "exebench_addThree_6ea369af054b",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.906"
+    },
+    {
+      "task_id": "exebench_addTwo_f52ba616de4b",
+      "origin": "sft_lora2",
+      "reason": "name:addtwo"
+    },
+    {
+      "task_id": "exebench_add_186844ae2483",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_R_8cc6e1096d31:0.873"
+    },
+    {
+      "task_id": "exebench_add_2c8c4ed1a296",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.855"
+    },
+    {
+      "task_id": "exebench_add_406191e92130",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_add2_d788d98459b0"
+    },
+    {
+      "task_id": "exebench_add_4_f7181e65bfe3",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.919"
+    },
+    {
+      "task_id": "exebench_add_5a4edd1b3b4b",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_R_8cc6e1096d31:0.878"
+    },
+    {
+      "task_id": "exebench_add_ad6bea1521ae",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_R_8cc6e1096d31:0.873"
+    },
+    {
+      "task_id": "exebench_add_f97d101e511b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_compareInt_a01eca854fb2"
+    },
+    {
+      "task_id": "exebench_add_numbo_7060d914c231",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_R_8cc6e1096d31:0.888"
+    },
+    {
+      "task_id": "exebench_add_one_1c6545adfb22",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dobro_f5584d7594de:0.857"
+    },
+    {
+      "task_id": "exebench_add_shorts_6b24bf07dcae",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_add2_d788d98459b0"
+    },
+    {
+      "task_id": "exebench_add_stuff_3558953d6510",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_add2_d788d98459b0"
+    },
+    {
+      "task_id": "exebench_add_to_arg_d5abb804dd30",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dobro_f5584d7594de:0.856"
+    },
+    {
+      "task_id": "exebench_add_two_240be0a49776",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_AddTwo_60490b376086"
+    },
+    {
+      "task_id": "exebench_adders_72f05e046f78",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_add2_d788d98459b0"
+    },
+    {
+      "task_id": "exebench_addtwo_e5495d22a61a",
+      "origin": "sft_lora2",
+      "reason": "name:addtwo"
+    },
+    {
+      "task_id": "exebench_after_b1b2f52804f6",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_before_878bbafd0d84:0.955"
+    },
+    {
+      "task_id": "exebench_analyze_7768590bcbca",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_checkRow_95efd43168e5"
+    },
+    {
+      "task_id": "exebench_answer2_8877da9a587c",
+      "origin": "sft_lora2",
+      "reason": "name:answer2"
+    },
+    {
+      "task_id": "exebench_answer_4_5ab49e76c9e6",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_answer_3_37050e2f29d8:0.969"
+    },
+    {
+      "task_id": "exebench_answer_6_23de0c4fbffe",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_answer_3_37050e2f29d8:0.975"
+    },
+    {
+      "task_id": "exebench_answer_7_aa40a3403641",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_answer_3_37050e2f29d8:0.854"
+    },
+    {
+      "task_id": "exebench_apparent_sun_longitude_1596f34f779c",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_add2_d788d98459b0"
+    },
+    {
+      "task_id": "exebench_area_2139e9eb3a87",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Cube_f7659ed4128c"
+    },
+    {
+      "task_id": "exebench_area_4c144dc901b6",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Cube_f7659ed4128c"
+    },
+    {
+      "task_id": "exebench_arikkei_unicode_utf8_bytes_a170fcad7a33",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32encsize_a88ad611a3b9"
+    },
+    {
+      "task_id": "exebench_arrayIndexRFind_8b7b41bc4be1",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_az_imin_f19f0c1cebc9",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Cube_f7659ed4128c"
+    },
+    {
+      "task_id": "exebench_b64_encodedLength_ff4489edda2d",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32encsize_a88ad611a3b9"
+    },
+    {
+      "task_id": "exebench_b_05b6aec1477e",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.905"
+    },
+    {
+      "task_id": "exebench_backIn_d5290f8430d5",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_JHKeyframeAnimationFunctionEaseInOutQuad_6b4431db5704"
+    },
+    {
+      "task_id": "exebench_bar_222389272b63",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_31f3a395759e",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_3f8e0af33c87",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_571ecbd10d8e",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_7c6f93db1e37",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_c3a76b8fb821",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_db15a1542d56",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_dc8b0232c703",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_e088f203ec3a",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_e27677a5e31a",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_fc7f57d98a5d",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_base64_encode_len_c3122bb3df3e",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32encsize_a88ad611a3b9"
+    },
+    {
+      "task_id": "exebench_base64_encoded_size_3871df19d6d8",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32encsize_a88ad611a3b9"
+    },
+    {
+      "task_id": "exebench_base64_size_blob_28cd32add0ab",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32encsize_a88ad611a3b9"
+    },
+    {
+      "task_id": "exebench_base64_size_string_ac9269201062",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32decsize_ddda025106ec"
+    },
+    {
+      "task_id": "exebench_base64length_10cb8c82c800",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32encsize_a88ad611a3b9"
+    },
+    {
+      "task_id": "exebench_baz_149aba4ca769",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dull_5eb08148d3a4:0.871"
+    },
+    {
+      "task_id": "exebench_berechne_zinsen_baa2add29fcb",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_compute_total_credits_492de2557d72:0.862"
+    },
+    {
+      "task_id": "exebench_bin_f91d59019e8e",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_bin_rec_b50142b6629f",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_binarySearchHelp_bc3d567da70f",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_binary_search_ex_cec557967a47",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_binsearch_10fe23e44f6b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_binsearch_562278e2b152",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_binsearch_e3287eb5c885",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_bitXor_5f4801cdfe8b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bit_group_starts_uint_54be4f3ceaec"
+    },
+    {
+      "task_id": "exebench_bitXor_bc6baddc1dad",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bit_group_starts_uint_54be4f3ceaec"
+    },
+    {
+      "task_id": "exebench_bit_group_ends_uint_57080a41cff9",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_bit_group_starts_uint_54be4f3ceaec:0.938"
+    },
+    {
+      "task_id": "exebench_bit_one_contagious_uint_623f79fa95bc",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bit_group_starts_uint_54be4f3ceaec"
+    },
+    {
+      "task_id": "exebench_bit_scan_forward_e7ed9bbcb6f0",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bitscanforward_fb74b402bbd6"
+    },
+    {
+      "task_id": "exebench_bitcount_53e232daa0bf",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_count_265b732dc4ac"
+    },
+    {
+      "task_id": "exebench_bitcount_92bdefaef02f",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_count_265b732dc4ac"
+    },
+    {
+      "task_id": "exebench_bitcount_f038d1d0209b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_count_265b732dc4ac"
+    },
+    {
+      "task_id": "exebench_bitlen_a84814f1fea8",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fls_49f6119f1d94"
+    },
+    {
+      "task_id": "exebench_bits_c0b6b30793b0",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bits_required_unsigned_200063803eca"
+    },
+    {
+      "task_id": "exebench_bits_e207e9e3f1ea",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bits_required_unsigned_200063803eca"
+    },
+    {
+      "task_id": "exebench_bits_required_signed_8bd2641afbed",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bits_required_unsigned_200063803eca"
+    },
+    {
+      "task_id": "exebench_bitsize_5575a2503099",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32decsize_ddda025106ec"
+    },
+    {
+      "task_id": "exebench_bitwidth_711fdc449b27",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bits_required_unsigned_200063803eca"
+    },
+    {
+      "task_id": "exebench_bitwise_and_74ca4a3f61dc",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bit_group_starts_uint_54be4f3ceaec"
+    },
+    {
+      "task_id": "exebench_bitwisehash_cb1f51b998cf",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_bm_rgb_b56b8dade54c",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bm_rgba_55789085024c"
+    },
+    {
+      "task_id": "exebench_bs2_ec6d6fcecbd7",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_bs_5b8ef1bed092",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_build_header_8491c7dc60a6",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bm_rgba_55789085024c"
+    },
+    {
+      "task_id": "exebench_buscaBinaria_6157621369e3",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_busca_binaria_47a68a08bff8",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_busca_binaria_92baa4f4ee44",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_busquedaBin1_e57895e9fcda",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_busquedaBin2_e8d6db0b1ec9",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_busquedaBin_f7cc461d98b4",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_bxor_333c9d584de0",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bit_group_starts_uint_54be4f3ceaec"
+    },
+    {
+      "task_id": "exebench_c2f_9627f6cb1ba5",
+      "origin": "sft_lora2",
+      "reason": "name:c2f"
+    },
+    {
+      "task_id": "exebench_c2f_a1f96d300432",
+      "origin": "sft_lora2",
+      "reason": "name:c2f"
+    },
+    {
+      "task_id": "exebench_cStrLen_be9d086e14fb",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bufcon_lens_09235210ff58"
+    },
+    {
+      "task_id": "exebench_c_9333b54c871a",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.906"
+    },
+    {
+      "task_id": "exebench_c_sdot_a4d1224b6938",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dotProd_ba0bb06aa3d1"
+    },
+    {
+      "task_id": "exebench_caio_b5b740384cc2",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.912"
+    },
+    {
+      "task_id": "exebench_calado_170bb4abc2ac",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.906"
+    },
+    {
+      "task_id": "exebench_calc_crc32rb_c89956231f11",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bm_rgba_55789085024c"
+    },
+    {
+      "task_id": "exebench_calc_distance_34e403857be8",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dotProd_ba0bb06aa3d1"
+    },
+    {
+      "task_id": "exebench_calc_hash_a4357c4a038b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_calc_pow2_6e19dd2e4f31",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_calc_timediff_8496520f718c",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_abs_val_379abcbc0d6a"
+    },
+    {
+      "task_id": "exebench_calcc_findop_026a3b3eb632",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_cl_signum_554fae4b5831"
+    },
+    {
+      "task_id": "exebench_calcc_findop_fb069201147c",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_cl_signum_554fae4b5831"
+    },
+    {
+      "task_id": "exebench_calculate_area_44d2c80a6313",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_abs_val_379abcbc0d6a:0.870"
+    },
+    {
+      "task_id": "exebench_calculate_final_bill_004a478cbb6e",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_compute_total_credits_492de2557d72:0.850"
+    },
+    {
+      "task_id": "exebench_calculate_total_94d344b32233",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_compute_total_credits_492de2557d72:0.886"
+    },
+    {
+      "task_id": "exebench_calculate_total_minutes_46444bb95bbd",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_add2_d788d98459b0"
+    },
+    {
+      "task_id": "exebench_callee_flat_s_236fa021691d",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_campelo_883d5341bc92",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.887"
+    },
+    {
+      "task_id": "exebench_case_diffs_a8019b2008d8",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_cels2fahr_a9c346c98bf4",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_c2f_a8c493fd93d4"
+    },
+    {
+      "task_id": "exebench_char3min_2939b189d8e9",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_compute_midpoint_ea98fe06b2f4:0.867"
+    },
+    {
+      "task_id": "exebench_char_size_ed01cd24b169",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32decsize_ddda025106ec"
+    },
+    {
+      "task_id": "exebench_checkInput_d65623117e64",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bar_c3147f1d23f5"
+    },
+    {
+      "task_id": "exebench_check_amount_502c5c53c967",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_decisionFunc_d1689f8a43b2"
+    },
+    {
+      "task_id": "exebench_check_cmp_feb7488afdbb",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_compareInt_a01eca854fb2"
+    },
+    {
+      "task_id": "exebench_check_int_fcf5b7976f82",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_decisionFunc_d1689f8a43b2:0.945"
+    },
+    {
+      "task_id": "exebench_checkend_166277762640",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_CmpDoubles_1153267d175b"
+    },
+    {
+      "task_id": "exebench_circumference_111d64830b0f",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Cube_f7659ed4128c"
+    },
+    {
+      "task_id": "exebench_clad_maxd_6b5d0ce18278",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Cube_f7659ed4128c"
+    },
+    {
+      "task_id": "exebench_cmp_58937995bd57",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_ehnlc_strncmp_9353c4ce09ba"
+    },
+    {
+      "task_id": "exebench_cmp_825da5e5f3c4",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_CmpDoubles_1153267d175b"
+    },
+    {
+      "task_id": "exebench_cmp_956b6ebcd7ce",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_CmpDoubles_1153267d175b"
+    },
+    {
+      "task_id": "exebench_cmp_f00f037260d9",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_CmpDoubles_1153267d175b"
+    },
+    {
+      "task_id": "exebench_cmprstrs_02b7c9ab9e04",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_ehnlc_strncmp_9353c4ce09ba"
+    },
+    {
+      "task_id": "exebench_cntDigits_f27ac99cb960",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_count_265b732dc4ac"
+    },
+    {
+      "task_id": "exebench_colleto_57d3c4364d75",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.912"
+    },
+    {
+      "task_id": "exebench_comparar_efd80306de63",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_CmpDoubles_1153267d175b"
+    },
+    {
+      "task_id": "exebench_compare1_19ed96bc3a9e",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_CmpDoubles_1153267d175b"
+    },
+    {
+      "task_id": "exebench_compareInts_2d65225a7b9e",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_CmpDoubles_1153267d175b"
+    },
+    {
+      "task_id": "exebench_compare_int_686621c2b0b9",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_CmpDoubles_1153267d175b"
+    },
+    {
+      "task_id": "exebench_compare_records_37d490ae33d0",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_compareInt_a01eca854fb2"
+    },
+    {
+      "task_id": "exebench_compute_square_af298e4e1537",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.919"
+    },
+    {
+      "task_id": "exebench_cos_9395a1bbab8b",
+      "origin": "sft_lora2",
+      "reason": "name:cos"
+    },
+    {
+      "task_id": "exebench_cos_c86827d9cf14",
+      "origin": "sft_lora2",
+      "reason": "name:cos"
+    },
+    {
+      "task_id": "exebench_count1_09facd2cb84b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_count_265b732dc4ac"
+    },
+    {
+      "task_id": "exebench_count_10feee03f607",
+      "origin": "sft_lora2",
+      "reason": "name:count"
+    },
+    {
+      "task_id": "exebench_count_1373e8779adb",
+      "origin": "sft_lora2",
+      "reason": "name:count"
+    },
+    {
+      "task_id": "exebench_count_1dfd549c0f3b",
+      "origin": "sft_lora2",
+      "reason": "name:count"
+    },
+    {
+      "task_id": "exebench_count_2c99d1a89033",
+      "origin": "sft_lora2",
+      "reason": "name:count"
+    },
+    {
+      "task_id": "exebench_count_30bb492f91ad",
+      "origin": "sft_lora2",
+      "reason": "name:count"
+    },
+    {
+      "task_id": "exebench_count_4d67b1b23fcb",
+      "origin": "sft_lora2",
+      "reason": "name:count"
+    },
+    {
+      "task_id": "exebench_count_69022de50407",
+      "origin": "sft_lora2",
+      "reason": "name:count"
+    },
+    {
+      "task_id": "exebench_count_8e4314cd6714",
+      "origin": "sft_lora2",
+      "reason": "name:count"
+    },
+    {
+      "task_id": "exebench_count_b2bb315040c0",
+      "origin": "sft_lora2",
+      "reason": "name:count"
+    },
+    {
+      "task_id": "exebench_count_b9bcaf625632",
+      "origin": "sft_lora2",
+      "reason": "name:count"
+    },
+    {
+      "task_id": "exebench_count_bitmap_units_4e1748f5aaa4",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_count_265b732dc4ac"
+    },
+    {
+      "task_id": "exebench_count_cfdc75ddce98",
+      "origin": "sft_lora2",
+      "reason": "name:count"
+    },
+    {
+      "task_id": "exebench_count_convert_1b1e6d65d036",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bits_required_unsigned_200063803eca"
+    },
+    {
+      "task_id": "exebench_count_e95f71c9ba51",
+      "origin": "sft_lora2",
+      "reason": "name:count"
+    },
+    {
+      "task_id": "exebench_count_in_array_50bd57bec707",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32decsize_ddda025106ec"
+    },
+    {
+      "task_id": "exebench_count_slow_303539ed995f",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_count_265b732dc4ac"
+    },
+    {
+      "task_id": "exebench_create_pandigital_hash_912cb9f07705",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_cross_16ecc7d05179",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_flt_mul_add_5c918fdb5307"
+    },
+    {
+      "task_id": "exebench_cs_strnicmp_093e7da2d19b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_ehnlc_strncmp_9353c4ce09ba"
+    },
+    {
+      "task_id": "exebench_cstring_length_2eaac475fbdd",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bufcon_lens_09235210ff58"
+    },
+    {
+      "task_id": "exebench_csub_f3c7eaa1e749",
+      "origin": "sft_lora2",
+      "reason": "name:csub"
+    },
+    {
+      "task_id": "exebench_cubeByValue_8e347e693f4c",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.857"
+    },
+    {
+      "task_id": "exebench_cube_1272309a4b9c",
+      "origin": "sft_lora2",
+      "reason": "name:cube"
+    },
+    {
+      "task_id": "exebench_cube_377c667e9278",
+      "origin": "sft_lora2",
+      "reason": "name:cube"
+    },
+    {
+      "task_id": "exebench_cube_91f0b9118d14",
+      "origin": "sft_lora2",
+      "reason": "name:cube"
+    },
+    {
+      "task_id": "exebench_cube_992306f35501",
+      "origin": "sft_lora2",
+      "reason": "name:cube"
+    },
+    {
+      "task_id": "exebench_cube_b76a583c97ce",
+      "origin": "sft_lora2",
+      "reason": "name:cube"
+    },
+    {
+      "task_id": "exebench_cube_f639ba72ba7c",
+      "origin": "sft_lora2",
+      "reason": "name:cube"
+    },
+    {
+      "task_id": "exebench_d2u_2bc35b8c3561",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dob_to_int_2aa8fea91899"
+    },
+    {
+      "task_id": "exebench_dbl_neg_mul_sub_502211824365",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_flt_mul_add_5c918fdb5307"
+    },
+    {
+      "task_id": "exebench_dcn_bw_floor_3ea5addaa2fc",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fifdint_34689a4f5569"
+    },
+    {
+      "task_id": "exebench_dcn_bw_max_e9814a44e4a1",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_abs_val_379abcbc0d6a:0.882"
+    },
+    {
+      "task_id": "exebench_dd_864f12bd8cc8",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dull_5eb08148d3a4:0.912"
+    },
+    {
+      "task_id": "exebench_ddot_a5ad6fcc7577",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dotProd_ba0bb06aa3d1"
+    },
+    {
+      "task_id": "exebench_decrement_03248b91d7d4",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.913"
+    },
+    {
+      "task_id": "exebench_determinant2x2_3f9838c02fe5",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_determinant2d_030170a91024"
+    },
+    {
+      "task_id": "exebench_diffULong_f430da483633",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_abs_val_379abcbc0d6a"
+    },
+    {
+      "task_id": "exebench_digit_d0163f9a92c1",
+      "origin": "sft_lora2",
+      "reason": "name:digit"
+    },
+    {
+      "task_id": "exebench_dist2_3018af08c955",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_CINTsquare_dist_d8f2b8f9997b"
+    },
+    {
+      "task_id": "exebench_div_1323baa908fd",
+      "origin": "sft_lora2",
+      "reason": "name:div"
+    },
+    {
+      "task_id": "exebench_div_3eda5d785e29",
+      "origin": "sft_lora2",
+      "reason": "name:div"
+    },
+    {
+      "task_id": "exebench_div_526a36ca4088",
+      "origin": "sft_lora2",
+      "reason": "name:div"
+    },
+    {
+      "task_id": "exebench_div_54a7346765c4",
+      "origin": "sft_lora2",
+      "reason": "name:div"
+    },
+    {
+      "task_id": "exebench_div_7579e8d36bb3",
+      "origin": "sft_lora2",
+      "reason": "name:div"
+    },
+    {
+      "task_id": "exebench_div_a2ff68e4eead",
+      "origin": "sft_lora2",
+      "reason": "name:div"
+    },
+    {
+      "task_id": "exebench_div_a7f96bfde1e1",
+      "origin": "sft_lora2",
+      "reason": "name:div"
+    },
+    {
+      "task_id": "exebench_div_b8a20a6a52d7",
+      "origin": "sft_lora2",
+      "reason": "name:div"
+    },
+    {
+      "task_id": "exebench_div_c861f35205c1",
+      "origin": "sft_lora2",
+      "reason": "name:div"
+    },
+    {
+      "task_id": "exebench_div_cad4e101ffdc",
+      "origin": "sft_lora2",
+      "reason": "name:div"
+    },
+    {
+      "task_id": "exebench_divide_5b0770559d37",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_div_0f0b601cd591"
+    },
+    {
+      "task_id": "exebench_divide_f1830d3703d3",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_div_0f0b601cd591"
+    },
+    {
+      "task_id": "exebench_division_b0edd5fb4076",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_DivideWithCeiling_fd463ceb0431"
+    },
+    {
+      "task_id": "exebench_divs100_2797d61b3545",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dull_5eb08148d3a4"
+    },
+    {
+      "task_id": "exebench_divs10_4c94a6bdb8ed",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dull_5eb08148d3a4"
+    },
+    {
+      "task_id": "exebench_djb2_hash_93a114416483",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_do4_5e336f7aefbf",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.919"
+    },
+    {
+      "task_id": "exebench_doFact_9bdaed576ccc",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_doSomething_c1cdf5cf77ca",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_decisionFunc_d1689f8a43b2:0.930"
+    },
+    {
+      "task_id": "exebench_do_sum_dda2b1c22766",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_R_8cc6e1096d31:0.874"
+    },
+    {
+      "task_id": "exebench_dotMultiplication_c9ad7c9058c7",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dotProd_ba0bb06aa3d1"
+    },
+    {
+      "task_id": "exebench_dotProd_c6495737125b",
+      "origin": "sft_lora2",
+      "reason": "name:dotprod"
+    },
+    {
+      "task_id": "exebench_dotProd_fdf060de0c49",
+      "origin": "sft_lora2",
+      "reason": "name:dotprod"
+    },
+    {
+      "task_id": "exebench_dotProduct_a76cd1b6d18b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dotProd_ba0bb06aa3d1"
+    },
+    {
+      "task_id": "exebench_dot_4f0baff20216",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dotProd_ba0bb06aa3d1"
+    },
+    {
+      "task_id": "exebench_dot_7e96474c6afc",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dotProd_ba0bb06aa3d1"
+    },
+    {
+      "task_id": "exebench_dot_d39cddfb0e9c",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dotProd_ba0bb06aa3d1"
+    },
+    {
+      "task_id": "exebench_dot_prod_3f046fc3bac9",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dotProd_ba0bb06aa3d1"
+    },
+    {
+      "task_id": "exebench_dot_product_8a792b483ca4",
+      "origin": "sft_lora2",
+      "reason": "name:dot_product"
+    },
+    {
+      "task_id": "exebench_dot_product_8aac1787928e",
+      "origin": "sft_lora2",
+      "reason": "name:dot_product"
+    },
+    {
+      "task_id": "exebench_doubleAbs_1ead360a8b2a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_abs_val_379abcbc0d6a"
+    },
+    {
+      "task_id": "exebench_double_max1_48684e85e47b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Cube_f7659ed4128c"
+    },
+    {
+      "task_id": "exebench_double_ref_4f0863059484",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dobro_f5584d7594de"
+    },
+    {
+      "task_id": "exebench_dp_lookup_109bd9f4b7a1",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_drag_cd_g1_4edabc34d545",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_drag_cd_gi_69476b64b2cc"
+    },
+    {
+      "task_id": "exebench_drag_cd_g2_f7e7874348c4",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_drag_cd_gi_69476b64b2cc"
+    },
+    {
+      "task_id": "exebench_drag_cd_g5_5021c41821b0",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_drag_cd_gi_69476b64b2cc"
+    },
+    {
+      "task_id": "exebench_drag_cd_g7_f29ce57cef31",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_drag_cd_gi_69476b64b2cc"
+    },
+    {
+      "task_id": "exebench_drag_cd_g8_5ee847bda595",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_drag_cd_gi_69476b64b2cc"
+    },
+    {
+      "task_id": "exebench_drag_cd_gl_76f3b07c2e7a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_drag_cd_gi_69476b64b2cc"
+    },
+    {
+      "task_id": "exebench_dummy_1_ed911d24e6e7",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_add2_d788d98459b0"
+    },
+    {
+      "task_id": "exebench_dummy_f_1_0_204d7527b17f",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_fakt_57f76aedb35f:0.902"
+    },
+    {
+      "task_id": "exebench_ehnlc_strnlen_09908700fbe7",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_ehstrnlen_ad3e8426bbc9"
+    },
+    {
+      "task_id": "exebench_ei_dohash_22f84ca09a1e",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_eigenvalue_comp_4a54c6fdfdce",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_CmpDoubles_1153267d175b"
+    },
+    {
+      "task_id": "exebench_elapsedTime_1030b1a5b0a6",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_abs_val_379abcbc0d6a:0.854"
+    },
+    {
+      "task_id": "exebench_errorSum_8dfd24fe5b41",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_abs_val_379abcbc0d6a:0.871"
+    },
+    {
+      "task_id": "exebench_escalon_344b83c8884d",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_cl_signum_554fae4b5831"
+    },
+    {
+      "task_id": "exebench_eval_sub_30821ac3474f",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_ffi_test_10_a30a09c59164:0.865"
+    },
+    {
+      "task_id": "exebench_expAvg_46842b03c00d",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_answer2_660700b56ed5"
+    },
+    {
+      "task_id": "exebench_exp_mean_69ccab1a49c4",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.882"
+    },
+    {
+      "task_id": "exebench_expf___dda7cbb1052f",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_flt_mul_add_5c918fdb5307:0.867"
+    },
+    {
+      "task_id": "exebench_f12a_fcf2668d937d",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_R_8cc6e1096d31:0.990"
+    },
+    {
+      "task_id": "exebench_f12b_c20229ac07d4",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_R_8cc6e1096d31:0.926"
+    },
+    {
+      "task_id": "exebench_f12c_179c0e5ea6bc",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.857"
+    },
+    {
+      "task_id": "exebench_f18_556da39eaa9d",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_f23_e9c674c8b0d8:0.867"
+    },
+    {
+      "task_id": "exebench_f1_dbd9e2531408",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_flt_mul_add_5c918fdb5307"
+    },
+    {
+      "task_id": "exebench_f22_138b544de61a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_f23_e9c674c8b0d8"
+    },
+    {
+      "task_id": "exebench_f26_b2168c611f54",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_f23_e9c674c8b0d8"
+    },
+    {
+      "task_id": "exebench_f2_44f04d6e2af8",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_A_970727cd3965"
+    },
+    {
+      "task_id": "exebench_f2_97ea182a0488",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_A_970727cd3965"
+    },
+    {
+      "task_id": "exebench_f30_a28da77e92d1",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_f23_e9c674c8b0d8"
+    },
+    {
+      "task_id": "exebench_f40_50a049755cfc",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_f23_e9c674c8b0d8"
+    },
+    {
+      "task_id": "exebench_f50_95b437cc67e2",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_A_970727cd3965"
+    },
+    {
+      "task_id": "exebench_f53_536ca21a4bcd",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_A_970727cd3965"
+    },
+    {
+      "task_id": "exebench_f56_e8cc79b8f2f1",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_f23_e9c674c8b0d8"
+    },
+    {
+      "task_id": "exebench_f58_e867e7f1aa5d",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_A_970727cd3965"
+    },
+    {
+      "task_id": "exebench_f5_6ff3f52318d0",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bar_c3147f1d23f5"
+    },
+    {
+      "task_id": "exebench_f62_9ee34de30580",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_A_970727cd3965"
+    },
+    {
+      "task_id": "exebench_f6_32b6977888ec",
+      "origin": "sft_lora2",
+      "reason": "name:f6"
+    },
+    {
+      "task_id": "exebench_f6_be9dcbccf53a",
+      "origin": "sft_lora2",
+      "reason": "name:f6"
+    },
+    {
+      "task_id": "exebench_f6_e7a7f3aca44a",
+      "origin": "sft_lora2",
+      "reason": "name:f6"
+    },
+    {
+      "task_id": "exebench_f72_b8853b2bbc30",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_f23_e9c674c8b0d8:0.856"
+    },
+    {
+      "task_id": "exebench_f88_a839ac8dc103",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_f23_e9c674c8b0d8"
+    },
+    {
+      "task_id": "exebench_fAuxiliar_c2e2008a8f23",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_add2_d788d98459b0"
+    },
+    {
+      "task_id": "exebench_fa_bit2byte_824393b0adfd",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32decsize_ddda025106ec"
+    },
+    {
+      "task_id": "exebench_fa_bits_sideinfo_est_05c3d63d7da2",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_div_0f0b601cd591"
+    },
+    {
+      "task_id": "exebench_fa_fast_invsqrtf_d212ba4c2ea8",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_Q_rsqrt_378984cfbbd5:0.871"
+    },
+    {
+      "task_id": "exebench_fa_hamming_cof_num_42503a7bc8f1",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_div_0f0b601cd591"
+    },
+    {
+      "task_id": "exebench_fac_0c69d6cb6b89",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fac_32c70815ecd5",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fac_41a7ff3acda0",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fac_6e9fd59fff92",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_fakt_57f76aedb35f:0.877"
+    },
+    {
+      "task_id": "exebench_fac_70282ff1426f",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fac_bc89ff6a209e",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_fakt_57f76aedb35f:0.963"
+    },
+    {
+      "task_id": "exebench_fac_c4b3893f19c7",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fac_c8394d1a2ffc",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_fakt_57f76aedb35f:0.903"
+    },
+    {
+      "task_id": "exebench_fac_ce841b56e251",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fac_ff0d049f91cd",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_facial_average_f4a7fe29e23e",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_compute_midpoint_ea98fe06b2f4:0.903"
+    },
+    {
+      "task_id": "exebench_fact1_f83725a2553c",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact2_55b71e7d8b66",
+      "origin": "sft_lora2",
+      "reason": "name:fact2"
+    },
+    {
+      "task_id": "exebench_fact3_2b29dd413a3b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_0bf23faf5e51",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_17a96e112053",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_fakt_57f76aedb35f:0.902"
+    },
+    {
+      "task_id": "exebench_fact_19bee563a1da",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_26f437c3a2db",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_fakt_57f76aedb35f:0.963"
+    },
+    {
+      "task_id": "exebench_fact_2b8da0bd081b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_330d39ea69e5",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_330e8d60cd90",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_3614d1e25f61",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_3db913f120b4",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_fakt_57f76aedb35f:0.903"
+    },
+    {
+      "task_id": "exebench_fact_47108f733790",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_627c4ab13527",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_66206039636c",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_fakt_57f76aedb35f:0.894"
+    },
+    {
+      "task_id": "exebench_fact_6c3258b697d7",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_6f81a29463ed",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_71eeeacc81f2",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_7f0fed227e75",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_826971239c76",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_8f51e5dbf687",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_9421a119edf8",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_97024407d38a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_98a6513e4629",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_9e88f7d471ed",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_R_8cc6e1096d31:0.868"
+    },
+    {
+      "task_id": "exebench_fact_a7e06eaf8dbc",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_a91e66670b62",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_ba4ecbd55392",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_bf3391eb86de",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_c0a8be6d8ef0",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_fakt_57f76aedb35f:0.963"
+    },
+    {
+      "task_id": "exebench_fact_c46843624e2b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_cf6bd5df4e2b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_dd0bcda595c2",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_fakt_57f76aedb35f:0.902"
+    },
+    {
+      "task_id": "exebench_fact_e622489eec8a",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_fakt_57f76aedb35f:0.963"
+    },
+    {
+      "task_id": "exebench_fact_eade983ac651",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_it_3bd987b2d086",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_factor_c46023500e73",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_factor_recursion_225333e1b904",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_factoral_4633c881a32c",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_factorialIt_349dbf82e68d",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_factorialRec_f374148932f9",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_factorial_loop_b48564c513bd",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_factorial_recursive_5975ddd2f8ca",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_factorial_recursive_67c644183bda",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_faktoriyel_hesapla_8b7f7536c917",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fakultaet_501ef09c04e1",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_fakt_57f76aedb35f:0.902"
+    },
+    {
+      "task_id": "exebench_fast_log2_b360eac92cc6",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dob_to_int_2aa8fea91899"
+    },
+    {
+      "task_id": "exebench_fat_42c71dc707c8",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fat_55a8d7ea82e8",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fator_e595ad1bfde6",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fatorial_2d8fb0bfde6b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fatorial_da0df684d237",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fatorial_ddc157b2e444",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fatorial_eeb73db2ef5b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fatorial_fcf13cbe3668",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fb_SGNSingle_45d1fe16ff67",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_cl_signum_554fae4b5831"
+    },
+    {
+      "task_id": "exebench_fb_SGNi_84089fd12863",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_cl_signum_554fae4b5831"
+    },
+    {
+      "task_id": "exebench_fbit_pend_c26289b4f7f6",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fls_49f6119f1d94"
+    },
+    {
+      "task_id": "exebench_fgt_c03fb6f16bc9",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_decisionFunc_d1689f8a43b2:0.877"
+    },
+    {
+      "task_id": "exebench_filaAvance_f1c6dd4b660c",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_decisionFunc_d1689f8a43b2:0.874"
+    },
+    {
+      "task_id": "exebench_findTrailingZeros_e14e8ad19cf6",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_find_comma_b71d30a3ce1c",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_decisionFunc_d1689f8a43b2:0.864"
+    },
+    {
+      "task_id": "exebench_find_wrap_b0f452bb8aa3",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_float_check_c3bf9eeb8a05"
+    },
+    {
+      "task_id": "exebench_findvafrom_vi_vf_29b20bba335c",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_compute_midpoint_ea98fe06b2f4"
+    },
+    {
+      "task_id": "exebench_findxfrom_vi_vf_a_af8f6c28a6c6",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_findafrom_x_vi_vf_e3f4808093a3:0.865"
+    },
+    {
+      "task_id": "exebench_flsl_e03ebae52b13",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fls_49f6119f1d94"
+    },
+    {
+      "task_id": "exebench_flt_mul_sub_446828d00953",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_flt_mul_add_5c918fdb5307"
+    },
+    {
+      "task_id": "exebench_flt_neg_mul_add_d3ca76062830",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_flt_mul_add_5c918fdb5307"
+    },
+    {
+      "task_id": "exebench_flvmeta_isfinite_bc89465a9d7d",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bar_c3147f1d23f5"
+    },
+    {
+      "task_id": "exebench_fma_test1_2bb0f753a5a4",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_flt_mul_add_5c918fdb5307"
+    },
+    {
+      "task_id": "exebench_fmadd_c9861a6c0652",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_flt_mul_add_5c918fdb5307"
+    },
+    {
+      "task_id": "exebench_fn_a01cb9608f09",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_foo10_e83a0db20edc",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_foo5_e338548bedbb"
+    },
+    {
+      "task_id": "exebench_foo11_da7fa975ed24",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_foo5_e338548bedbb:0.946"
+    },
+    {
+      "task_id": "exebench_foo12_69ce80df73ea",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_foo5_e338548bedbb"
+    },
+    {
+      "task_id": "exebench_foo13_ed377b0c93c3",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_foo5_e338548bedbb"
+    },
+    {
+      "task_id": "exebench_foo14_d1dc4696594b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_foo5_e338548bedbb"
+    },
+    {
+      "task_id": "exebench_foo15_25f14f566c28",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_foo5_e338548bedbb"
+    },
+    {
+      "task_id": "exebench_foo16_4dfd322b5b6f",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_foo5_e338548bedbb:0.969"
+    },
+    {
+      "task_id": "exebench_foo1_13141aae9ec2",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_foo5_e338548bedbb"
+    },
+    {
+      "task_id": "exebench_foo1_a927c118c31a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dobro_f5584d7594de"
+    },
+    {
+      "task_id": "exebench_foo2_59e94d9cfb01",
+      "origin": "sft_lora2",
+      "reason": "name:foo2"
+    },
+    {
+      "task_id": "exebench_foo2_996c2c34588c",
+      "origin": "sft_lora2",
+      "reason": "name:foo2"
+    },
+    {
+      "task_id": "exebench_foo2_fa1a46b579a8",
+      "origin": "sft_lora2",
+      "reason": "name:foo2"
+    },
+    {
+      "task_id": "exebench_foo3_e312d9610808",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bar_c3147f1d23f5"
+    },
+    {
+      "task_id": "exebench_foo5_384a3f0565a6",
+      "origin": "sft_lora2",
+      "reason": "name:foo5"
+    },
+    {
+      "task_id": "exebench_foo6_89f3fd7ef2cd",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_foo5_e338548bedbb"
+    },
+    {
+      "task_id": "exebench_foo7_c76ea4812b0f",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_foo5_e338548bedbb"
+    },
+    {
+      "task_id": "exebench_foo8_4b795ce57491",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_foo5_e338548bedbb"
+    },
+    {
+      "task_id": "exebench_foo9_dbb22c4eebfa",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_foo5_e338548bedbb"
+    },
+    {
+      "task_id": "exebench_foo_08580cf09921",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_0a4f4f9d4c63",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_0fe03f9cbe52",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_1521873141a0",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_18c045948064",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_18e194b71e8c",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_20130c9932c8",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_2107ceda2e4f",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_2226c392ce63",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_2528ef0b48c1",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_27d7286d74d0",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_286794556d9c",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_296413ca0282",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_306aa69810a5",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_36cee8e65012",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_381d7712b5dc",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_3a371fbb3d73",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_3c1029e504c5",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_3d53e571fb33",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_414250f141a3",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_41fbe97e1956",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_43275f8222aa",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_477802bc4495",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_4d5b26548003",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_51e2cff536f3",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_520c268a84d8",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_5b03b445aff1",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_5b3f3a04ee6c",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_5dfdfb6fbdea",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_60efdc652a34",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_60f4852f02bf",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_66fb7055385d",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_6704b3666142",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_6beb201e112f",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_6e235913c153",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_6fa9d23ce8bf",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_70c25e1143d2",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_7993ba84e965",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_811196ec8648",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_84ca1f44cca2",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_872a27cdec69",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_903b5046f04a",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_9068de251441",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_938e4927462a",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_94b92d8e181a",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_95bc740e03aa",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_9df9f37f587f",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_a28af3446e5d",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_a5d4f13ba8bc",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_a75516aa1c87",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_b0bf59f24e80",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_b2e7b95050a8",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_b34861caacde",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_b3831e60d95b",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_b78c58f0f601",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_b87c6b282331",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_b8c1c0ae30ab",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_beaa27aca29e",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_bf9edfee1c80",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_c010c2e91af5",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_c3637e716006",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_cca636bab8f8",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_cdd4387af301",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_cf881a9752ba",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_cf99d2315e4f",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_d22ec9480a89",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_d354e74337e2",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_d911a66a4f04",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_db608e10d622",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_e21d87ecf459",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_e90b860380b5",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_eab7cfbfc8de",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_ee61529d25a1",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_f7ad9bbfc8a1",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_fb623df7866a",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_frame_49a3f45aeb99",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_MaskForNum_f7d1b44741b1"
+    },
+    {
+      "task_id": "exebench_froundup_fc5ab4cde5bd",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dob_to_int_2aa8fea91899"
+    },
+    {
+      "task_id": "exebench_ft_binary_size_83ff66097f54",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bits_required_unsigned_200063803eca"
+    },
+    {
+      "task_id": "exebench_ft_isbetween_ddccacd06fed",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bt_9e680b282de3"
+    },
+    {
+      "task_id": "sum_to",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:he60_sum_to_n:0.939"
+    },
+    {
+      "task_id": "exebench_ADD_ASSIGN_6d5be7236aa7",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MUL_ASSIGN_209444b3512e:0.917"
+    },
+    {
+      "task_id": "exebench_AND_ASSIGN_71896dfa23a3",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MUL_ASSIGN_209444b3512e:0.917"
+    },
+    {
+      "task_id": "exebench_A_7831fdfbade5",
+      "origin": "sft_lora2",
+      "reason": "name:a"
+    },
+    {
+      "task_id": "exebench_A_7ae7af1d882d",
+      "origin": "sft_lora2",
+      "reason": "name:a"
+    },
+    {
+      "task_id": "exebench_BKDRHash_b9d8c50b5561",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_BKDRHash_d931277412d3",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_Base64_EncodedLength_bcdf96f58d8a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32decsize_ddda025106ec"
+    },
+    {
+      "task_id": "exebench_BitSize_f213e2c153ec",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bits_required_unsigned_200063803eca"
+    },
+    {
+      "task_id": "exebench_CA_RSqrt_1c7caad66731",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Q_rsqrt_378984cfbbd5"
+    },
+    {
+      "task_id": "exebench_DIV_ASSIGN_bb03440cbb70",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_MUL_ASSIGN_209444b3512e"
+    },
+    {
+      "task_id": "exebench_DOT_da710b8ac981",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dotProd_ba0bb06aa3d1"
+    },
+    {
+      "task_id": "exebench_FastAtan2_2f176b643061",
+      "origin": "sft_lora2",
+      "reason": "name:fastatan2"
+    },
+    {
+      "task_id": "exebench_Fatorial_59813f162420",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_FinF1_fbb7a9759b9b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_FloorPowerOfTwo_f38054753bfe",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_foo_23303579f55d"
+    },
+    {
+      "task_id": "exebench_Function1Float_321e5302e815",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Function1Double_3b9c4af32f1d"
+    },
+    {
+      "task_id": "exebench_Function1IntPtr_134d53cd9ea6",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Cube_f7659ed4128c"
+    },
+    {
+      "task_id": "exebench_HashOpcode_5d10a8744e72",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_HashSymbol_e808513e2560",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_Hash_KeyInsensative_81174f662170",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_Increment_540950be6ecf",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_IncrementaIndice_91a7d2410d20",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_Index_06171615c875",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fls_49f6119f1d94"
+    },
+    {
+      "task_id": "exebench_IsByteRange_e000c6df02d8",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bar_c3147f1d23f5"
+    },
+    {
+      "task_id": "exebench_IsFarRange_1d42871e87df",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bar_c3147f1d23f5"
+    },
+    {
+      "task_id": "exebench_IsWordRange_7eb08e8e8cfe",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bar_c3147f1d23f5"
+    },
+    {
+      "task_id": "exebench_MAX_20d242132850",
+      "origin": "sft_lora2",
+      "reason": "name:max"
+    },
+    {
+      "task_id": "exebench_MAX_4a297e611ba6",
+      "origin": "sft_lora2",
+      "reason": "name:max"
+    },
+    {
+      "task_id": "exebench_MAX_e74171d2ee8f",
+      "origin": "sft_lora2",
+      "reason": "name:max"
+    },
+    {
+      "task_id": "exebench_MAX_f1c2748af154",
+      "origin": "sft_lora2",
+      "reason": "name:max"
+    },
+    {
+      "task_id": "exebench_MIN_6581f37cac54",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MAX_8ae956bfefda:0.868"
+    },
+    {
+      "task_id": "exebench_MIN_e099cb578437",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MAX_8ae956bfefda:0.894"
+    },
+    {
+      "task_id": "exebench_MOD_ASSIGN_a04aeebc5327",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MUL_ASSIGN_209444b3512e:0.938"
+    },
+    {
+      "task_id": "exebench_Max_97d2b22a191b",
+      "origin": "sft_lora2",
+      "reason": "name:max"
+    },
+    {
+      "task_id": "exebench_MulDiv_0edfa0074b99",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_flt_mul_add_5c918fdb5307"
+    },
+    {
+      "task_id": "exebench_MyTestFunction_4617fd0dcb2a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dobro_f5584d7594de"
+    },
+    {
+      "task_id": "exebench_NiceTime_c6a8c8f9f33a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bar_c3147f1d23f5"
+    },
+    {
+      "task_id": "exebench_OPENSSL_LH_strhash_b8520904efad",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_OR_ASSIGN_aa621d76e1cb",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MUL_ASSIGN_209444b3512e:0.926"
+    },
+    {
+      "task_id": "exebench_Omegaf_7847b3881ef0",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_atan_f_fb3ee39312b6"
+    },
+    {
+      "task_id": "exebench_PC_NameHash_c21749051ec5",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_Q_UTF8Width_8fd4271f8258",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32encsize_a88ad611a3b9"
+    },
+    {
+      "task_id": "exebench_Q_rsqrt_c9e5c26b4b25",
+      "origin": "sft_lora2",
+      "reason": "name:q_rsqrt"
+    },
+    {
+      "task_id": "exebench_Q_strncmp_0ccd36e22a36",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_CmpDoubles_1153267d175b"
+    },
+    {
+      "task_id": "exebench_QuarticEaseInOut_f2754220a622",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_JHKeyframeAnimationFunctionEaseInOutQuad_6b4431db5704"
+    },
+    {
+      "task_id": "exebench_RGB16_ae5692107930",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bm_rgba_55789085024c"
+    },
+    {
+      "task_id": "exebench_Reverse_22dd283a20b2",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_foo_1947adf539e7"
+    },
+    {
+      "task_id": "exebench_Round_off_de34fdd374f7",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dob_to_int_2aa8fea91899"
+    },
+    {
+      "task_id": "exebench_SSL_DegreeToRadians_36012f15b209",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dob_to_int_2aa8fea91899"
+    },
+    {
+      "task_id": "exebench_SUB_ASSIGN_354b17c465d4",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MUL_ASSIGN_209444b3512e:0.938"
+    },
+    {
+      "task_id": "exebench_SignOfDouble_96fda5aba2ef",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_cl_signum_554fae4b5831"
+    },
+    {
+      "task_id": "exebench_Sign_8937f432b3c7",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_cl_signum_554fae4b5831"
+    },
+    {
+      "task_id": "exebench_Sqr_b73e00ef71b2",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_Cube_f7659ed4128c:0.884"
+    },
+    {
+      "task_id": "exebench_StrCmpNoCase_3261daac024c",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_CmpDoubles_1153267d175b"
+    },
+    {
+      "task_id": "exebench_StrComp_9d2ce8bd3c9d",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_ehnlc_strncmp_9353c4ce09ba"
+    },
+    {
+      "task_id": "exebench_StringComp_c895c9bba8c3",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_ehnlc_strncmp_9353c4ce09ba"
+    },
+    {
+      "task_id": "exebench_String_Compare_1f84f1abe213",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_CmpDoubles_1153267d175b"
+    },
+    {
+      "task_id": "exebench_Strncasecmp_3771a2c274ca",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_ehnlc_strncmp_9353c4ce09ba"
+    },
+    {
+      "task_id": "exebench_Temtrans_1e7a9e57e847",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_c2f_a8c493fd93d4"
+    },
+    {
+      "task_id": "exebench_UTF8_encoded_len_d4a5c81ddef8",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32encsize_a88ad611a3b9"
+    },
+    {
+      "task_id": "exebench_VisibleContents_e4d8a64d9959",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bitscanforward_fb74b402bbd6"
+    },
+    {
+      "task_id": "exebench_XOR_ASSIGN_fc7829cacc09",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MUL_ASSIGN_209444b3512e:0.917"
+    },
+    {
+      "task_id": "exebench__cd30005_1_829a9b900e7a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench__div_4654f3fa8672",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_div_0f0b601cd591"
+    },
+    {
+      "task_id": "exebench__ilog_5d88ae8dda69",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bits_required_unsigned_200063803eca"
+    },
+    {
+      "task_id": "exebench__testfunc_L_HIL_582e84d33721",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_add2_d788d98459b0"
+    },
+    {
+      "task_id": "exebench__testfunc_f_bhilfd_bf7ec54e72f6",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench__testfunc_d_bhilfd_a1ea48389977"
+    },
+    {
+      "task_id": "exebench__testfunc_i_bhilfd_30068bb309d1",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench__testfunc_d_bhilfd_a1ea48389977"
+    },
+    {
+      "task_id": "exebench_a_e4361bbb820a",
+      "origin": "sft_lora2",
+      "reason": "name:a"
+    },
+    {
+      "task_id": "exebench_abs_df_095eadf95f4b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dob_to_int_2aa8fea91899"
+    },
+    {
+      "task_id": "exebench_abs_diff_102e65745337",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_abs_val_379abcbc0d6a"
+    },
+    {
+      "task_id": "exebench_absdiff2_3f005649b1d7",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_abs_val_379abcbc0d6a"
+    },
+    {
+      "task_id": "exebench_absdiff_511ff85d95d5",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_abs_val_379abcbc0d6a"
+    },
+    {
+      "task_id": "exebench_absdiff_cm_731551c609c3",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_abs_val_379abcbc0d6a"
+    },
+    {
+      "task_id": "exebench_absdiff_d9de6b313d7e",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_abs_val_379abcbc0d6a"
+    },
+    {
+      "task_id": "exebench_add2_d492a64732d8",
+      "origin": "sft_lora2",
+      "reason": "name:add2"
+    },
+    {
+      "task_id": "exebench_addOne_578542c1f6db",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_addTwo_f52ba616de4b",
+      "origin": "sft_lora2",
+      "reason": "name:addtwo"
+    },
+    {
+      "task_id": "exebench_add_406191e92130",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_add2_d788d98459b0"
+    },
+    {
+      "task_id": "exebench_add_47ff7ef577ad",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_add_f97d101e511b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_compareInt_a01eca854fb2"
+    },
+    {
+      "task_id": "exebench_add_two_240be0a49776",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_AddTwo_60490b376086"
+    },
+    {
+      "task_id": "exebench_addtwo_e5495d22a61a",
+      "origin": "sft_lora2",
+      "reason": "name:addtwo"
+    },
+    {
+      "task_id": "exebench_afficherLettre_33a3309c94b6",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_decodeChar_3cfd1b5dd631"
+    },
+    {
+      "task_id": "exebench_after_b1b2f52804f6",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_before_878bbafd0d84:0.955"
+    },
+    {
+      "task_id": "exebench_align_3ec62e9a1a8b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_analyze_7768590bcbca",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_checkRow_95efd43168e5"
+    },
+    {
+      "task_id": "exebench_answer2_8877da9a587c",
+      "origin": "sft_lora2",
+      "reason": "name:answer2"
+    },
+    {
+      "task_id": "exebench_answer_4_5ab49e76c9e6",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_answer_3_37050e2f29d8:0.969"
+    },
+    {
+      "task_id": "exebench_answer_6_23de0c4fbffe",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_answer_3_37050e2f29d8:0.975"
+    },
+    {
+      "task_id": "exebench_answer_7_aa40a3403641",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_answer_3_37050e2f29d8:0.854"
+    },
+    {
+      "task_id": "exebench_apparent_sun_longitude_1596f34f779c",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_add2_d788d98459b0"
+    },
+    {
+      "task_id": "exebench_application_00a88137d8c9",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Cube_f7659ed4128c"
+    },
+    {
+      "task_id": "exebench_arrayIndexRFind_8b7b41bc4be1",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_b64_decodedLength_2a8fb91a22cd",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32decsize_ddda025106ec"
+    },
+    {
+      "task_id": "exebench_b64_encodedLength_ff4489edda2d",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32encsize_a88ad611a3b9"
+    },
+    {
+      "task_id": "exebench_b_05b6aec1477e",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_dbl_898898854dda:0.868"
+    },
+    {
+      "task_id": "exebench_backIn_d5290f8430d5",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_JHKeyframeAnimationFunctionEaseInOutQuad_6b4431db5704"
+    },
+    {
+      "task_id": "exebench_bar_222389272b63",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_31f3a395759e",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_3f8e0af33c87",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_571ecbd10d8e",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_7c6f93db1e37",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_c3a76b8fb821",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_db15a1542d56",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_dc8b0232c703",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_e088f203ec3a",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_e27677a5e31a",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_fc7f57d98a5d",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_base64_encode_len_c3122bb3df3e",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32encsize_a88ad611a3b9"
+    },
+    {
+      "task_id": "exebench_base64_encoded_size_3871df19d6d8",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32encsize_a88ad611a3b9"
+    },
+    {
+      "task_id": "exebench_base64_size_blob_28cd32add0ab",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32encsize_a88ad611a3b9"
+    },
+    {
+      "task_id": "exebench_base64_size_string_ac9269201062",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32decsize_ddda025106ec"
+    },
+    {
+      "task_id": "exebench_base64length_10cb8c82c800",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32encsize_a88ad611a3b9"
+    },
+    {
+      "task_id": "exebench_bin_f91d59019e8e",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_binary_search_ex_cec557967a47",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_binsearch_55dcf33565d7",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_binsearch_562278e2b152",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_binsearch_e3287eb5c885",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_binsearch_fast_1db3ca42084f",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_bitXor_5f4801cdfe8b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bit_group_starts_uint_54be4f3ceaec"
+    },
+    {
+      "task_id": "exebench_bitXor_bc6baddc1dad",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bit_group_starts_uint_54be4f3ceaec"
+    },
+    {
+      "task_id": "exebench_bit_group_ends_uint_57080a41cff9",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_bit_group_starts_uint_54be4f3ceaec:0.938"
+    },
+    {
+      "task_id": "exebench_bit_one_contagious_uint_623f79fa95bc",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bit_group_starts_uint_54be4f3ceaec"
+    },
+    {
+      "task_id": "exebench_bit_scan_forward_e7ed9bbcb6f0",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bitscanforward_fb74b402bbd6"
+    },
+    {
+      "task_id": "exebench_bitcount_92bdefaef02f",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_count_265b732dc4ac"
+    },
+    {
+      "task_id": "exebench_bitlen_a84814f1fea8",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fls_49f6119f1d94"
+    },
+    {
+      "task_id": "exebench_bits_c0b6b30793b0",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bits_required_unsigned_200063803eca"
+    },
+    {
+      "task_id": "exebench_bits_e207e9e3f1ea",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bits_required_unsigned_200063803eca"
+    },
+    {
+      "task_id": "exebench_bits_required_signed_8bd2641afbed",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bits_required_unsigned_200063803eca"
+    },
+    {
+      "task_id": "exebench_bitsize_5575a2503099",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32decsize_ddda025106ec"
+    },
+    {
+      "task_id": "exebench_bitwidth_711fdc449b27",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bits_required_unsigned_200063803eca"
+    },
+    {
+      "task_id": "exebench_bm_rgb_b56b8dade54c",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_bm_rgba_55789085024c:0.856"
+    },
+    {
+      "task_id": "exebench_buscaBinaria_6157621369e3",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_busca_binaria_92baa4f4ee44",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_busquedaBin1_e57895e9fcda",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_bxor_333c9d584de0",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bit_group_starts_uint_54be4f3ceaec"
+    },
+    {
+      "task_id": "exebench_c2f_9627f6cb1ba5",
+      "origin": "sft_lora2",
+      "reason": "name:c2f"
+    },
+    {
+      "task_id": "exebench_c2f_a1f96d300432",
+      "origin": "sft_lora2",
+      "reason": "name:c2f"
+    },
+    {
+      "task_id": "exebench_c_sdot_a4d1224b6938",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dotProd_ba0bb06aa3d1"
+    },
+    {
+      "task_id": "exebench_calc_hash_a4357c4a038b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_calc_pow2_6e19dd2e4f31",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_calc_timediff_8496520f718c",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_abs_val_379abcbc0d6a"
+    },
+    {
+      "task_id": "exebench_callee_flat_s_236fa021691d",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_case_diffs_a8019b2008d8",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_cels2fahr_a9c346c98bf4",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_c2f_a8c493fd93d4"
+    },
+    {
+      "task_id": "exebench_char_size_ed01cd24b169",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32decsize_ddda025106ec"
+    },
+    {
+      "task_id": "exebench_checkInput_d65623117e64",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bar_c3147f1d23f5"
+    },
+    {
+      "task_id": "exebench_check_amount_502c5c53c967",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_decisionFunc_d1689f8a43b2"
+    },
+    {
+      "task_id": "exebench_check_cmp_feb7488afdbb",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_compareInt_a01eca854fb2"
+    },
+    {
+      "task_id": "exebench_check_int_fcf5b7976f82",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Cube_f7659ed4128c"
+    },
+    {
+      "task_id": "exebench_checkend_166277762640",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_CmpDoubles_1153267d175b"
+    },
+    {
+      "task_id": "exebench_cmp_58937995bd57",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_ehnlc_strncmp_9353c4ce09ba"
+    },
+    {
+      "task_id": "exebench_cmprstrs_02b7c9ab9e04",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_ehnlc_strncmp_9353c4ce09ba"
+    },
+    {
+      "task_id": "exebench_cntOddDigits_0d4299e51b2e",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_foo_1947adf539e7"
+    },
+    {
+      "task_id": "exebench_colleto_57d3c4364d75",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Cube_f7659ed4128c"
+    },
+    {
+      "task_id": "exebench_comparar_efd80306de63",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_CmpDoubles_1153267d175b"
+    },
+    {
+      "task_id": "exebench_compare1_19ed96bc3a9e",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_CmpDoubles_1153267d175b"
+    },
+    {
+      "task_id": "exebench_compareInts_2d65225a7b9e",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_compareInt_a01eca854fb2"
+    },
+    {
+      "task_id": "exebench_compareStrings_894585c4c384",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_checkmd5_f5e6fad22803"
+    },
+    {
+      "task_id": "exebench_compare_24a89de79120",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_checkmd5_f5e6fad22803"
+    },
+    {
+      "task_id": "exebench_compare_fe568ba9741a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Cube_f7659ed4128c"
+    },
+    {
+      "task_id": "exebench_compare_func_for_int_36b93b20e5f2",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_CmpDoubles_1153267d175b"
+    },
+    {
+      "task_id": "exebench_compare_int_686621c2b0b9",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_CmpDoubles_1153267d175b"
+    },
+    {
+      "task_id": "exebench_compare_records_37d490ae33d0",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_compareInt_a01eca854fb2"
+    },
+    {
+      "task_id": "exebench_convertCharacterToInt32_c180892b6f51",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench__get_index_char_f1c904348f5c"
+    },
+    {
+      "task_id": "exebench_convert_prep_031d6c0e4899",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bits_required_unsigned_200063803eca"
+    },
+    {
+      "task_id": "exebench_cos_9395a1bbab8b",
+      "origin": "sft_lora2",
+      "reason": "name:cos"
+    },
+    {
+      "task_id": "exebench_cos_c86827d9cf14",
+      "origin": "sft_lora2",
+      "reason": "name:cos"
+    },
+    {
+      "task_id": "exebench_coul_21a9bc1fdd31",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_count_10feee03f607",
+      "origin": "sft_lora2",
+      "reason": "name:count"
+    },
+    {
+      "task_id": "exebench_count_1dfd549c0f3b",
+      "origin": "sft_lora2",
+      "reason": "name:count"
+    },
+    {
+      "task_id": "exebench_count_2c99d1a89033",
+      "origin": "sft_lora2",
+      "reason": "name:count"
+    },
+    {
+      "task_id": "exebench_count_30bb492f91ad",
+      "origin": "sft_lora2",
+      "reason": "name:count"
+    },
+    {
+      "task_id": "exebench_count_4d67b1b23fcb",
+      "origin": "sft_lora2",
+      "reason": "name:count"
+    },
+    {
+      "task_id": "exebench_count_69022de50407",
+      "origin": "sft_lora2",
+      "reason": "name:count"
+    },
+    {
+      "task_id": "exebench_count_8e4314cd6714",
+      "origin": "sft_lora2",
+      "reason": "name:count"
+    },
+    {
+      "task_id": "exebench_count_b2bb315040c0",
+      "origin": "sft_lora2",
+      "reason": "name:count"
+    },
+    {
+      "task_id": "exebench_count_b9bcaf625632",
+      "origin": "sft_lora2",
+      "reason": "name:count"
+    },
+    {
+      "task_id": "exebench_count_convert_1b1e6d65d036",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bits_required_unsigned_200063803eca"
+    },
+    {
+      "task_id": "exebench_count_in_array_50bd57bec707",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32decsize_ddda025106ec"
+    },
+    {
+      "task_id": "exebench_count_slow_303539ed995f",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_count_265b732dc4ac"
+    },
+    {
+      "task_id": "exebench_create_pandigital_hash_912cb9f07705",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_cross_16ecc7d05179",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_flt_mul_add_5c918fdb5307"
+    },
+    {
+      "task_id": "exebench_cs_strnicmp_093e7da2d19b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_ehnlc_strncmp_9353c4ce09ba"
+    },
+    {
+      "task_id": "exebench_csub_f3c7eaa1e749",
+      "origin": "sft_lora2",
+      "reason": "name:csub"
+    },
+    {
+      "task_id": "exebench_cube_1272309a4b9c",
+      "origin": "sft_lora2",
+      "reason": "name:cube"
+    },
+    {
+      "task_id": "exebench_cube_377c667e9278",
+      "origin": "sft_lora2",
+      "reason": "name:cube"
+    },
+    {
+      "task_id": "exebench_cube_91f0b9118d14",
+      "origin": "sft_lora2",
+      "reason": "name:cube"
+    },
+    {
+      "task_id": "exebench_cube_992306f35501",
+      "origin": "sft_lora2",
+      "reason": "name:cube"
+    },
+    {
+      "task_id": "exebench_cube_b76a583c97ce",
+      "origin": "sft_lora2",
+      "reason": "name:cube"
+    },
+    {
+      "task_id": "exebench_cube_f639ba72ba7c",
+      "origin": "sft_lora2",
+      "reason": "name:cube"
+    },
+    {
+      "task_id": "exebench_d2u_2bc35b8c3561",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dob_to_int_2aa8fea91899"
+    },
+    {
+      "task_id": "exebench_dbl_neg_mul_sub_502211824365",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_flt_mul_add_5c918fdb5307"
+    },
+    {
+      "task_id": "exebench_dcn_bw_floor_3ea5addaa2fc",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fifdint_34689a4f5569"
+    },
+    {
+      "task_id": "exebench_ddot_a5ad6fcc7577",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dotProd_ba0bb06aa3d1"
+    },
+    {
+      "task_id": "exebench_determinant2x2_3f9838c02fe5",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_determinant2d_030170a91024"
+    },
+    {
+      "task_id": "exebench_diffULong_f430da483633",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_abs_val_379abcbc0d6a"
+    },
+    {
+      "task_id": "exebench_digit_d0163f9a92c1",
+      "origin": "sft_lora2",
+      "reason": "name:digit"
+    },
+    {
+      "task_id": "exebench_div_1323baa908fd",
+      "origin": "sft_lora2",
+      "reason": "name:div"
+    },
+    {
+      "task_id": "exebench_div_3eda5d785e29",
+      "origin": "sft_lora2",
+      "reason": "name:div"
+    },
+    {
+      "task_id": "exebench_div_526a36ca4088",
+      "origin": "sft_lora2",
+      "reason": "name:div"
+    },
+    {
+      "task_id": "exebench_div_54a7346765c4",
+      "origin": "sft_lora2",
+      "reason": "name:div"
+    },
+    {
+      "task_id": "exebench_div_7579e8d36bb3",
+      "origin": "sft_lora2",
+      "reason": "name:div"
+    },
+    {
+      "task_id": "exebench_div_a2ff68e4eead",
+      "origin": "sft_lora2",
+      "reason": "name:div"
+    },
+    {
+      "task_id": "exebench_div_a7f96bfde1e1",
+      "origin": "sft_lora2",
+      "reason": "name:div"
+    },
+    {
+      "task_id": "exebench_div_b8a20a6a52d7",
+      "origin": "sft_lora2",
+      "reason": "name:div"
+    },
+    {
+      "task_id": "exebench_div_c861f35205c1",
+      "origin": "sft_lora2",
+      "reason": "name:div"
+    },
+    {
+      "task_id": "exebench_div_cad4e101ffdc",
+      "origin": "sft_lora2",
+      "reason": "name:div"
+    },
+    {
+      "task_id": "exebench_divby5_726d92f75ac4",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Cube_f7659ed4128c"
+    },
+    {
+      "task_id": "exebench_divide_5b0770559d37",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench__get_index_char_f1c904348f5c"
+    },
+    {
+      "task_id": "exebench_division_b0edd5fb4076",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_DivideWithCeiling_fd463ceb0431"
+    },
+    {
+      "task_id": "exebench_divs100_2797d61b3545",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dull_5eb08148d3a4"
+    },
+    {
+      "task_id": "exebench_divs10_4c94a6bdb8ed",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dull_5eb08148d3a4"
+    },
+    {
+      "task_id": "exebench_djb2_hash_93a114416483",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_doFact_9bdaed576ccc",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_dotMultiplication_c9ad7c9058c7",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dotProd_ba0bb06aa3d1"
+    },
+    {
+      "task_id": "exebench_dotProd_fdf060de0c49",
+      "origin": "sft_lora2",
+      "reason": "name:dotprod"
+    },
+    {
+      "task_id": "exebench_dot_7e96474c6afc",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dotProd_ba0bb06aa3d1"
+    },
+    {
+      "task_id": "exebench_dot_a39fcaecaeec",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dotProd_ba0bb06aa3d1"
+    },
+    {
+      "task_id": "exebench_dot_product_8a792b483ca4",
+      "origin": "sft_lora2",
+      "reason": "name:dot_product"
+    },
+    {
+      "task_id": "exebench_dot_product_8aac1787928e",
+      "origin": "sft_lora2",
+      "reason": "name:dot_product"
+    },
+    {
+      "task_id": "exebench_doubleAbs_1ead360a8b2a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_abs_val_379abcbc0d6a"
+    },
+    {
+      "task_id": "exebench_double_imp_5fff88ea2594",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dobro_f5584d7594de"
+    },
+    {
+      "task_id": "exebench_double_ref_4f0863059484",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dobro_f5584d7594de"
+    },
+    {
+      "task_id": "exebench_drag_cd_g1_4edabc34d545",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_drag_cd_gi_69476b64b2cc"
+    },
+    {
+      "task_id": "exebench_drag_cd_g2_f7e7874348c4",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_drag_cd_gi_69476b64b2cc"
+    },
+    {
+      "task_id": "exebench_drag_cd_g5_5021c41821b0",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_drag_cd_gi_69476b64b2cc"
+    },
+    {
+      "task_id": "exebench_drag_cd_g7_f29ce57cef31",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_drag_cd_gi_69476b64b2cc"
+    },
+    {
+      "task_id": "exebench_drag_cd_g8_5ee847bda595",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_drag_cd_gi_69476b64b2cc"
+    },
+    {
+      "task_id": "exebench_drag_cd_gl_76f3b07c2e7a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_drag_cd_gi_69476b64b2cc"
+    },
+    {
+      "task_id": "exebench_dummy_1_ed911d24e6e7",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_add2_d788d98459b0"
+    },
+    {
+      "task_id": "exebench_eigenvalue_comp_4a54c6fdfdce",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_CmpDoubles_1153267d175b"
+    },
+    {
+      "task_id": "exebench_escalon_344b83c8884d",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_cl_signum_554fae4b5831"
+    },
+    {
+      "task_id": "exebench_expAvg_46842b03c00d",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_answer2_660700b56ed5"
+    },
+    {
+      "task_id": "exebench_f18_556da39eaa9d",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_f23_e9c674c8b0d8"
+    },
+    {
+      "task_id": "exebench_f1_dbd9e2531408",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_flt_mul_add_5c918fdb5307"
+    },
+    {
+      "task_id": "exebench_f22_138b544de61a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_f23_e9c674c8b0d8"
+    },
+    {
+      "task_id": "exebench_f26_b2168c611f54",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_f23_e9c674c8b0d8"
+    },
+    {
+      "task_id": "exebench_f2_97ea182a0488",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_A_970727cd3965"
+    },
+    {
+      "task_id": "exebench_f50_95b437cc67e2",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_A_970727cd3965"
+    },
+    {
+      "task_id": "exebench_f56_e8cc79b8f2f1",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_f23_e9c674c8b0d8:0.896"
+    },
+    {
+      "task_id": "exebench_f5_6ff3f52318d0",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bar_c3147f1d23f5"
+    },
+    {
+      "task_id": "exebench_f6_32b6977888ec",
+      "origin": "sft_lora2",
+      "reason": "name:f6"
+    },
+    {
+      "task_id": "exebench_f6_be9dcbccf53a",
+      "origin": "sft_lora2",
+      "reason": "name:f6"
+    },
+    {
+      "task_id": "exebench_f6_e7a7f3aca44a",
+      "origin": "sft_lora2",
+      "reason": "name:f6"
+    },
+    {
+      "task_id": "exebench_f72_b8853b2bbc30",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_f23_e9c674c8b0d8:0.856"
+    },
+    {
+      "task_id": "exebench_f88_a839ac8dc103",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_f23_e9c674c8b0d8:0.905"
+    },
+    {
+      "task_id": "exebench_f9_cbff3d4e5b20",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_A_970727cd3965"
+    },
+    {
+      "task_id": "exebench_fAuxiliar_c2e2008a8f23",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_add2_d788d98459b0"
+    },
+    {
+      "task_id": "exebench_fa_bit2byte_824393b0adfd",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32decsize_ddda025106ec"
+    },
+    {
+      "task_id": "exebench_fa_fast_invsqrtf_d212ba4c2ea8",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_Q_rsqrt_378984cfbbd5:0.871"
+    },
+    {
+      "task_id": "exebench_fac_0c69d6cb6b89",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fac_32c70815ecd5",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fac_41a7ff3acda0",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fac_70282ff1426f",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fac_c4b3893f19c7",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fac_c8394d1a2ffc",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dob_to_int_2aa8fea91899"
+    },
+    {
+      "task_id": "exebench_fac_ce841b56e251",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fac_ff0d049f91cd",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact1_f83725a2553c",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact2_55b71e7d8b66",
+      "origin": "sft_lora2",
+      "reason": "name:fact2"
+    },
+    {
+      "task_id": "exebench_fact3_2b29dd413a3b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_0bf23faf5e51",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_19bee563a1da",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_2b8da0bd081b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_330d39ea69e5",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_330e8d60cd90",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_3614d1e25f61",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_47108f733790",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_627c4ab13527",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_6c3258b697d7",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_6f81a29463ed",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_71eeeacc81f2",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_7f0fed227e75",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_826971239c76",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_8f51e5dbf687",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_9421a119edf8",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_97024407d38a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_98a6513e4629",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_a7e06eaf8dbc",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_a91e66670b62",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_ba4ecbd55392",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_bf3391eb86de",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_c46843624e2b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_cf6bd5df4e2b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_eade983ac651",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fact_it_3bd987b2d086",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_factor_c46023500e73",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_factor_recursion_225333e1b904",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_factoral_4633c881a32c",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_factorialIt_349dbf82e68d",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_factorialRec_f374148932f9",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_factorial_loop_b48564c513bd",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_factorial_recursive_5975ddd2f8ca",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_factorial_recursive_67c644183bda",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_faktoriyel_hesapla_8b7f7536c917",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fast_log2_b360eac92cc6",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dob_to_int_2aa8fea91899"
+    },
+    {
+      "task_id": "exebench_fat_42c71dc707c8",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fat_55a8d7ea82e8",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fator_e595ad1bfde6",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fatorial_2d8fb0bfde6b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fatorial_da0df684d237",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fatorial_ddc157b2e444",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fatorial_eeb73db2ef5b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fatorial_fcf13cbe3668",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_fb_SGNSingle_45d1fe16ff67",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_cl_signum_554fae4b5831"
+    },
+    {
+      "task_id": "exebench_fb_SGNi_84089fd12863",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_cl_signum_554fae4b5831"
+    },
+    {
+      "task_id": "exebench_fbit_pend_c26289b4f7f6",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fls_49f6119f1d94"
+    },
+    {
+      "task_id": "exebench_find_wrap_b0f452bb8aa3",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_float_check_c3bf9eeb8a05"
+    },
+    {
+      "task_id": "exebench_findxfrom_vi_vf_a_af8f6c28a6c6",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_findafrom_x_vi_vf_e3f4808093a3:0.865"
+    },
+    {
+      "task_id": "exebench_flsl_e03ebae52b13",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fls_49f6119f1d94"
+    },
+    {
+      "task_id": "exebench_flt_mul_sub_446828d00953",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_flt_mul_add_5c918fdb5307"
+    },
+    {
+      "task_id": "exebench_flt_neg_mul_add_d3ca76062830",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_flt_mul_add_5c918fdb5307"
+    },
+    {
+      "task_id": "exebench_fma_test1_2bb0f753a5a4",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_flt_mul_add_5c918fdb5307"
+    },
+    {
+      "task_id": "exebench_fmadd_c9861a6c0652",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_flt_mul_add_5c918fdb5307"
+    },
+    {
+      "task_id": "exebench_fn_35_98c40ba4addd",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Cube_f7659ed4128c"
+    },
+    {
+      "task_id": "exebench_fn_a01cb9608f09",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fakt_57f76aedb35f"
+    },
+    {
+      "task_id": "exebench_foo10_e83a0db20edc",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_foo5_e338548bedbb"
+    },
+    {
+      "task_id": "exebench_foo11_da7fa975ed24",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_foo5_e338548bedbb:0.946"
+    },
+    {
+      "task_id": "exebench_foo12_69ce80df73ea",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_foo5_e338548bedbb"
+    },
+    {
+      "task_id": "exebench_foo13_ed377b0c93c3",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_foo5_e338548bedbb"
+    },
+    {
+      "task_id": "exebench_foo14_d1dc4696594b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_foo5_e338548bedbb"
+    },
+    {
+      "task_id": "exebench_foo15_25f14f566c28",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_foo5_e338548bedbb"
+    },
+    {
+      "task_id": "exebench_foo16_4dfd322b5b6f",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_foo5_e338548bedbb:0.969"
+    },
+    {
+      "task_id": "exebench_foo1_13141aae9ec2",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_foo5_e338548bedbb:0.919"
+    },
+    {
+      "task_id": "exebench_foo1_a927c118c31a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dobro_f5584d7594de"
+    },
+    {
+      "task_id": "exebench_foo1_ac00403cc63c",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_cl_signum_554fae4b5831"
+    },
+    {
+      "task_id": "exebench_foo2_59e94d9cfb01",
+      "origin": "sft_lora2",
+      "reason": "name:foo2"
+    },
+    {
+      "task_id": "exebench_foo2_996c2c34588c",
+      "origin": "sft_lora2",
+      "reason": "name:foo2"
+    },
+    {
+      "task_id": "exebench_foo2_fa1a46b579a8",
+      "origin": "sft_lora2",
+      "reason": "name:foo2"
+    },
+    {
+      "task_id": "exebench_foo3_e312d9610808",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bar_c3147f1d23f5"
+    },
+    {
+      "task_id": "exebench_foo5_384a3f0565a6",
+      "origin": "sft_lora2",
+      "reason": "name:foo5"
+    },
+    {
+      "task_id": "exebench_foo6_89f3fd7ef2cd",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_foo5_e338548bedbb"
+    },
+    {
+      "task_id": "exebench_foo7_c76ea4812b0f",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_foo5_e338548bedbb"
+    },
+    {
+      "task_id": "exebench_foo8_4b795ce57491",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_foo5_e338548bedbb"
+    },
+    {
+      "task_id": "exebench_foo_0a4f4f9d4c63",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_0fe03f9cbe52",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_1521873141a0",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_18c045948064",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_18e194b71e8c",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_20130c9932c8",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_2107ceda2e4f",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_2226c392ce63",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_2528ef0b48c1",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_27d7286d74d0",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_286794556d9c",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_296413ca0282",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_306aa69810a5",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_36cee8e65012",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_381d7712b5dc",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_3a371fbb3d73",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_3c1029e504c5",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_3d53e571fb33",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_414250f141a3",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_41fbe97e1956",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_43275f8222aa",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_477802bc4495",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_4d5b26548003",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_51e2cff536f3",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_520c268a84d8",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_5b03b445aff1",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_5b3f3a04ee6c",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_5dfdfb6fbdea",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_60efdc652a34",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_60f4852f02bf",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_66fb7055385d",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_6704b3666142",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_6beb201e112f",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_6e235913c153",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_6fa9d23ce8bf",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_70c25e1143d2",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_7993ba84e965",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_811196ec8648",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_84ca1f44cca2",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_872a27cdec69",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_903b5046f04a",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_9068de251441",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_938e4927462a",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_94b92d8e181a",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_95bc740e03aa",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_9df9f37f587f",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_a28af3446e5d",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_a5d4f13ba8bc",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_a75516aa1c87",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_b0bf59f24e80",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_b2e7b95050a8",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_b34861caacde",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_b3831e60d95b",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_b78c58f0f601",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_b87c6b282331",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_b8c1c0ae30ab",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_beaa27aca29e",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_bf9edfee1c80",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_c010c2e91af5",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_c3637e716006",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_cca636bab8f8",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_cdd4387af301",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_cf881a9752ba",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_cf99d2315e4f",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_d22ec9480a89",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_d354e74337e2",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_d911a66a4f04",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_db608e10d622",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_e21d87ecf459",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_e90b860380b5",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_eab7cfbfc8de",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_ee61529d25a1",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_f7ad9bbfc8a1",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_foo_fb623df7866a",
+      "origin": "sft_lora2",
+      "reason": "name:foo"
+    },
+    {
+      "task_id": "exebench_frame_49a3f45aeb99",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_decodeChar_3cfd1b5dd631"
+    },
+    {
+      "task_id": "exebench_froundup_fc5ab4cde5bd",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dob_to_int_2aa8fea91899"
+    },
+    {
+      "task_id": "exebench_ft_binary_size_83ff66097f54",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bits_required_unsigned_200063803eca"
+    },
+    {
+      "task_id": "exebench_ADD_ASSIGN_6d5be7236aa7",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MUL_ASSIGN_209444b3512e:0.917"
+    },
+    {
+      "task_id": "exebench_AND_ASSIGN_71896dfa23a3",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MUL_ASSIGN_209444b3512e:0.917"
+    },
+    {
+      "task_id": "exebench_A_7831fdfbade5",
+      "origin": "sft_lora2",
+      "reason": "name:a"
+    },
+    {
+      "task_id": "exebench_BKDRHash_b9d8c50b5561",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_DIV_ASSIGN_bb03440cbb70",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_MUL_ASSIGN_209444b3512e"
+    },
+    {
+      "task_id": "exebench_DMAX_a0ebbaef2809",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_abs_val_379abcbc0d6a:0.882"
+    },
+    {
+      "task_id": "exebench_DOT_da710b8ac981",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dotProd_ba0bb06aa3d1"
+    },
+    {
+      "task_id": "exebench_FinF1_fbb7a9759b9b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_FindStringLength_df80265792bb",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bufcon_lens_09235210ff58"
+    },
+    {
+      "task_id": "exebench_Function1IntPtr_134d53cd9ea6",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Function1Double_3b9c4af32f1d"
+    },
+    {
+      "task_id": "exebench_GeometryImplicit_7fb808dc330e",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_R_8cc6e1096d31:0.856"
+    },
+    {
+      "task_id": "exebench_Greatest_3680ec9f52bd",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_fakt_57f76aedb35f:0.850"
+    },
+    {
+      "task_id": "exebench_Increment_540950be6ecf",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_IncrementaIndice_91a7d2410d20",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_Least_cd557d958d32",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Cube_f7659ed4128c"
+    },
+    {
+      "task_id": "exebench_MAX_20d242132850",
+      "origin": "sft_lora2",
+      "reason": "name:max"
+    },
+    {
+      "task_id": "exebench_MAX_4a297e611ba6",
+      "origin": "sft_lora2",
+      "reason": "name:max"
+    },
+    {
+      "task_id": "exebench_MAX_e74171d2ee8f",
+      "origin": "sft_lora2",
+      "reason": "name:max"
+    },
+    {
+      "task_id": "exebench_MAX_f1c2748af154",
+      "origin": "sft_lora2",
+      "reason": "name:max"
+    },
+    {
+      "task_id": "exebench_MIN_6581f37cac54",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MAX_8ae956bfefda:0.868"
+    },
+    {
+      "task_id": "exebench_MIN_e099cb578437",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MAX_8ae956bfefda:0.894"
+    },
+    {
+      "task_id": "exebench_MOD_ASSIGN_a04aeebc5327",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MUL_ASSIGN_209444b3512e:0.938"
+    },
+    {
+      "task_id": "exebench_MyTestFunction_4617fd0dcb2a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dobro_f5584d7594de"
+    },
+    {
+      "task_id": "exebench_OR_ASSIGN_aa621d76e1cb",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MUL_ASSIGN_209444b3512e:0.926"
+    },
+    {
+      "task_id": "exebench_Q_islower_1b6ce20ba158",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_digit_60059d0225b9:0.853"
+    },
+    {
+      "task_id": "exebench_RIGHT_6d313987b849",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_csub_df399cc82869"
+    },
+    {
+      "task_id": "exebench_Round_off_de34fdd374f7",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dob_to_int_2aa8fea91899"
+    },
+    {
+      "task_id": "exebench_SLF_75eabf5263f5",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bufcon_lens_09235210ff58"
+    },
+    {
+      "task_id": "exebench_SQ_fb8d0100d1d2",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_Cube_f7659ed4128c:0.851"
+    },
+    {
+      "task_id": "exebench_SUB_ASSIGN_354b17c465d4",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MUL_ASSIGN_209444b3512e:0.938"
+    },
+    {
+      "task_id": "exebench_Sign_8937f432b3c7",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_cl_signum_554fae4b5831"
+    },
+    {
+      "task_id": "exebench_Sqr_b73e00ef71b2",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_Cube_f7659ed4128c:0.884"
+    },
+    {
+      "task_id": "exebench_StaticTestFunction_c28434c940a2",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.878"
+    },
+    {
+      "task_id": "exebench_TestingDescending_dd729c14d6c5",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_abs_val_379abcbc0d6a:0.872"
+    },
+    {
+      "task_id": "exebench_TransStste_ebba70152e4a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_flt_mul_add_5c918fdb5307"
+    },
+    {
+      "task_id": "exebench_UTF8_encoded_len_d4a5c81ddef8",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32encsize_a88ad611a3b9"
+    },
+    {
+      "task_id": "exebench_XOR_ASSIGN_fc7829cacc09",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MUL_ASSIGN_209444b3512e:0.917"
+    },
+    {
+      "task_id": "exebench_X_feb4e4233c21",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_fakt_57f76aedb35f:0.851"
+    },
+    {
+      "task_id": "exebench__cd30005_1_829a9b900e7a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench__div_4654f3fa8672",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_div_0f0b601cd591"
+    },
+    {
+      "task_id": "exebench__ilog_5d88ae8dda69",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bits_required_unsigned_200063803eca"
+    },
+    {
+      "task_id": "exebench__testfunc_L_HIL_582e84d33721",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_add2_d788d98459b0"
+    },
+    {
+      "task_id": "exebench_a_e4361bbb820a",
+      "origin": "sft_lora2",
+      "reason": "name:a"
+    },
+    {
+      "task_id": "exebench_abs_df_095eadf95f4b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dob_to_int_2aa8fea91899"
+    },
+    {
+      "task_id": "exebench_absdiff2_3f005649b1d7",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_abs_val_379abcbc0d6a"
+    },
+    {
+      "task_id": "exebench_add10_1a11bed702ae",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.912"
+    },
+    {
+      "task_id": "exebench_add15_d5e7b61aaaf1",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.912"
+    },
+    {
+      "task_id": "exebench_add1_fb48ec2a7462",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_Function1Double_3b9c4af32f1d:0.983"
+    },
+    {
+      "task_id": "exebench_add2_d492a64732d8",
+      "origin": "sft_lora2",
+      "reason": "name:add2"
+    },
+    {
+      "task_id": "exebench_add5_3bf0ba2690ad",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.919"
+    },
+    {
+      "task_id": "exebench_add5_5318889e5276",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.919"
+    },
+    {
+      "task_id": "exebench_addNumbers_51d6ac0bbcf5",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Cube_f7659ed4128c"
+    },
+    {
+      "task_id": "exebench_addNumbers_cb44650bebca",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Cube_f7659ed4128c"
+    },
+    {
+      "task_id": "exebench_addOne_578542c1f6db",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_addOne_b1d993c63af1",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dobro_f5584d7594de:0.857"
+    },
+    {
+      "task_id": "exebench_addThree_6ea369af054b",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.906"
+    },
+    {
+      "task_id": "exebench_addTwo_f52ba616de4b",
+      "origin": "sft_lora2",
+      "reason": "name:addtwo"
+    },
+    {
+      "task_id": "exebench_add_186844ae2483",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_R_8cc6e1096d31:0.873"
+    },
+    {
+      "task_id": "exebench_add_2c8c4ed1a296",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.855"
+    },
+    {
+      "task_id": "exebench_add_406191e92130",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_add2_d788d98459b0"
+    },
+    {
+      "task_id": "exebench_add_4_f7181e65bfe3",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.919"
+    },
+    {
+      "task_id": "exebench_add_5a4edd1b3b4b",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_R_8cc6e1096d31:0.878"
+    },
+    {
+      "task_id": "exebench_add_ad6bea1521ae",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_R_8cc6e1096d31:0.873"
+    },
+    {
+      "task_id": "exebench_add_f97d101e511b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_compareInt_a01eca854fb2"
+    },
+    {
+      "task_id": "exebench_add_numbo_7060d914c231",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_R_8cc6e1096d31:0.888"
+    },
+    {
+      "task_id": "exebench_add_one_1c6545adfb22",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dobro_f5584d7594de:0.857"
+    },
+    {
+      "task_id": "exebench_add_shorts_6b24bf07dcae",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_add2_d788d98459b0"
+    },
+    {
+      "task_id": "exebench_add_stuff_3558953d6510",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_add2_d788d98459b0"
+    },
+    {
+      "task_id": "exebench_add_to_arg_d5abb804dd30",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dobro_f5584d7594de:0.856"
+    },
+    {
+      "task_id": "exebench_add_two_240be0a49776",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_AddTwo_60490b376086"
+    },
+    {
+      "task_id": "exebench_adders_72f05e046f78",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_add2_d788d98459b0"
+    },
+    {
+      "task_id": "exebench_addtwo_e5495d22a61a",
+      "origin": "sft_lora2",
+      "reason": "name:addtwo"
+    },
+    {
+      "task_id": "exebench_after_b1b2f52804f6",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_before_878bbafd0d84:0.955"
+    },
+    {
+      "task_id": "exebench_answer_7_aa40a3403641",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_answer_3_37050e2f29d8:0.854"
+    },
+    {
+      "task_id": "exebench_apparent_sun_longitude_1596f34f779c",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_add2_d788d98459b0"
+    },
+    {
+      "task_id": "exebench_arikkei_unicode_utf8_bytes_a170fcad7a33",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32encsize_a88ad611a3b9"
+    },
+    {
+      "task_id": "exebench_arrayIndexRFind_8b7b41bc4be1",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_az_imin_f19f0c1cebc9",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Cube_f7659ed4128c"
+    },
+    {
+      "task_id": "exebench_b_05b6aec1477e",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.905"
+    },
+    {
+      "task_id": "exebench_bar_222389272b63",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_31f3a395759e",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_571ecbd10d8e",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_7c6f93db1e37",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_db15a1542d56",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_dc8b0232c703",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_e088f203ec3a",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_e27677a5e31a",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_base64_size_blob_28cd32add0ab",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32encsize_a88ad611a3b9"
+    },
+    {
+      "task_id": "exebench_baz_149aba4ca769",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dull_5eb08148d3a4:0.871"
+    },
+    {
+      "task_id": "exebench_berechne_zinsen_baa2add29fcb",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_compute_total_credits_492de2557d72:0.862"
+    },
+    {
+      "task_id": "exebench_bin_f91d59019e8e",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_binsearch_e3287eb5c885",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_bitXor_5f4801cdfe8b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bit_group_starts_uint_54be4f3ceaec"
+    },
+    {
+      "task_id": "exebench_bitXor_bc6baddc1dad",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bit_group_starts_uint_54be4f3ceaec"
+    },
+    {
+      "task_id": "exebench_bitcount_53e232daa0bf",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_count_265b732dc4ac"
+    },
+    {
+      "task_id": "exebench_bitcount_92bdefaef02f",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_count_265b732dc4ac"
+    },
+    {
+      "task_id": "exebench_bitcount_f038d1d0209b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_count_265b732dc4ac"
+    },
+    {
+      "task_id": "exebench_bitlen_a84814f1fea8",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_fls_49f6119f1d94"
+    },
+    {
+      "task_id": "exebench_bits_c0b6b30793b0",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bits_required_unsigned_200063803eca"
+    },
+    {
+      "task_id": "exebench_bits_e207e9e3f1ea",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bits_required_unsigned_200063803eca"
+    },
+    {
+      "task_id": "exebench_bitwidth_711fdc449b27",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bits_required_unsigned_200063803eca"
+    },
+    {
+      "task_id": "exebench_bitwise_and_74ca4a3f61dc",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bit_group_starts_uint_54be4f3ceaec"
+    },
+    {
+      "task_id": "exebench_build_header_8491c7dc60a6",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bm_rgba_55789085024c"
+    },
+    {
+      "task_id": "exebench_buscaBinaria_6157621369e3",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_busca_binaria_47a68a08bff8",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_busquedaBin2_e8d6db0b1ec9",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_bxor_333c9d584de0",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bit_group_starts_uint_54be4f3ceaec"
+    },
+    {
+      "task_id": "exebench_cStrLen_be9d086e14fb",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bufcon_lens_09235210ff58"
+    },
+    {
+      "task_id": "exebench_c_9333b54c871a",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.906"
+    },
+    {
+      "task_id": "exebench_caio_b5b740384cc2",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.912"
+    },
+    {
+      "task_id": "exebench_calado_170bb4abc2ac",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.906"
+    },
+    {
+      "task_id": "exebench_calc_distance_34e403857be8",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dotProd_ba0bb06aa3d1"
+    },
+    {
+      "task_id": "exebench_calculate_area_44d2c80a6313",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_abs_val_379abcbc0d6a:0.870"
+    },
+    {
+      "task_id": "exebench_calculate_final_bill_004a478cbb6e",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_compute_total_credits_492de2557d72:0.850"
+    },
+    {
+      "task_id": "exebench_calculate_total_94d344b32233",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_compute_total_credits_492de2557d72:0.886"
+    },
+    {
+      "task_id": "exebench_calculate_total_minutes_46444bb95bbd",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_add2_d788d98459b0"
+    },
+    {
+      "task_id": "exebench_callee_flat_s_236fa021691d",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_campelo_883d5341bc92",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.887"
+    },
+    {
+      "task_id": "exebench_checkInput_d65623117e64",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bar_c3147f1d23f5"
+    },
+    {
+      "task_id": "exebench_check_amount_502c5c53c967",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_decisionFunc_d1689f8a43b2"
+    },
+    {
+      "task_id": "exebench_check_int_fcf5b7976f82",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_decisionFunc_d1689f8a43b2:0.945"
+    },
+    {
+      "task_id": "exebench_checkend_166277762640",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_CmpDoubles_1153267d175b"
+    },
+    {
+      "task_id": "exebench_clad_maxd_6b5d0ce18278",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Cube_f7659ed4128c"
+    },
+    {
+      "task_id": "exebench_cntDigits_f27ac99cb960",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_count_265b732dc4ac"
+    },
+    {
+      "task_id": "exebench_colleto_57d3c4364d75",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.912"
+    },
+    {
+      "task_id": "exebench_compareInts_2d65225a7b9e",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_CmpDoubles_1153267d175b"
+    },
+    {
+      "task_id": "exebench_compare_int_686621c2b0b9",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_CmpDoubles_1153267d175b"
+    },
+    {
+      "task_id": "exebench_compute_square_af298e4e1537",
+      "origin": "sft_lora2",
+      "reason": "spec_ratio:exebench_dbl_898898854dda:0.919"
+    },
+    {
+      "task_id": "exebench_ADD_ASSIGN_6d5be7236aa7",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MUL_ASSIGN_209444b3512e:0.917"
+    },
+    {
+      "task_id": "exebench_AND_ASSIGN_71896dfa23a3",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MUL_ASSIGN_209444b3512e:0.917"
+    },
+    {
+      "task_id": "exebench_A_7831fdfbade5",
+      "origin": "sft_lora2",
+      "reason": "name:a"
+    },
+    {
+      "task_id": "exebench_BKDRHash_b9d8c50b5561",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bdf_string_hash_0da437ae95c5"
+    },
+    {
+      "task_id": "exebench_DIV_ASSIGN_bb03440cbb70",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_MUL_ASSIGN_209444b3512e"
+    },
+    {
+      "task_id": "exebench_DOT_da710b8ac981",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dotProd_ba0bb06aa3d1"
+    },
+    {
+      "task_id": "exebench_FinF1_fbb7a9759b9b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_Function1IntPtr_134d53cd9ea6",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_Cube_f7659ed4128c"
+    },
+    {
+      "task_id": "exebench_Increment_540950be6ecf",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_IncrementaIndice_91a7d2410d20",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_IsByteRange_e000c6df02d8",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bar_c3147f1d23f5"
+    },
+    {
+      "task_id": "exebench_IsFarRange_1d42871e87df",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bar_c3147f1d23f5"
+    },
+    {
+      "task_id": "exebench_MAX_20d242132850",
+      "origin": "sft_lora2",
+      "reason": "name:max"
+    },
+    {
+      "task_id": "exebench_MAX_4a297e611ba6",
+      "origin": "sft_lora2",
+      "reason": "name:max"
+    },
+    {
+      "task_id": "exebench_MAX_e74171d2ee8f",
+      "origin": "sft_lora2",
+      "reason": "name:max"
+    },
+    {
+      "task_id": "exebench_MAX_f1c2748af154",
+      "origin": "sft_lora2",
+      "reason": "name:max"
+    },
+    {
+      "task_id": "exebench_MIN_6581f37cac54",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MAX_8ae956bfefda:0.868"
+    },
+    {
+      "task_id": "exebench_MIN_e099cb578437",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MAX_8ae956bfefda:0.894"
+    },
+    {
+      "task_id": "exebench_MOD_ASSIGN_a04aeebc5327",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MUL_ASSIGN_209444b3512e:0.938"
+    },
+    {
+      "task_id": "exebench_MyTestFunction_4617fd0dcb2a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dobro_f5584d7594de"
+    },
+    {
+      "task_id": "exebench_OR_ASSIGN_aa621d76e1cb",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MUL_ASSIGN_209444b3512e:0.926"
+    },
+    {
+      "task_id": "exebench_Round_off_de34fdd374f7",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_dob_to_int_2aa8fea91899"
+    },
+    {
+      "task_id": "exebench_SUB_ASSIGN_354b17c465d4",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MUL_ASSIGN_209444b3512e:0.938"
+    },
+    {
+      "task_id": "exebench_Sign_8937f432b3c7",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_cl_signum_554fae4b5831"
+    },
+    {
+      "task_id": "exebench_Sqr_b73e00ef71b2",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_Cube_f7659ed4128c:0.884"
+    },
+    {
+      "task_id": "exebench_UTF8_encoded_len_d4a5c81ddef8",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_base32encsize_a88ad611a3b9"
+    },
+    {
+      "task_id": "exebench_XOR_ASSIGN_fc7829cacc09",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_MUL_ASSIGN_209444b3512e:0.917"
+    },
+    {
+      "task_id": "exebench__cd30005_1_829a9b900e7a",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench__div_4654f3fa8672",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_div_0f0b601cd591"
+    },
+    {
+      "task_id": "exebench__testfunc_L_HIL_582e84d33721",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_add2_d788d98459b0"
+    },
+    {
+      "task_id": "exebench_a_e4361bbb820a",
+      "origin": "sft_lora2",
+      "reason": "name:a"
+    },
+    {
+      "task_id": "exebench_add2_d492a64732d8",
+      "origin": "sft_lora2",
+      "reason": "name:add2"
+    },
+    {
+      "task_id": "exebench_addOne_578542c1f6db",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_addTwo_f52ba616de4b",
+      "origin": "sft_lora2",
+      "reason": "name:addtwo"
+    },
+    {
+      "task_id": "exebench_add_406191e92130",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_add2_d788d98459b0"
+    },
+    {
+      "task_id": "exebench_add_47ff7ef577ad",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_addring_879e740c1831"
+    },
+    {
+      "task_id": "exebench_add_f97d101e511b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_compareInt_a01eca854fb2"
+    },
+    {
+      "task_id": "exebench_add_two_240be0a49776",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_AddTwo_60490b376086"
+    },
+    {
+      "task_id": "exebench_addtwo_e5495d22a61a",
+      "origin": "sft_lora2",
+      "reason": "name:addtwo"
+    },
+    {
+      "task_id": "exebench_after_b1b2f52804f6",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_before_878bbafd0d84:0.955"
+    },
+    {
+      "task_id": "exebench_analyze_7768590bcbca",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_checkRow_95efd43168e5"
+    },
+    {
+      "task_id": "exebench_answer_6_23de0c4fbffe",
+      "origin": "sft_lora2",
+      "reason": "c_ratio:exebench_answer_3_37050e2f29d8:0.975"
+    },
+    {
+      "task_id": "exebench_apparent_sun_longitude_1596f34f779c",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_add2_d788d98459b0"
+    },
+    {
+      "task_id": "exebench_bar_222389272b63",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_31f3a395759e",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_571ecbd10d8e",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_c3a76b8fb821",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_db15a1542d56",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_e088f203ec3a",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bar_e27677a5e31a",
+      "origin": "sft_lora2",
+      "reason": "name:bar"
+    },
+    {
+      "task_id": "exebench_bin_f91d59019e8e",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_bitXor_5f4801cdfe8b",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bit_group_starts_uint_54be4f3ceaec"
+    },
+    {
+      "task_id": "exebench_bitXor_bc6baddc1dad",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bit_group_starts_uint_54be4f3ceaec"
+    },
+    {
+      "task_id": "exebench_bitwidth_711fdc449b27",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bits_required_unsigned_200063803eca"
+    },
+    {
+      "task_id": "exebench_buscaBinaria_6157621369e3",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_BinSearch1_f64adf4bb5d7"
+    },
+    {
+      "task_id": "exebench_bxor_333c9d584de0",
+      "origin": "sft_lora2",
+      "reason": "word5:exebench_bit_group_starts_uint_54be4f3ceaec"
+    }
+  ],
+  "word5_rule": "word 5-grams over lowercase tokens, negation kept, no short-text fallback; a shared gram drops the row unless it is the ExeBench side-effect boilerplate listed in _BOILER_PHRASES"
+}

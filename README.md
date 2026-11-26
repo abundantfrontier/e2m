@@ -121,6 +121,7 @@ Adapters are not stored in git. Weights will be published on Hugging Face; link 
 - **dpo2** (round 3, base `Qwen2.5-Coder-1.5B-Instruct`): DPO from lora2 with an RPO-style supervised term (beta 0.2, 1,500 steps). [weights](https://huggingface.co/TODO)
 - **c-then-asm** (round 3, base `Qwen2.5-Coder-7B-Instruct`): 4-bit QLoRA that writes C, then assembly for that C. [weights](https://huggingface.co/TODO)
 - **c-only-7b** (round 4, base `Qwen2.5-Coder-7B-Instruct`): 4-bit QLoRA that writes C only; the C model of the gcc hybrid. [weights](https://huggingface.co/TODO)
+- **asm-distill-7b** (round 5, base `Qwen2.5-Coder-7B-Instruct`): 4-bit QLoRA, English to assembly distilled from gcc lowerings of the model's own C. [weights](https://huggingface.co/TODO)
 
 See [docs/MODELS.md](docs/MODELS.md) for base models, rounds and settings.
 

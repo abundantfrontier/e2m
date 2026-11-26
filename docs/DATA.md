@@ -35,6 +35,11 @@ Files larger than the repository limits are left out. Each can be rebuilt from t
 | `runs/loop-reject-train/loop.jsonl` | 7.3 MB | per-task outputs; kept with the run |
 | `runs/lora1/eval.jsonl` | 1.7 MB | per-task outputs; kept with the run |
 | `runs/round4/hybrid.jsonl` | 3.0 MB | per-task outputs; kept with the run, available on request |
+| `runs/round5/distill.jsonl` | 1.1 MB | per-task outputs; kept with the run, available on request |
+| `runs/round5/embed_cache.jsonl` | 100.2 MB | per-task outputs; kept with the run, available on request |
+| `runs/round5/embed_kept.jsonl` | 7.1 MB | per-task outputs; kept with the run, available on request |
+| `runs/round5/sft.jsonl` | 5.6 MB | per-task outputs; kept with the run, available on request |
+| `runs/round5/text_kept.jsonl` | 7.6 MB | per-task outputs; kept with the run, available on request |
 | `tasks/scaled.jsonl` | 5.0 MB | ExeBench/AnghaBench-derived pool; rebuild with `python -m e2m.scale` (docs/DATA.md) |
 
 ## Rebuilding

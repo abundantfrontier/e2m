@@ -1,4 +1,4 @@
-"""CLI: python -m e2m.loop <split-heldout|rewrite|run|collect|mix|summarize|round2|round3|round4>"""
+"""CLI: python -m e2m.loop <split-heldout|rewrite|run|collect|mix|summarize|round2|round3|round4|round5>"""
 
 from __future__ import annotations
 
@@ -64,6 +64,8 @@ def _cmd_run(args: argparse.Namespace) -> int:
         return 2
     if stopped in {"deadline", "max-hours"}:
         return 3
+    if stopped == "held":
+        return 4
     return 0
 
 
@@ -178,6 +180,25 @@ def _cmd_round4(args: argparse.Namespace) -> int:
     return round4_main(extra)
 
 
+def _cmd_round5(args: argparse.Namespace) -> int:
+    from e2m.loop.round5 import main as round5_main
+
+    extra: list[str] = []
+    if args.smoke:
+        extra.append("--smoke")
+    if args.resume:
+        extra.append("--resume")
+    if args.dry_run:
+        extra.append("--dry-run")
+    if args.only:
+        extra += ["--only", *args.only]
+    if args.out:
+        extra += ["--out", str(args.out)]
+    if args.lock_note:
+        extra += ["--lock-note", args.lock_note]
+    return round5_main(extra)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="E2M repair loop")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -277,6 +298,15 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--out", type=Path, default=None)
     p.add_argument("--lock-note", default=None)
     p.set_defaults(func=_cmd_round4)
+
+    p = sub.add_parser("round5", help="Round-5 GPU pipeline (distill English to asm)")
+    p.add_argument("--smoke", action="store_true")
+    p.add_argument("--resume", action="store_true")
+    p.add_argument("--only", nargs="+", metavar="STAGE")
+    p.add_argument("--dry-run", action="store_true")
+    p.add_argument("--out", type=Path, default=None)
+    p.add_argument("--lock-note", default=None)
+    p.set_defaults(func=_cmd_round5)
 
     args = parser.parse_args(argv)
     if args.cmd == "run" and args.tasks is None:

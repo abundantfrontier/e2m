@@ -1,0 +1,10 @@
+{"name": "prep-mbpp", "seconds": 1.51, "ok": true, "gpu": false, "ts": "2026-11-25T10:54:19.479097-08:00"}
+{"name": "prep-train-manifest", "seconds": 0.1, "ok": true, "gpu": false, "ts": "2026-11-25T10:54:19.580197-08:00"}
+{"name": "screen-tasks", "seconds": 13.09, "ok": true, "gpu": false, "ts": "2026-11-25T10:54:32.668191-08:00"}
+{"name": "synth", "seconds": 795.57, "ok": false, "gpu": true, "ts": "2026-11-25T12:15:48.288563-08:00"}
+{"name": "sample-c", "seconds": 5057.34, "ok": true, "gpu": true, "ts": "2026-11-25T13:40:05.679671-08:00"}
+{"name": "lower-asm", "seconds": 28.36, "ok": true, "gpu": false, "ts": "2026-11-25T13:40:34.043755-08:00"}
+{"name": "leakage-text", "seconds": 160.3, "ok": true, "gpu": false, "ts": "2026-11-25T13:43:14.341273-08:00"}
+{"name": "leakage-embed-cpu", "seconds": 522.02, "ok": true, "gpu": false, "ts": "2026-11-25T13:51:56.357030-08:00"}
+{"name": "mix", "seconds": 0.09, "ok": true, "gpu": false, "ts": "2026-11-25T13:51:56.445365-08:00"}
+{"name": "train", "seconds": 6619.16, "ok": true, "gpu": true, "ts": "2026-11-25T15:42:15.609984-08:00"}

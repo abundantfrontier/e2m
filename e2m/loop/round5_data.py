@@ -49,6 +49,37 @@ C_RATIO = 0.85
 EMBED_THRESHOLD = 0.85
 WORD_N = 5
 VLA_CAP = 8192
+# 5-grams keep negation. ExeBench specs share a side-effect tail ("does not
+# modify any external variables"), and the stock tokenizer drops "not", so a
+# raw overlap drops about half of sft_lora2 against val. Those grams are not
+# a copied task. Distinctive grams still drop the row.
+_WORD5_STOP = {
+    "the", "a", "an", "of", "and", "or", "to", "in", "for", "on", "with",
+    "is", "are", "be", "by", "as", "at", "from", "that", "this", "it",
+}
+_BOILER_PHRASES = (
+    "does not modify",
+    "do not modify",
+    "not modify any",
+    "modify any",
+    "buffer update",
+    "external variable",
+    "external buffer",
+    "input parameter",
+    "place buffer",
+    "no buffer",
+    "returns function does",
+    "function returns input",
+    "otherwise returns",
+    "input value not",
+    "not modified",
+    "two input value",
+)
+WORD5_RULE = (
+    "word 5-grams over lowercase tokens, negation kept, no short-text fallback; "
+    "a shared gram drops the row unless it is the ExeBench side-effect boilerplate "
+    "listed in _BOILER_PHRASES"
+)
 
 # Do not load datasets/heldout/HumanEval.jsonl.gz. The whole benchmark stays out.
 
@@ -67,6 +98,17 @@ def _alarm(_signum: int, _frame: Any) -> None:
 
 def normalize_ws(text: str) -> str:
     return re.sub(r"\s+", " ", (text or "").strip().lower())
+
+
+def word5_grams(text: str) -> set[str]:
+    toks = [t for t in re.findall(r"[a-z0-9_]+", normalize_ws(text)) if t not in _WORD5_STOP and len(t) > 1]
+    if len(toks) < WORD_N:
+        return set()
+    return {" ".join(toks[i : i + WORD_N]) for i in range(len(toks) - WORD_N + 1)}
+
+
+def boilerplate_gram(gram: str) -> bool:
+    return any(phrase in gram for phrase in _BOILER_PHRASES)
 
 
 def normalize_signature(signature: str) -> str:
@@ -247,6 +289,9 @@ class _C:
             return
         self.env[name] = kind
         self.hoist.append(f"int64_t {name} = 0;")
+
+    def hoist_lines(self) -> list[str]:
+        return self.hoist
 
     def line(self, text: str = "") -> None:
         if text:
@@ -1263,7 +1308,7 @@ class _Ref:
         c_text = str(row.get("reference_c") or "")
         self.body = normalize_body(c_text) if c_text else ""
         self.c_norm = normalize_ws(c_text)
-        self.word5 = word_ngrams(self.spec, WORD_N)
+        self.word5 = word5_grams(self.spec)
         self.spec_len = len(self.spec_norm)
         self.c_len = len(self.c_norm)
 
@@ -1306,7 +1351,7 @@ def leakage_reason(row: dict[str, Any], refs: list[_Ref], *, indexes: dict[str, 
     spec = str(row.get("spec") or "")
     spec_n = normalize_ws(spec)
     c_n = normalize_ws(str(row.get("reference_c") or ""))
-    grams = word_ngrams(spec, WORD_N)
+    grams = word5_grams(spec)
     if grams:
         for gram in grams:
             hit = indexes["word5"].get(gram)
@@ -1337,6 +1382,8 @@ def _indexes(refs: list[_Ref]) -> dict[str, Any]:
     word5: dict[str, str] = {}
     for ref in refs:
         for gram in ref.word5:
+            if boilerplate_gram(gram):
+                continue
             word5.setdefault(gram, ref.id)
     bodies = {}
     for ref in refs:
@@ -1344,7 +1391,7 @@ def _indexes(refs: list[_Ref]) -> dict[str, Any]:
             bodies.setdefault(ref.body, ref.id)
     return {
         "ids": {ref.id for ref in refs},
-        "sources": {str(ref.id) for ref in refs},
+        "sources": set(),
         "names": names,
         "bare_names": bare,
         "sigs": {ref.signature for ref in refs if ref.signature},
@@ -1362,7 +1409,9 @@ def screen_text(
     indexes = _indexes(refs)
     for row in protected_rows:
         source = str(row.get("source") or "")
-        if source:
+        # "MBPP/3" and "HumanEval/10" identify a task. "exebench" is the whole
+        # train corpus, and every val row carries it, so it is not an id.
+        if "/" in source:
             indexes["sources"].add(source)
     kept = []
     dropped = []
@@ -1465,14 +1514,16 @@ def screen_embed(
             fh.write(json.dumps({"sha": sha, "vec": vec}) + "\n")
         return vec
 
+    kept: list[dict[str, Any]] = []
+    dropped: list[dict[str, Any]] = []
+    seen = 0
     try:
         ref_vecs = [(ref.id, vec_for(ref.spec)) for ref in refs if ref.spec]
-        kept = []
-        dropped = []
         for i, row in enumerate(rows, 1):
             spec = str(row.get("spec") or "")
             if not spec.strip():
                 dropped.append({"task_id": row.get("task_id") or row.get("id"), "origin": row.get("origin"), "reason": "embed:empty"})
+                seen = i
                 continue
             vec = vec_for(spec)
             best_id = ""
@@ -1492,11 +1543,27 @@ def screen_embed(
                 )
             else:
                 kept.append(row)
+            seen = i
             if i % 200 == 0:
                 print(f"embed {i}/{len(rows)} kept {len(kept)} dropped {len(dropped)}", flush=True)
     except StopIteration as exc:
-        return rows, [], {"stopped": str(exc), "embedded": False}
-    return kept, dropped, {"stopped": None, "embedded": True, "threshold": threshold, "model": model, "cpu": cpu}
+        pending = len(rows) - seen
+        return kept, dropped, {
+            "stopped": str(exc),
+            "embedded": False,
+            "pending": pending,
+            "threshold": threshold,
+            "model": model,
+            "cpu": cpu,
+        }
+    return kept, dropped, {
+        "stopped": None,
+        "embedded": True,
+        "pending": 0,
+        "threshold": threshold,
+        "model": model,
+        "cpu": cpu,
+    }
 
 
 def attach_reference_c(rows: list[dict[str, Any]], tasks: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:

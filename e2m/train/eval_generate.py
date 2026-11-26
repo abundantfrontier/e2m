@@ -16,7 +16,7 @@ from typing import Any
 import torch
 
 from e2m.harness.tasks import Task, assemble_reference, load_jsonl, run_gcc_baseline, run_task
-from e2m.loop.guard import check_gpu_lock, past_deadline
+from e2m.loop.guard import check_gpu_lock, hold_requested, past_deadline
 from e2m.train.format import (
     asm_messages,
     c_messages,
@@ -217,6 +217,10 @@ def evaluate(
             print("gpu.lock lost, skipping eval", flush=True)
             stopped = "gpu-lock"
             pending = []
+    if pending and hold_requested():
+        print("held", flush=True)
+        stopped = "held"
+        pending = []
     model = tokenizer = None
     if pending:
         model, tokenizer = _load_model(model_path, adapter, load_4bit=load_4bit)
@@ -243,6 +247,10 @@ def evaluate(
             if max_hours > 0 and (time.time() - started) / 3600.0 >= max_hours:
                 print(f"max-hours {max_hours} reached, stopping eval", flush=True)
                 stopped = "max-hours"
+                break
+            if hold_requested():
+                print("held", flush=True)
+                stopped = "held"
                 break
             try:
                 check_gpu_lock()
@@ -415,6 +423,8 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     if stopped in {"deadline", "max-hours"}:
         return 3
+    if stopped == "held":
+        return 4
     return 0
 
 

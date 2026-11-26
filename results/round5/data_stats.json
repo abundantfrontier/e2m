@@ -1,0 +1,211 @@
+{
+  "mbpp": {
+    "scanned": 974,
+    "candidates": 189,
+    "verified_new": 182,
+    "kept": 182,
+    "rejects": {
+      "ListComp": 113,
+      "unsupported value type list": 111,
+      "return str": 88,
+      "return list": 64,
+      "GeneratorExp": 58,
+      "no asserts": 51,
+      "unsupported value type float": 42,
+      "Lambda": 37,
+      "recursion": 35,
+      "blocked_or_done": 23,
+      "oracle call": 20,
+      "binop Div": 19,
+      "stmt Expr": 15,
+      "python oracle": 15,
+      "expr List": 10,
+      "verify": 7,
+      "assign target": 6,
+      "string literal": 6,
+      "method pow": 4,
+      "nested function": 4,
+      "unsupported value type NoneType": 4,
+      "method split": 3,
+      "method": 3,
+      "call pow": 3,
+      "method count": 3,
+      "call check_Equality": 2,
+      "assign str": 2,
+      "constant": 2,
+      "expr Dict": 2,
+      "pow": 2,
+      "call list": 2,
+      "call sum": 2,
+      "mixed return": 2,
+      "slice": 1,
+      "call rev": 1,
+      "unsupported value type complex": 1,
+      "call closest": 1,
+      "call divSum": 1,
+      "call binary_search": 1,
+      "call bin_coff": 1
+    },
+    "out": "runs/round5/mbpp_tasks.jsonl"
+  },
+  "train_manifest": {
+    "cap": 400,
+    "chosen": 400,
+    "rewritten": 400,
+    "original": 0,
+    "out": "runs/round5/train_tasks.jsonl"
+  },
+  "screen_tasks": {
+    "mbpp": {
+      "checked": 182,
+      "kept_text": 182,
+      "dropped_text": 0,
+      "by_check": {},
+      "by_source": {
+        "mbpp": {
+          "checked": 182,
+          "kept": 182
+        }
+      },
+      "dropped_ids": []
+    },
+    "train": {
+      "checked": 400,
+      "kept_text": 346,
+      "dropped_text": 54,
+      "by_check": {
+        "word5": 28,
+        "name": 22,
+        "c_ratio": 4
+      },
+      "by_source": {
+        "train": {
+          "checked": 400,
+          "kept": 346,
+          "dropped": 54,
+          "word5": 28,
+          "name": 22,
+          "c_ratio": 4
+        }
+      },
+      "dropped_ids": [
+        "exebench__testfunc_i_bhilfd_30068bb309d1",
+        "exebench_fact_ba4ecbd55392",
+        "exebench_drag_cd_g8_5ee847bda595",
+        "exebench_fat_42c71dc707c8",
+        "exebench_f5_6ff3f52318d0",
+        "exebench_compare_records_37d490ae33d0",
+        "exebench_cross_16ecc7d05179",
+        "exebench_fmadd_c9861a6c0652",
+        "exebench_div_7579e8d36bb3",
+        "exebench_foo_b2e7b95050a8",
+        "exebench_fac_41a7ff3acda0",
+        "exebench_cube_91f0b9118d14",
+        "exebench_fator_e595ad1bfde6",
+        "exebench_convertCharacterToInt32_c180892b6f51",
+        "exebench_expAvg_46842b03c00d",
+        "exebench_foo_cf99d2315e4f",
+        "exebench_div_3eda5d785e29",
+        "exebench_bit_scan_forward_e7ed9bbcb6f0",
+        "exebench_comparar_efd80306de63",
+        "exebench_divby5_726d92f75ac4",
+        "exebench_foo_60efdc652a34",
+        "exebench_count_8e4314cd6714",
+        "exebench_ADD_ASSIGN_6d5be7236aa7",
+        "exebench_determinant2x2_3f9838c02fe5",
+        "exebench_bitlen_a84814f1fea8",
+        "exebench_b_05b6aec1477e",
+        "exebench_count_in_array_50bd57bec707",
+        "exebench__ilog_5d88ae8dda69",
+        "exebench_foo_9068de251441",
+        "exebench_MOD_ASSIGN_a04aeebc5327",
+        "exebench_foo_2226c392ce63",
+        "exebench_foo_2107ceda2e4f",
+        "exebench_division_b0edd5fb4076",
+        "exebench_foo_b0bf59f24e80",
+        "exebench_foo7_c76ea4812b0f",
+        "exebench_count_69022de50407",
+        "exebench_factorial_recursive_5975ddd2f8ca",
+        "exebench_foo_a5d4f13ba8bc",
+        "exebench_bar_db15a1542d56",
+        "exebench_fact_a7e06eaf8dbc",
+        "exebench_div_526a36ca4088",
+        "exebench_FastAtan2_2f176b643061",
+        "exebench_foo_7993ba84e965",
+        "exebench_DIV_ASSIGN_bb03440cbb70",
+        "exebench_XOR_ASSIGN_fc7829cacc09",
+        "exebench_foo_296413ca0282",
+        "exebench_BKDRHash_d931277412d3",
+        "exebench_count_4d67b1b23fcb",
+        "exebench_BitSize_f213e2c153ec",
+        "exebench_Index_06171615c875",
+        "exebench_NiceTime_c6a8c8f9f33a",
+        "exebench_foo_bf9edfee1c80",
+        "exebench_foo_70c25e1143d2",
+        "exebench_foo_381d7712b5dc"
+      ]
+    }
+  },
+  "lower": {
+    "new_rows": 798,
+    "tasks": 550
+  },
+  "leakage_text": {
+    "checked": 7579,
+    "kept_text": 6433,
+    "dropped_text": 1146,
+    "by_check": {
+      "c_ratio": 66,
+      "name": 320,
+      "word5": 652,
+      "spec_ratio": 108
+    },
+    "by_source": {
+      "sft_lora2": {
+        "checked": 6781,
+        "kept": 5635,
+        "dropped": 1146,
+        "c_ratio": 66,
+        "name": 320,
+        "word5": 652,
+        "spec_ratio": 108
+      },
+      "mbpp": {
+        "checked": 207,
+        "kept": 207
+      },
+      "synth": {
+        "checked": 38,
+        "kept": 38
+      },
+      "train": {
+        "checked": 553,
+        "kept": 553
+      }
+    },
+    "word5_rule": "word 5-grams over lowercase tokens, negation kept, no short-text fallback; a shared gram drops the row unless it is the ExeBench side-effect boilerplate listed in _BOILER_PHRASES"
+  },
+  "leakage_text_dropped": 1146,
+  "mix": {
+    "rows": 5886,
+    "by_origin": {
+      "sft_lora2": 5097,
+      "mbpp": 207,
+      "synth": 38,
+      "train": 544
+    },
+    "by_goal": {
+      "default": 5576,
+      "size": 310
+    },
+    "proportions": {
+      "sft_lora2": 0.866,
+      "mbpp": 0.0352,
+      "synth": 0.0065,
+      "train": 0.0924
+    },
+    "out": "runs/round5/sft.jsonl",
+    "auxiliary_c_to_asm": false,
+    "auxiliary_reason": "Eval uses the English-to-asm prompt (Goal: default). A C-to-asm auxiliary would train a different prompt than inference, and a row that contains both c and asm is treated as C-then-asm text by the trainer. Distill targets stay plain gcc AT&T of the teacher's passing C."
+  }
+}

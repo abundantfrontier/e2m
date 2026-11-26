@@ -1,0 +1,54 @@
+{
+  "stages": {
+    "prep-mbpp": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "prep-train-manifest": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "screen-tasks": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "synth": {
+      "status": "error",
+      "code": 1,
+      "reason": "stage failed; continuing"
+    },
+    "sample-c": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "lower-asm": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "leakage-text": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "leakage-embed": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "mix": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "train": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    }
+  }
+}

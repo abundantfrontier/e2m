@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from e2m.harness.tasks import Task, load_jsonl
-from e2m.loop.guard import check_gpu_lock, install_run_files, past_deadline
+from e2m.loop.guard import check_gpu_lock, hold_requested, install_run_files, past_deadline
 from e2m.loop.repair import repair_task
 from e2m.loop.summarize import summarize_loop
 from e2m.train.eval_generate import _done_ids, _gcc_reference, _generate, _load_model
@@ -83,6 +83,9 @@ def run_loop(
     max_hours: float = 0.0,
 ) -> dict[str, Any]:
     check_gpu_lock()
+    if hold_requested():
+        print("held", flush=True)
+        return {"stopped": "held", "mode": mode, "split": split, "model": model_name}
     if past_deadline():
         print("GPU deadline 2026-11-18 18:00 PT reached", flush=True)
         raise SystemExit(3)
@@ -124,6 +127,10 @@ def run_loop(
             if max_hours > 0 and (time.time() - started) / 3600.0 >= max_hours:
                 print(f"max-hours {max_hours} reached, stopping", flush=True)
                 stopped = "max-hours"
+                break
+            if hold_requested():
+                print("held", flush=True)
+                stopped = "held"
                 break
             try:
                 lock = check_gpu_lock()
@@ -215,6 +222,8 @@ def run_loop(
         state["code"] = 2
     elif stopped in {"deadline", "max-hours"}:
         state["code"] = 3
+    elif stopped == "held":
+        state["code"] = 4
     else:
         state["code"] = 0
     return summary

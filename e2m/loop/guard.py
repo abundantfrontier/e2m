@@ -76,6 +76,20 @@ def release_gpu_lock(*, owner_pid: int | None = None, path: Path | None = None) 
     return True
 
 
+def hold_requested(path: Path | None = None) -> bool:
+    """True when the round-5 hold file exists.
+
+    The path is the argument, or ``E2M_HOLD_FILE`` when the argument is omitted.
+    Callers that do not set either keep the old behavior.
+    """
+    if path is None:
+        env = os.environ.get("E2M_HOLD_FILE", "").strip()
+        if not env:
+            return False
+        path = Path(env)
+    return path.is_file()
+
+
 def past_deadline(now: datetime | None = None) -> bool:
     if os.environ.get("E2M_NO_DEADLINE", "").strip().lower() in {"1", "true", "yes"}:
         return False
