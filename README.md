@@ -111,17 +111,17 @@ revisions.
 
 ## Model weights
 
-Adapters are not stored in git. Weights will be published on Hugging Face; link coming.
+Adapters are not stored in git. Weights are on Hugging Face: [AbundantFrontierInstitute/e2m](https://huggingface.co/AbundantFrontierInstitute/e2m).
 
-- **lora1** (round 1, base `Qwen2.5-Coder-1.5B-Instruct`): First LoRA: English to AT&T assembly, 2,910 scaled tasks. [weights](https://huggingface.co/TODO)
-- **qlora7b** (round 1, base `Qwen2.5-Coder-7B-Instruct`): 4-bit QLoRA: English to assembly, same 2,910 tasks as lora1. [weights](https://huggingface.co/TODO)
-- **lora2** (round 1, base `Qwen2.5-Coder-1.5B-Instruct`): LoRA on the 6,781-task mix (rejection-sampled loop programs plus rewritten specs). [weights](https://huggingface.co/TODO)
-- **dpo** (round 2, base `Qwen2.5-Coder-1.5B-Instruct`): DPO from lora2 (beta 0.1); generation collapsed. Kept for the record. [weights](https://huggingface.co/TODO)
-- **qlora7b-v2** (round 2b, base `Qwen2.5-Coder-7B-Instruct`): 4-bit QLoRA on the 6,781-task mix, English to assembly. [weights](https://huggingface.co/TODO)
-- **dpo2** (round 3, base `Qwen2.5-Coder-1.5B-Instruct`): DPO from lora2 with an RPO-style supervised term (beta 0.2, 1,500 steps). [weights](https://huggingface.co/TODO)
-- **c-then-asm** (round 3, base `Qwen2.5-Coder-7B-Instruct`): 4-bit QLoRA that writes C, then assembly for that C. [weights](https://huggingface.co/TODO)
-- **c-only-7b** (round 4, base `Qwen2.5-Coder-7B-Instruct`): 4-bit QLoRA that writes C only; the C model of the gcc hybrid. [weights](https://huggingface.co/TODO)
-- **asm-distill-7b** (round 5, base `Qwen2.5-Coder-7B-Instruct`): 4-bit QLoRA, English to assembly distilled from gcc lowerings of the model's own C. [weights](https://huggingface.co/TODO)
+- **lora1** (round 1, base `Qwen2.5-Coder-1.5B-Instruct`): First LoRA: English to AT&T assembly, 2,910 scaled tasks. [weights](https://huggingface.co/AbundantFrontierInstitute/e2m/tree/main/lora1)
+- **qlora7b** (round 1, base `Qwen2.5-Coder-7B-Instruct`): 4-bit QLoRA: English to assembly, same 2,910 tasks as lora1. [weights](https://huggingface.co/AbundantFrontierInstitute/e2m/tree/main/qlora7b)
+- **lora2** (round 1, base `Qwen2.5-Coder-1.5B-Instruct`): LoRA on the 6,781-task mix (rejection-sampled loop programs plus rewritten specs). [weights](https://huggingface.co/AbundantFrontierInstitute/e2m/tree/main/lora2)
+- **dpo** (round 2, base `Qwen2.5-Coder-1.5B-Instruct`): DPO from lora2 (beta 0.1); generation collapsed. Kept for the record. [weights](https://huggingface.co/AbundantFrontierInstitute/e2m/tree/main/dpo)
+- **qlora7b-v2** (round 2b, base `Qwen2.5-Coder-7B-Instruct`): 4-bit QLoRA on the 6,781-task mix, English to assembly. [weights](https://huggingface.co/AbundantFrontierInstitute/e2m/tree/main/qlora7b-v2)
+- **dpo2** (round 3, base `Qwen2.5-Coder-1.5B-Instruct`): DPO from lora2 with an RPO-style supervised term (beta 0.2, 1,500 steps). [weights](https://huggingface.co/AbundantFrontierInstitute/e2m/tree/main/dpo2)
+- **c-then-asm** (round 3, base `Qwen2.5-Coder-7B-Instruct`): 4-bit QLoRA that writes C, then assembly for that C. [weights](https://huggingface.co/AbundantFrontierInstitute/e2m/tree/main/c-then-asm)
+- **c-only-7b** (round 4, base `Qwen2.5-Coder-7B-Instruct`): 4-bit QLoRA that writes C only; the C model of the gcc hybrid. [weights](https://huggingface.co/AbundantFrontierInstitute/e2m/tree/main/c-only-7b)
+- **asm-distill-7b** (round 5, base `Qwen2.5-Coder-7B-Instruct`): 4-bit QLoRA, English to assembly distilled from gcc lowerings of the model's own C. [weights](https://huggingface.co/AbundantFrontierInstitute/e2m/tree/main/asm-distill-7b)
 
 See [docs/MODELS.md](docs/MODELS.md) for base models, rounds and settings.
 
