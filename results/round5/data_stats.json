@@ -207,5 +207,322 @@
     "out": "runs/round5/sft.jsonl",
     "auxiliary_c_to_asm": false,
     "auxiliary_reason": "Eval uses the English-to-asm prompt (Goal: default). A C-to-asm auxiliary would train a different prompt than inference, and a row that contains both c and asm is treated as C-then-asm text by the trainer. Distill targets stay plain gcc AT&T of the teacher's passing C."
+  },
+  "failure": {
+    "model": "asm-distill-7b",
+    "split": "heldout",
+    "n": 52,
+    "pass_n": 4,
+    "tally": {
+      "doesnt_assemble": 4,
+      "logic_mismatch": 35,
+      "crash": 4,
+      "timeout": 5
+    },
+    "hybrid_pass_n": 48,
+    "hybrid_pass_copied_from": "runs/round4/hybrid.jsonl",
+    "overlap_pass_n": 4,
+    "overlap_pass_ids": [
+      "he23_strlen",
+      "mbpp14_prism_volume",
+      "mbpp234_cube_volume",
+      "mbpp8_square_nums"
+    ],
+    "hybrid_fail_tally": {
+      "doesnt_assemble": 3,
+      "logic_mismatch": 23,
+      "crash": 4,
+      "timeout": 2
+    },
+    "failures": [
+      {
+        "task_id": "mbpp3_is_not_prime",
+        "bucket": "doesnt_assemble",
+        "category": "doesnt_assemble",
+        "detail": "assembler rejected the input as both AT&T and Intel syntax\nAT&T:\n/tmp/e2m-as-vy1zm68x/in.s: Assembler messages:\n/tmp/e2m-as-vy1zm68x/in.s:26: Error: register type mismatch for `cmove'\n\nIntel:\n/tmp/e2m-as-vy1zm68x/in.s: Assembler messages:\n/"
+      },
+      {
+        "task_id": "mbpp6_differ_one_bit",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 4294967295 != expected 1"
+      },
+      {
+        "task_id": "mbpp17_square_perimeter",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 80 != expected 40"
+      },
+      {
+        "task_id": "mbpp24_binary_to_decimal",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 1 != expected 4"
+      },
+      {
+        "task_id": "mbpp32_max_prime_factor",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 1 != expected 5"
+      },
+      {
+        "task_id": "mbpp33_decimal_to_binary",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 1 != expected 1010"
+      },
+      {
+        "task_id": "mbpp45_array_gcd",
+        "bucket": "crash",
+        "category": "crash",
+        "detail": "int: interrupt 0"
+      },
+      {
+        "task_id": "mbpp47_fact_div_last_digit",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 0 != expected 2"
+      },
+      {
+        "task_id": "mbpp48_set_odd_bits",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 31 != expected 21"
+      },
+      {
+        "task_id": "mbpp72_diff_of_squares",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 0 != expected 1"
+      },
+      {
+        "task_id": "mbpp76_count_squares",
+        "bucket": "timeout",
+        "category": "timeout",
+        "detail": "timeout: timeout"
+      },
+      {
+        "task_id": "mbpp78_odd_setbit_count",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 1 != expected 3"
+      },
+      {
+        "task_id": "mbpp100_next_palindrome",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 3689348814741909680 != expected 101"
+      },
+      {
+        "task_id": "mbpp151_is_coprime",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 1 != expected 0"
+      },
+      {
+        "task_id": "mbpp155_toggle_even_bits",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 2 != expected 0"
+      },
+      {
+        "task_id": "mbpp224_count_set_bits",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 2 != expected 1"
+      },
+      {
+        "task_id": "mbpp244_next_square",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 2 != expected 36"
+      },
+      {
+        "task_id": "mbpp256_count_primes",
+        "bucket": "doesnt_assemble",
+        "category": "doesnt_assemble",
+        "detail": "assembler rejected the input as both AT&T and Intel syntax\nAT&T:\n/tmp/e2m-as-agj3mif1/in.s: Assembler messages:\n/tmp/e2m-as-agj3mif1/in.s:39: Error: register type mismatch for `imul'\n\nIntel:\n/tmp/e2m-as-agj3mif1/in.s: Assembler messages:\n/t"
+      },
+      {
+        "task_id": "mbpp267_sum_odd_squares",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 30 != expected 10"
+      },
+      {
+        "task_id": "mbpp287_sum_even_squares",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 1 != expected 20"
+      },
+      {
+        "task_id": "he3_below_zero",
+        "bucket": "crash",
+        "category": "crash",
+        "detail": "unmapped: unmapped"
+      },
+      {
+        "task_id": "he8_sum_product",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "buffer 'product' mismatch: got 0000000000000000 expected 0100000000000000"
+      },
+      {
+        "task_id": "he9_rolling_max",
+        "bucket": "crash",
+        "category": "crash",
+        "detail": "prot: prot"
+      },
+      {
+        "task_id": "he11_string_xor",
+        "bucket": "crash",
+        "category": "crash",
+        "detail": "unmapped: unmapped"
+      },
+      {
+        "task_id": "he13_gcd",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 6 != expected 2"
+      },
+      {
+        "task_id": "he16_count_distinct_chars",
+        "bucket": "timeout",
+        "category": "timeout",
+        "detail": "timeout: timeout"
+      },
+      {
+        "task_id": "he18_how_many_times",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 0 != expected 3"
+      },
+      {
+        "task_id": "he24_largest_divisor",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 15 != expected 5"
+      },
+      {
+        "task_id": "he25_factorize",
+        "bucket": "doesnt_assemble",
+        "category": "doesnt_assemble",
+        "detail": "assembler rejected the input as both AT&T and Intel syntax\nAT&T:\n/tmp/e2m-as-ah6r0ocx/in.s: Assembler messages:\n/tmp/e2m-as-ah6r0ocx/in.s:42: Error: junk `(%rdx)' after register\n\nIntel:\n/tmp/e2m-as-ah6r0ocx/in.s: Assembler messages:\n/tmp/e2"
+      },
+      {
+        "task_id": "he26_remove_duplicates",
+        "bucket": "timeout",
+        "category": "timeout",
+        "detail": "timeout: timeout"
+      },
+      {
+        "task_id": "he27_flip_case",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "buffer 'out' mismatch: got 28006c006f00 expected 68454c4c4f00"
+      },
+      {
+        "task_id": "he36_fizz_buzz",
+        "bucket": "timeout",
+        "category": "timeout",
+        "detail": "timeout: timeout"
+      },
+      {
+        "task_id": "he43_pairs_sum_to_zero",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 0 != expected 1"
+      },
+      {
+        "task_id": "he45_triangle_area",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 30.0 != expected 7.5"
+      },
+      {
+        "task_id": "he48_is_palindrome",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 0 != expected 1"
+      },
+      {
+        "task_id": "he49_modp",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 0 != expected 3"
+      },
+      {
+        "task_id": "he56_correct_bracketing",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 3 != expected 1"
+      },
+      {
+        "task_id": "he59_largest_prime_factor",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 13195 != expected 29"
+      },
+      {
+        "task_id": "he60_sum_to_n",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 435 != expected 465"
+      },
+      {
+        "task_id": "he63_fibfib",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 2 != expected 4"
+      },
+      {
+        "task_id": "he64_vowels_count",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 1 != expected 2"
+      },
+      {
+        "task_id": "he66_digit_sum_upper",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 2 != expected 131"
+      },
+      {
+        "task_id": "he72_will_it_fly",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 0 != expected 1"
+      },
+      {
+        "task_id": "he73_smallest_change",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 0 != expected 4"
+      },
+      {
+        "task_id": "he75_is_multiply_prime",
+        "bucket": "timeout",
+        "category": "timeout",
+        "detail": "timeout: timeout"
+      },
+      {
+        "task_id": "he76_is_simple_power",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 0 != expected 1"
+      },
+      {
+        "task_id": "he77_iscube",
+        "bucket": "logic_mismatch",
+        "category": "wrong_answer",
+        "detail": "return 0 != expected 1"
+      },
+      {
+        "task_id": "he78_hex_key",
+        "bucket": "doesnt_assemble",
+        "category": "doesnt_assemble",
+        "detail": "assembler rejected the input as both AT&T and Intel syntax\nAT&T:\n/tmp/e2m-as-1h92abeh/in.s: Assembler messages:\n/tmp/e2m-as-1h92abeh/in.s:14: Error: bad register name `%L4(%rax))'\n\nIntel:\n/tmp/e2m-as-1h92abeh/in.s: Assembler messages:\n/tmp/"
+      }
+    ]
   }
 }

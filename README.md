@@ -38,7 +38,7 @@ configs, small data and the results behind them.
 - Round 2b: done ([results](results/round2b/SUMMARY.md)).
 - Round 3: done ([results](results/round3/SUMMARY.md)).
 - Round 4: done ([results](results/round4/SUMMARY.md)).
-- Round 5: in progress.
+- Round 5: done ([results](results/round5/SUMMARY.md)).
 
 Headline (round 4, held-out, 78 tasks, greedy pass@1 unless noted):
 

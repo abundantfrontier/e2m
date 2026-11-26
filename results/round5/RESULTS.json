@@ -1,0 +1,748 @@
+{
+  "title": "E2M round 5",
+  "target_heldout_direct_asm_pass_at_1": "20/78",
+  "teacher": "runs/c-only-7b/adapter",
+  "train_out": "runs/asm-distill-7b",
+  "epochs": 2,
+  "goals": [
+    "default",
+    "size"
+  ],
+  "auxiliary_c_to_asm": false,
+  "round4": {
+    "source": "runs/round4/SUMMARY.md",
+    "heldout_direct_asm_pass_at_1": "7/78",
+    "heldout_direct_asm_pass_at_5": "9/78",
+    "heldout_c_then_asm_loop": "19/78",
+    "heldout_hybrid_o2": "48/78",
+    "heldout_c_only_pass_at_1": "46/78",
+    "heldout_c_only_pass_at_5": "56/78",
+    "note": "Copied. Round 5 does not re-score round 4."
+  },
+  "heldout_asm": {
+    "n": 52,
+    "pass_at_1_n": 4,
+    "pass_at_1": 0.07692307692307693,
+    "pass_at_5": 0.1346153846153846,
+    "size_ratio_vs_gcc_o2": 1.0151515151515151,
+    "insn_ratio_vs_gcc_o2": 1.010983981693364,
+    "greedy_categories": {
+      "doesnt_assemble": 4,
+      "wrong_answer": 35,
+      "pass": 4,
+      "crash": 4,
+      "timeout": 5
+    }
+  },
+  "val_asm": {
+    "n": 0,
+    "pass_at_1_n": 0,
+    "pass_at_1": null,
+    "pass_at_5": null,
+    "size_ratio_vs_gcc_o2": null,
+    "insn_ratio_vs_gcc_o2": null,
+    "greedy_categories": {}
+  },
+  "loop_heldout": {
+    "n": 0,
+    "pass_n": 0
+  },
+  "loop_val": {
+    "n": 0,
+    "pass_n": 0
+  },
+  "data_stats": {
+    "mbpp": {
+      "scanned": 974,
+      "candidates": 189,
+      "verified_new": 182,
+      "kept": 182,
+      "rejects": {
+        "ListComp": 113,
+        "unsupported value type list": 111,
+        "return str": 88,
+        "return list": 64,
+        "GeneratorExp": 58,
+        "no asserts": 51,
+        "unsupported value type float": 42,
+        "Lambda": 37,
+        "recursion": 35,
+        "blocked_or_done": 23,
+        "oracle call": 20,
+        "binop Div": 19,
+        "stmt Expr": 15,
+        "python oracle": 15,
+        "expr List": 10,
+        "verify": 7,
+        "assign target": 6,
+        "string literal": 6,
+        "method pow": 4,
+        "nested function": 4,
+        "unsupported value type NoneType": 4,
+        "method split": 3,
+        "method": 3,
+        "call pow": 3,
+        "method count": 3,
+        "call check_Equality": 2,
+        "assign str": 2,
+        "constant": 2,
+        "expr Dict": 2,
+        "pow": 2,
+        "call list": 2,
+        "call sum": 2,
+        "mixed return": 2,
+        "slice": 1,
+        "call rev": 1,
+        "unsupported value type complex": 1,
+        "call closest": 1,
+        "call divSum": 1,
+        "call binary_search": 1,
+        "call bin_coff": 1
+      },
+      "out": "runs/round5/mbpp_tasks.jsonl"
+    },
+    "train_manifest": {
+      "cap": 400,
+      "chosen": 400,
+      "rewritten": 400,
+      "original": 0,
+      "out": "runs/round5/train_tasks.jsonl"
+    },
+    "screen_tasks": {
+      "mbpp": {
+        "checked": 182,
+        "kept_text": 182,
+        "dropped_text": 0,
+        "by_check": {},
+        "by_source": {
+          "mbpp": {
+            "checked": 182,
+            "kept": 182
+          }
+        },
+        "dropped_ids": []
+      },
+      "train": {
+        "checked": 400,
+        "kept_text": 346,
+        "dropped_text": 54,
+        "by_check": {
+          "word5": 28,
+          "name": 22,
+          "c_ratio": 4
+        },
+        "by_source": {
+          "train": {
+            "checked": 400,
+            "kept": 346,
+            "dropped": 54,
+            "word5": 28,
+            "name": 22,
+            "c_ratio": 4
+          }
+        },
+        "dropped_ids": [
+          "exebench__testfunc_i_bhilfd_30068bb309d1",
+          "exebench_fact_ba4ecbd55392",
+          "exebench_drag_cd_g8_5ee847bda595",
+          "exebench_fat_42c71dc707c8",
+          "exebench_f5_6ff3f52318d0",
+          "exebench_compare_records_37d490ae33d0",
+          "exebench_cross_16ecc7d05179",
+          "exebench_fmadd_c9861a6c0652",
+          "exebench_div_7579e8d36bb3",
+          "exebench_foo_b2e7b95050a8",
+          "exebench_fac_41a7ff3acda0",
+          "exebench_cube_91f0b9118d14",
+          "exebench_fator_e595ad1bfde6",
+          "exebench_convertCharacterToInt32_c180892b6f51",
+          "exebench_expAvg_46842b03c00d",
+          "exebench_foo_cf99d2315e4f",
+          "exebench_div_3eda5d785e29",
+          "exebench_bit_scan_forward_e7ed9bbcb6f0",
+          "exebench_comparar_efd80306de63",
+          "exebench_divby5_726d92f75ac4",
+          "exebench_foo_60efdc652a34",
+          "exebench_count_8e4314cd6714",
+          "exebench_ADD_ASSIGN_6d5be7236aa7",
+          "exebench_determinant2x2_3f9838c02fe5",
+          "exebench_bitlen_a84814f1fea8",
+          "exebench_b_05b6aec1477e",
+          "exebench_count_in_array_50bd57bec707",
+          "exebench__ilog_5d88ae8dda69",
+          "exebench_foo_9068de251441",
+          "exebench_MOD_ASSIGN_a04aeebc5327",
+          "exebench_foo_2226c392ce63",
+          "exebench_foo_2107ceda2e4f",
+          "exebench_division_b0edd5fb4076",
+          "exebench_foo_b0bf59f24e80",
+          "exebench_foo7_c76ea4812b0f",
+          "exebench_count_69022de50407",
+          "exebench_factorial_recursive_5975ddd2f8ca",
+          "exebench_foo_a5d4f13ba8bc",
+          "exebench_bar_db15a1542d56",
+          "exebench_fact_a7e06eaf8dbc",
+          "exebench_div_526a36ca4088",
+          "exebench_FastAtan2_2f176b643061",
+          "exebench_foo_7993ba84e965",
+          "exebench_DIV_ASSIGN_bb03440cbb70",
+          "exebench_XOR_ASSIGN_fc7829cacc09",
+          "exebench_foo_296413ca0282",
+          "exebench_BKDRHash_d931277412d3",
+          "exebench_count_4d67b1b23fcb",
+          "exebench_BitSize_f213e2c153ec",
+          "exebench_Index_06171615c875",
+          "exebench_NiceTime_c6a8c8f9f33a",
+          "exebench_foo_bf9edfee1c80",
+          "exebench_foo_70c25e1143d2",
+          "exebench_foo_381d7712b5dc"
+        ]
+      }
+    },
+    "lower": {
+      "new_rows": 798,
+      "tasks": 550
+    },
+    "leakage_text": {
+      "checked": 7579,
+      "kept_text": 6433,
+      "dropped_text": 1146,
+      "by_check": {
+        "c_ratio": 66,
+        "name": 320,
+        "word5": 652,
+        "spec_ratio": 108
+      },
+      "by_source": {
+        "sft_lora2": {
+          "checked": 6781,
+          "kept": 5635,
+          "dropped": 1146,
+          "c_ratio": 66,
+          "name": 320,
+          "word5": 652,
+          "spec_ratio": 108
+        },
+        "mbpp": {
+          "checked": 207,
+          "kept": 207
+        },
+        "synth": {
+          "checked": 38,
+          "kept": 38
+        },
+        "train": {
+          "checked": 553,
+          "kept": 553
+        }
+      },
+      "word5_rule": "word 5-grams over lowercase tokens, negation kept, no short-text fallback; a shared gram drops the row unless it is the ExeBench side-effect boilerplate listed in _BOILER_PHRASES"
+    },
+    "leakage_text_dropped": 1146,
+    "mix": {
+      "rows": 5886,
+      "by_origin": {
+        "sft_lora2": 5097,
+        "mbpp": 207,
+        "synth": 38,
+        "train": 544
+      },
+      "by_goal": {
+        "default": 5576,
+        "size": 310
+      },
+      "proportions": {
+        "sft_lora2": 0.866,
+        "mbpp": 0.0352,
+        "synth": 0.0065,
+        "train": 0.0924
+      },
+      "out": "runs/round5/sft.jsonl",
+      "auxiliary_c_to_asm": false,
+      "auxiliary_reason": "Eval uses the English-to-asm prompt (Goal: default). A C-to-asm auxiliary would train a different prompt than inference, and a row that contains both c and asm is treated as C-then-asm text by the trainer. Distill targets stay plain gcc AT&T of the teacher's passing C."
+    },
+    "failure": {
+      "model": "asm-distill-7b",
+      "split": "heldout",
+      "n": 52,
+      "pass_n": 4,
+      "tally": {
+        "doesnt_assemble": 4,
+        "logic_mismatch": 35,
+        "crash": 4,
+        "timeout": 5
+      },
+      "hybrid_pass_n": 48,
+      "hybrid_pass_copied_from": "runs/round4/hybrid.jsonl",
+      "overlap_pass_n": 4,
+      "overlap_pass_ids": [
+        "he23_strlen",
+        "mbpp14_prism_volume",
+        "mbpp234_cube_volume",
+        "mbpp8_square_nums"
+      ],
+      "hybrid_fail_tally": {
+        "doesnt_assemble": 3,
+        "logic_mismatch": 23,
+        "crash": 4,
+        "timeout": 2
+      },
+      "failures": [
+        {
+          "task_id": "mbpp3_is_not_prime",
+          "bucket": "doesnt_assemble",
+          "category": "doesnt_assemble",
+          "detail": "assembler rejected the input as both AT&T and Intel syntax\nAT&T:\n/tmp/e2m-as-vy1zm68x/in.s: Assembler messages:\n/tmp/e2m-as-vy1zm68x/in.s:26: Error: register type mismatch for `cmove'\n\nIntel:\n/tmp/e2m-as-vy1zm68x/in.s: Assembler messages:\n/"
+        },
+        {
+          "task_id": "mbpp6_differ_one_bit",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 4294967295 != expected 1"
+        },
+        {
+          "task_id": "mbpp17_square_perimeter",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 80 != expected 40"
+        },
+        {
+          "task_id": "mbpp24_binary_to_decimal",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 1 != expected 4"
+        },
+        {
+          "task_id": "mbpp32_max_prime_factor",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 1 != expected 5"
+        },
+        {
+          "task_id": "mbpp33_decimal_to_binary",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 1 != expected 1010"
+        },
+        {
+          "task_id": "mbpp45_array_gcd",
+          "bucket": "crash",
+          "category": "crash",
+          "detail": "int: interrupt 0"
+        },
+        {
+          "task_id": "mbpp47_fact_div_last_digit",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 0 != expected 2"
+        },
+        {
+          "task_id": "mbpp48_set_odd_bits",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 31 != expected 21"
+        },
+        {
+          "task_id": "mbpp72_diff_of_squares",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 0 != expected 1"
+        },
+        {
+          "task_id": "mbpp76_count_squares",
+          "bucket": "timeout",
+          "category": "timeout",
+          "detail": "timeout: timeout"
+        },
+        {
+          "task_id": "mbpp78_odd_setbit_count",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 1 != expected 3"
+        },
+        {
+          "task_id": "mbpp100_next_palindrome",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 3689348814741909680 != expected 101"
+        },
+        {
+          "task_id": "mbpp151_is_coprime",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 1 != expected 0"
+        },
+        {
+          "task_id": "mbpp155_toggle_even_bits",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 2 != expected 0"
+        },
+        {
+          "task_id": "mbpp224_count_set_bits",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 2 != expected 1"
+        },
+        {
+          "task_id": "mbpp244_next_square",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 2 != expected 36"
+        },
+        {
+          "task_id": "mbpp256_count_primes",
+          "bucket": "doesnt_assemble",
+          "category": "doesnt_assemble",
+          "detail": "assembler rejected the input as both AT&T and Intel syntax\nAT&T:\n/tmp/e2m-as-agj3mif1/in.s: Assembler messages:\n/tmp/e2m-as-agj3mif1/in.s:39: Error: register type mismatch for `imul'\n\nIntel:\n/tmp/e2m-as-agj3mif1/in.s: Assembler messages:\n/t"
+        },
+        {
+          "task_id": "mbpp267_sum_odd_squares",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 30 != expected 10"
+        },
+        {
+          "task_id": "mbpp287_sum_even_squares",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 1 != expected 20"
+        },
+        {
+          "task_id": "he3_below_zero",
+          "bucket": "crash",
+          "category": "crash",
+          "detail": "unmapped: unmapped"
+        },
+        {
+          "task_id": "he8_sum_product",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "buffer 'product' mismatch: got 0000000000000000 expected 0100000000000000"
+        },
+        {
+          "task_id": "he9_rolling_max",
+          "bucket": "crash",
+          "category": "crash",
+          "detail": "prot: prot"
+        },
+        {
+          "task_id": "he11_string_xor",
+          "bucket": "crash",
+          "category": "crash",
+          "detail": "unmapped: unmapped"
+        },
+        {
+          "task_id": "he13_gcd",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 6 != expected 2"
+        },
+        {
+          "task_id": "he16_count_distinct_chars",
+          "bucket": "timeout",
+          "category": "timeout",
+          "detail": "timeout: timeout"
+        },
+        {
+          "task_id": "he18_how_many_times",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 0 != expected 3"
+        },
+        {
+          "task_id": "he24_largest_divisor",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 15 != expected 5"
+        },
+        {
+          "task_id": "he25_factorize",
+          "bucket": "doesnt_assemble",
+          "category": "doesnt_assemble",
+          "detail": "assembler rejected the input as both AT&T and Intel syntax\nAT&T:\n/tmp/e2m-as-ah6r0ocx/in.s: Assembler messages:\n/tmp/e2m-as-ah6r0ocx/in.s:42: Error: junk `(%rdx)' after register\n\nIntel:\n/tmp/e2m-as-ah6r0ocx/in.s: Assembler messages:\n/tmp/e2"
+        },
+        {
+          "task_id": "he26_remove_duplicates",
+          "bucket": "timeout",
+          "category": "timeout",
+          "detail": "timeout: timeout"
+        },
+        {
+          "task_id": "he27_flip_case",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "buffer 'out' mismatch: got 28006c006f00 expected 68454c4c4f00"
+        },
+        {
+          "task_id": "he36_fizz_buzz",
+          "bucket": "timeout",
+          "category": "timeout",
+          "detail": "timeout: timeout"
+        },
+        {
+          "task_id": "he43_pairs_sum_to_zero",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 0 != expected 1"
+        },
+        {
+          "task_id": "he45_triangle_area",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 30.0 != expected 7.5"
+        },
+        {
+          "task_id": "he48_is_palindrome",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 0 != expected 1"
+        },
+        {
+          "task_id": "he49_modp",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 0 != expected 3"
+        },
+        {
+          "task_id": "he56_correct_bracketing",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 3 != expected 1"
+        },
+        {
+          "task_id": "he59_largest_prime_factor",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 13195 != expected 29"
+        },
+        {
+          "task_id": "he60_sum_to_n",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 435 != expected 465"
+        },
+        {
+          "task_id": "he63_fibfib",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 2 != expected 4"
+        },
+        {
+          "task_id": "he64_vowels_count",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 1 != expected 2"
+        },
+        {
+          "task_id": "he66_digit_sum_upper",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 2 != expected 131"
+        },
+        {
+          "task_id": "he72_will_it_fly",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 0 != expected 1"
+        },
+        {
+          "task_id": "he73_smallest_change",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 0 != expected 4"
+        },
+        {
+          "task_id": "he75_is_multiply_prime",
+          "bucket": "timeout",
+          "category": "timeout",
+          "detail": "timeout: timeout"
+        },
+        {
+          "task_id": "he76_is_simple_power",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 0 != expected 1"
+        },
+        {
+          "task_id": "he77_iscube",
+          "bucket": "logic_mismatch",
+          "category": "wrong_answer",
+          "detail": "return 0 != expected 1"
+        },
+        {
+          "task_id": "he78_hex_key",
+          "bucket": "doesnt_assemble",
+          "category": "doesnt_assemble",
+          "detail": "assembler rejected the input as both AT&T and Intel syntax\nAT&T:\n/tmp/e2m-as-1h92abeh/in.s: Assembler messages:\n/tmp/e2m-as-1h92abeh/in.s:14: Error: bad register name `%L4(%rax))'\n\nIntel:\n/tmp/e2m-as-1h92abeh/in.s: Assembler messages:\n/tmp/"
+        }
+      ]
+    }
+  },
+  "stages": {
+    "prep-mbpp": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "prep-train-manifest": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "screen-tasks": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "synth": {
+      "status": "error",
+      "code": 1,
+      "reason": "stage failed; continuing"
+    },
+    "sample-c": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "lower-asm": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "leakage-text": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "leakage-embed": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "mix": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "train": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "eval-heldout": {
+      "status": "stopped",
+      "code": 3,
+      "reason": "max-hours"
+    },
+    "eval-val": {
+      "status": "skipped",
+      "code": 3,
+      "reason": "gpu-hour budget"
+    },
+    "loop-heldout": {
+      "status": "skipped",
+      "code": null,
+      "reason": "gpu-hour budget"
+    },
+    "loop-val": {
+      "status": "skipped",
+      "code": null,
+      "reason": "gpu-hour budget"
+    },
+    "failure-analysis": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    }
+  },
+  "gpu_hours_budget": 8.0,
+  "gpu_hours_used": 4.1684,
+  "gpu_hours": [
+    {
+      "name": "prep-mbpp",
+      "seconds": 1.51,
+      "ok": true,
+      "gpu": false,
+      "ts": "2026-11-25T10:54:19.479097-08:00"
+    },
+    {
+      "name": "prep-train-manifest",
+      "seconds": 0.1,
+      "ok": true,
+      "gpu": false,
+      "ts": "2026-11-25T10:54:19.580197-08:00"
+    },
+    {
+      "name": "screen-tasks",
+      "seconds": 13.09,
+      "ok": true,
+      "gpu": false,
+      "ts": "2026-11-25T10:54:32.668191-08:00"
+    },
+    {
+      "name": "synth",
+      "seconds": 795.57,
+      "ok": false,
+      "gpu": true,
+      "ts": "2026-11-25T12:15:48.288563-08:00"
+    },
+    {
+      "name": "sample-c",
+      "seconds": 5057.34,
+      "ok": true,
+      "gpu": true,
+      "ts": "2026-11-25T13:40:05.679671-08:00"
+    },
+    {
+      "name": "lower-asm",
+      "seconds": 28.36,
+      "ok": true,
+      "gpu": false,
+      "ts": "2026-11-25T13:40:34.043755-08:00"
+    },
+    {
+      "name": "leakage-text",
+      "seconds": 160.3,
+      "ok": true,
+      "gpu": false,
+      "ts": "2026-11-25T13:43:14.341273-08:00"
+    },
+    {
+      "name": "leakage-embed-cpu",
+      "seconds": 522.02,
+      "ok": true,
+      "gpu": false,
+      "ts": "2026-11-25T13:51:56.357030-08:00"
+    },
+    {
+      "name": "mix",
+      "seconds": 0.09,
+      "ok": true,
+      "gpu": false,
+      "ts": "2026-11-25T13:51:56.445365-08:00"
+    },
+    {
+      "name": "train",
+      "seconds": 6619.16,
+      "ok": true,
+      "gpu": true,
+      "ts": "2026-11-25T15:42:15.609984-08:00"
+    },
+    {
+      "name": "eval-heldout",
+      "seconds": 2534.21,
+      "ok": false,
+      "gpu": true,
+      "ts": "2026-11-25T16:24:29.840313-08:00"
+    },
+    {
+      "name": "failure-analysis",
+      "seconds": 0.3,
+      "ok": true,
+      "gpu": false,
+      "ts": "2026-11-25T16:24:30.167281-08:00"
+    }
+  ],
+  "halt_reason": "gpu-hour budget"
+}

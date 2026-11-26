@@ -8,3 +8,5 @@
 {"name": "leakage-embed-cpu", "seconds": 522.02, "ok": true, "gpu": false, "ts": "2026-11-25T13:51:56.357030-08:00"}
 {"name": "mix", "seconds": 0.09, "ok": true, "gpu": false, "ts": "2026-11-25T13:51:56.445365-08:00"}
 {"name": "train", "seconds": 6619.16, "ok": true, "gpu": true, "ts": "2026-11-25T15:42:15.609984-08:00"}
+{"name": "eval-heldout", "seconds": 2534.21, "ok": false, "gpu": true, "ts": "2026-11-25T16:24:29.840313-08:00"}
+{"name": "failure-analysis", "seconds": 0.3, "ok": true, "gpu": false, "ts": "2026-11-25T16:24:30.167281-08:00"}

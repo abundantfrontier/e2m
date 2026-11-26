@@ -49,6 +49,31 @@
       "status": "ok",
       "code": 0,
       "reason": ""
+    },
+    "eval-heldout": {
+      "status": "stopped",
+      "code": 3,
+      "reason": "max-hours"
+    },
+    "eval-val": {
+      "status": "skipped",
+      "code": 3,
+      "reason": "gpu-hour budget"
+    },
+    "loop-heldout": {
+      "status": "skipped",
+      "code": null,
+      "reason": "gpu-hour budget"
+    },
+    "loop-val": {
+      "status": "skipped",
+      "code": null,
+      "reason": "gpu-hour budget"
+    },
+    "failure-analysis": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
     }
   }
 }
