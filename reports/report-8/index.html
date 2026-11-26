@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E2M technical report 8: Beating the compiler on code that already works: blind search does most of it, and our checker needed a second look (living paper) · Abundant Frontier Institute</title>
+<meta name="description" content="Living technical report: a blind search and an untrained 7B try to beat the best of five compiler settings on programs that already pass. After an audit, held-out has 27 verified size wins and 3 speed wins out of 73. Most wins come from search; the first checker missed 16 more bad variants, so the decision is Partial.">
+<meta name="citation_title" content="Beating the compiler on code that already works: blind search does most of it, and our checker needed a second look">
+<meta name="citation_author" content="Wilson, Boyd">
+<meta name="citation_publication_date" content="2026/11/26">
+<meta name="citation_technical_report_institution" content="Abundant Frontier Institute">
+<meta name="citation_technical_report_number" content="Revision 1">
+<meta name="citation_public_url" content="https://abundantfrontier.org/lab/e2m/report-8/">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<nav class="nav"><div class="nav-in">
+<a class="brand" href="https://abundantfrontier.org/"><span class="e">🌾</span><span>Abundant Frontier Institute</span></a>
+<div class="nav-links"><a href="/lab/">Lab</a><a href="../concept/index.html" >Concept paper</a><a href="../report-1/index.html" >Technical report 1</a><a href="../report-2/index.html" >Technical report 2</a><a href="../report-3/index.html" >Technical report 3</a><a href="../report-4/index.html" >Technical report 4</a><a href="../report-5/index.html" >Technical report 5</a><a href="../report-6/index.html" >Technical report 6</a><a href="../report-7/index.html" >Technical report 7</a><a href="../report-8/index.html" class="cur">Technical report 8</a><span class="badge">Working paper</span></div>
+</div></nav>
+<main class="page">
+<header class="title">
+<div class="kicker">Technical report · eighth work product</div>
+<h1>Beating the compiler on code that already works: blind search does most of it, and our checker needed a second look</h1>
+<p class="sub">Technical report 8 of the <em>E2M</em> program. It covers round 7, the second round in a row with no training. Round 7 took the programs that already pass and asked whether the untrained 7B, a blind search, or both could beat the best of five compiler settings on code size or on executed instructions without breaking them.</p>
+<p class="byline"><strong>Boyd Wilson</strong>, Abundant Frontier Institute and Omnibond Systems</p>
+<p class="meta">Living paper · Revision 1 · Last updated 26 November 2026 · Companion to the <a href="../concept/index.html">E2M concept paper</a> and technical reports <a href="../report-1/index.html">1</a>, <a href="../report-2/index.html">2</a>, <a href="../report-3/index.html">3</a>, <a href="../report-4/index.html">4</a>, <a href="../report-5/index.html">5</a>, <a href="../report-6/index.html">6</a> and <a href="../report-7/index.html">7</a> · All results are from one 24 GB RTX 3090 workstation · Code and data: <a href="https://github.com/abundantfrontier/e2m">github.com/abundantfrontier/e2m</a> · Weights: <a href="https://huggingface.co/AbundantFrontierInstitute/e2m">huggingface.co/AbundantFrontierInstitute/e2m</a> (no new weights this round)</p>
+</header>
+
+<div class="draftbar"><b>Working paper.</b> You may cite it; see <a href="#cite">How to cite</a>. The run's numbers come from <code>runs/round7/SUMMARY.md</code>, <code>RESULTS.json</code> (top-level keys), <code>failure_analysis.md</code>, <code>portfolio_summary.json</code>, <code>recheck.json</code> and <code>gpu_hours.jsonl</code>, and from <code>logs/round7.done</code>. The audited numbers come from <code>runs/round7/audit.json</code> and the <code>audit</code> block of <code>RESULTS.json</code>. Both were added after the run (<a href="#s5">§5</a>) and are published beside the run's own numbers, not in place of them. Counts not in those files were tallied from <code>portfolio.jsonl</code>, <code>edits.jsonl</code>, <code>search.jsonl</code> and <code>fasterc.jsonl</code> and are marked "tally".</div>
+
+<div class="abstract"><h2>Abstract</h2>
+<p><a href="../report-7/index.html">Report 7</a> found a correct C program for 70 of 78 held-out tasks, but that code was gcc <code>-O2</code>-sized at the median and 1.51× larger than gcc <code>-Os</code>. Round 7 asked whether anything we have can beat the compiler on programs that already pass. It ran on a 4 GPU-hour budget and used 2.55 hours.</p>
+<ol>
+<li><strong>The bar is the best of five compiler settings, not gcc <code>-O2</code>.</strong>
+<ul>
+<li>Every pass-set program and the reference C were compiled with gcc <code>-O2</code>, <code>-O3</code> and <code>-Os</code>, and with clang <code>-O2</code> and <code>-Oz</code>.</li>
+<li>On held-out, the best-size compile is 0.544× gcc <code>-O2</code> at the median and 0.957× gcc <code>-Os</code>. clang <code>-Oz</code> sets the size bar on 34 of 73 tasks and gcc <code>-Os</code> on 28.</li>
+<li>A model-written C program, not the reference, sets the size bar on 18 of the 73.</li>
+</ul></li>
+<li><strong>A blind search beat that bar much more often than the model did.</strong>
+<ul>
+<li>After our audit, held-out has <strong>27 tasks with strictly smaller verified code</strong> and <strong>3 tasks at ≤ 0.9× the instructions</strong>, out of 73.</li>
+<li>Of the 27 size wins, search found 25 and the model 3 (one task is shared). Of the 3 speed wins, search found 2 and the model 2 (one task is shared).</li>
+<li>The wins are small: the median winning size is 0.923× the bar, and the mean over all 73 tasks is 0.967×.</li>
+</ul></li>
+<li><strong>The model's unique contribution is real but tiny.</strong>
+<ul>
+<li>On held-out, three wins come only from the model:
+<ul>
+<li><code>mulq</code> for a 2-byte-shorter cube.</li>
+<li>A freed register in a digit loop.</li>
+<li><code>popcnt</code> replacing a bit-counting loop (104 → 24 instructions).</li>
+</ul></li>
+<li>On held-out, the model attempted all 73 tasks for both goals within 2.51 GPU hours. On validation it reached only 8 tasks before the cap. Search ran on all 150 tasks.</li>
+</ul></li>
+<li><strong>Our first checker was too weak, and the decision is Partial.</strong>
+<ul>
+<li>Three accepted search variants failed the planned 5,000-input re-check. All three truncated 64-bit values to 32 bits.</li>
+<li>A post-run audit used wider input families. It found <strong>16 more of the 61 surviving wins were wrong</strong>.</li>
+<li>Some of these were constant outputs. Others ignored the length argument or failed on equal inputs, and two were model wins.</li>
+<li>Under the rule fixed before the run (zero re-check failures), round 7 is <strong>Partial</strong>. The audited counts still clear the 10-task bar for size, and the model does beat search on some goal.</li>
+</ul></li>
+<li><strong>Faster C did not help.</strong> Eight held-out tasks run more than 1.5× the reference's instructions. Asking the model for a faster algorithm produced no verified win over the best compiler.</li>
+</ol>
+<p>The next step (<a href="#s9">§9</a>) is CPU-first. It builds a coverage-guided equivalence checker that the round-7 failures cannot pass, re-validates every round-7 win with it, and scales the search. It also gives the model at most 1 GPU hour, and only on tasks where search gets close but does not win.</p>
+</div>
+
+<nav class="toc" aria-label="Contents"><div class="toc-title">Contents</div><ol>
+<li><a href="#s1"><span class="n">1</span>Goals recap</a></li>
+<li><a href="#s2"><span class="n">2</span>Method</a></li>
+<li><a href="#s3"><span class="n">3</span>Compiler baselines</a></li>
+<li><a href="#s4"><span class="n">4</span>Results: model against search</a></li>
+<li><a href="#s5"><span class="n">5</span>Re-check failures and the post-run audit</a></li>
+<li><a href="#s6"><span class="n">6</span>Faster C for algorithm-bound tasks</a></li>
+<li><a href="#s7"><span class="n">7</span>Compute used</a></li>
+<li><a href="#s8"><span class="n">8</span>Limitations and caveats</a></li>
+<li><a href="#s9"><span class="n">9</span>Proposed next steps</a></li>
+<li><a href="#cite"><span class="n"></span>How to cite</a></li>
+<li><a href="#revhist"><span class="n"></span>Revision history</a></li>
+</ol></nav>
+
+<div class="col">
+
+<h2 id="s1"><span class="n">1</span>Goals recap <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<p>E2M's goal is machine code from English that is better than what a compiler produces. <a href="../report-7/index.html">Report 7</a> showed that correctness is mostly solved by the C path: model C lowered by gcc passes 64/78 held-out with a repair loop and 63/78 greedy with the untrained 7B. What remains is quality.</p>
+<p>Round 7 set the bar at the best of five compiler settings on the best available C for each task. It then measured two ways to go past that bar on the same starting code: model-proposed assembly edits and a blind stochastic search.</p>
+<p>The decision rule was fixed before the run:</p>
+<div class="tw"><table><thead><tr><th>Outcome</th><th>Rule</th></tr></thead><tbody>
+<tr><td>Win</td><td style="white-space:normal">≥ 10 held-out tasks strictly smaller than best_size, or ≥ 10 at ≤ 0.9× best_speed; the model beats search on at least one goal; zero accepted variants fail hidden tests or a 5,000-input re-check.</td></tr>
+<tr><td>Partial</td><td style="white-space:normal">Wins only from search, or fewer than 10.</td></tr>
+<tr><td>No win</td><td style="white-space:normal">No strict wins on either goal.</td></tr>
+</tbody></table></div>
+<h2 id="s2"><span class="n">2</span>Method <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<h3 id="s2-1"><span class="n">2.1</span>Pass set and oracle <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h3>
+<ul>
+<li><strong>Pass set.</strong> A task is in the pass set when it has at least one passing C program from these sources, kept in this order:
+<ol>
+<li>The round 6 C loop's best pass.</li>
+<li>The untrained 7B's greedy C, plus its passing samples.</li>
+<li>The round 4 hybrid's C.</li>
+</ol>
+<p>Up to six distinct programs are kept per task. The first one is "the pass-set C" used in prompts. The pass set covers 73 held-out and 77 validation tasks.</p></li>
+<li><strong>Oracle.</strong> gcc <code>-O2</code> of the task's reference C. This is stricter than the proposal, which used gcc <code>-O2</code> of the passing C.</li>
+<li><strong>Acceptance.</strong> A variant is accepted when it passes every test (visible and hidden) and agrees with the oracle on 500 generated inputs (<code>e2m/harness/diff.py</code>).
+<ul>
+<li>The inputs are type-preserving mutations of the task's tests. Ints are drawn over edge values, ranges, wide 33- to 62-bit values and k·2³²+small. Buffer lengths are kept. Strings are redrawn from the tests' alphabet with varied lengths.</li>
+<li>The candidate runs from an adversarial entry state that the ABI allows: random flags, random <code>rax</code>, <code>r10</code>, <code>r11</code> and unused argument registers, and random bits 32–63 above narrow int arguments. This is a new opt-in <code>entry_noise</code> option in the emulator.</li>
+</ul></li>
+<li><strong>Checker self-test.</strong> Before the run, the checker agreed on 10 of 10 equivalent pairs and caught 10 of 10 known-different pairs. The different pairs were round 6 programs that passed visible tests but failed hidden ones; the checker was seeded from visible tests only. It also handled 3 of 3 hand-kept adversarial cases correctly: 32-bit truncation, reliance on entry flags, and a control.</li>
+<li><strong>Metrics.</strong> Size is bytes of <code>.text</code>. Speed is emulator instructions executed, summed over the task's tests.</li>
+<li><strong>Win thresholds.</strong> A size win is strictly below best_size. A speed win is at most 0.9× best_speed. Every claimed win is re-checked on 5,000 fresh inputs.</li>
+</ul>
+<h3 id="s2-2"><span class="n">2.2</span>Stages <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h3>
+<div class="tw"><table><thead><tr><th>Stage</th><th>Where</th><th>Cap</th><th>What</th></tr></thead><tbody>
+<tr><td>0</td><td>CPU</td><td>—</td><td style="white-space:normal">Differential checker self-test</td></tr>
+<tr><td>1</td><td>CPU</td><td>0.5 h</td><td style="white-space:normal">Compiler portfolio: 5 settings × (reference C + up to 6 pass-set programs); bars must pass acceptance</td></tr>
+<tr><td>2</td><td>GPU</td><td>2.5 h</td><td style="white-space:normal">Untrained Qwen2.5-Coder-7B-Instruct, 4-bit: spec + pass-set C + best compiler listing + goal; k = 8 at T = 0.8, up to R = 2 refinement rounds with the test failure or checker counterexample and bytes/instructions against the bar; both goals, held-out first</td></tr>
+<tr><td>3</td><td>CPU</td><td>2 h wall, 8 workers</td><td style="white-space:normal">STOKE-lite hill climb from the same listing: delete, swap or rewrite one instruction from a small rule set, delete alignment directives, copy an instruction</td></tr>
+<tr><td>4</td><td>GPU</td><td>0.5 h</td><td style="white-space:normal">Faster C for tasks whose pass-set C runs &gt; 1.5× the reference's instructions</td></tr>
+<tr><td>5</td><td>CPU</td><td>—</td><td style="white-space:normal">5,000-input re-check of every claimed win; summary</td></tr>
+</tbody></table></div>
+<p>The model and search started from the same listing and used the same acceptance check. Their budgets were different: search had 16 CPU-hours (850,672 candidates), and the model had 2.5 GPU-hours (about 3,800 candidates). <a href="#s8">§8</a> covers this.</p>
+<h2 id="s3"><span class="n">3</span>Compiler baselines <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<div class="tw"><table><thead><tr><th>Set</th><th class="num">Tasks</th><th>Best-size winner</th><th class="num" style="white-space:normal">Median best_size / gcc <code>-O2</code></th><th class="num">/ gcc <code>-Os</code></th><th class="num" style="white-space:normal">Median best_speed / gcc <code>-O2</code></th><th style="white-space:normal">Bar from model C (size / speed)</th></tr></thead><tbody>
+<tr><td>Held-out</td><td class="num">73</td><td style="white-space:normal">clang <code>-Oz</code> 34, gcc <code>-Os</code> 28, gcc <code>-O2</code> 9, clang <code>-O2</code> 2</td><td class="num">0.544</td><td class="num">0.957</td><td class="num">1.000</td><td>18 / 20</td></tr>
+<tr><td>Validation</td><td class="num">77</td><td style="white-space:normal">gcc <code>-O2</code> 31, gcc <code>-Os</code> 20, clang <code>-Oz</code> 19, clang <code>-O2</code> 7</td><td class="num">0.818</td><td class="num">1.000</td><td class="num">1.000</td><td>14 / 14</td></tr>
+</tbody></table></div>
+<p>Three findings:</p>
+<ul>
+<li>The size bar is roughly half of gcc <code>-O2</code> on held-out.</li>
+<li>clang <code>-Oz</code> is the best size setting most often. It uses tricks such as <code>push $imm; pop %reg</code>.</li>
+<li>On speed, gcc <code>-O2</code> is already the best setting at the median.</li>
+</ul>
+<p>On a quarter of the tasks, the bar comes from a model-written C program compiled by the best setting, not from the reference C. Before this round, "beat gcc <code>-O2</code>" was the bar in our tables. This bar is much harder.</p>
+<h2 id="s4"><span class="n">4</span>Results: model against search <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<h3 id="s4-1"><span class="n">4.1</span>Headline <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h3>
+<p>The table shows the audited counts (<a href="#s5">§5</a>). The run's own counts are kept in brackets.</p>
+<div class="tw"><table><thead><tr><th>Set</th><th>Goal</th><th class="num">Tasks</th><th class="num">Model wins</th><th class="num">Search wins</th><th class="num">Either</th><th class="num" style="white-space:normal">Median ratio of the wins</th><th class="num" style="white-space:normal">Mean ratio, all tasks</th></tr></thead><tbody>
+<tr><td>Held-out</td><td>size (strictly smaller)</td><td class="num">73</td><td class="num">3 [4]</td><td class="num">25 [26]</td><td class="num"><strong>27</strong> [29]</td><td class="num">0.923</td><td class="num">0.967</td></tr>
+<tr><td>Held-out</td><td>speed (≤ 0.9× insns)</td><td class="num">73</td><td class="num">2 [2]</td><td class="num">2 [6]</td><td class="num"><strong>3</strong> [7]</td><td class="num">0.883</td><td class="num">0.987</td></tr>
+<tr><td>Validation</td><td>size</td><td class="num">77</td><td class="num">0 [0]</td><td class="num">7 [11]</td><td class="num">7 [11]</td><td class="num">0.897</td><td class="num">0.989</td></tr>
+<tr><td>Validation</td><td>speed</td><td class="num">77</td><td class="num">0 [1]</td><td class="num">6 [11]</td><td class="num">6 [12]</td><td class="num">0.817</td><td class="num">0.986</td></tr>
+</tbody></table></div>
+<p>On validation the model reached only 8 tasks before the GPU cap, so the validation model column says nothing.</p>
+<h3 id="s4-2"><span class="n">4.2</span>Wins only the model found (held-out, after the audit) <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h3>
+<div class="tw"><table><thead><tr><th>Task</th><th>Goal</th><th class="num">Bar</th><th class="num">Model</th><th>What changed</th></tr></thead><tbody>
+<tr><td>mbpp234_cube_volume</td><td>size</td><td class="num">12 B (gcc <code>-O2</code>)</td><td class="num">10 B</td><td style="white-space:normal"><code>imulq</code> → <code>mulq</code> (one-operand form; the low 64 bits are the same, and <code>rdx</code> is caller-saved)</td></tr>
+<tr><td>he131_odd_digit_product</td><td>size</td><td class="num">65 B (clang <code>-Oz</code>)</td><td class="num">60 B</td><td style="white-space:normal">dropped a register that held the constant 1 and reused <code>%edi</code>, which already held 1</td></tr>
+<tr><td>mbpp224_count_set_bits</td><td>speed</td><td class="num">104 insns (clang <code>-O2</code>)</td><td class="num">24</td><td style="white-space:normal">the bit loop replaced by <code>popcnt</code> (needs the POPCNT extension; the emulator counts it as one instruction)</td></tr>
+</tbody></table></div>
+<p>Both the model and search also found wins on mbpp32_max_prime_factor (size) and he121_sum_odd_even_idx (speed).</p>
+<p>The model's ideas are qualitatively different from search's. They are instruction-selection and ISA-extension changes that search's rule set cannot express. But there are 3 of them in 2.5 GPU hours.</p>
+<h3 id="s4-3"><span class="n">4.3</span>What search found <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h3>
+<ul>
+<li>Search's 25 held-out size wins are mostly 1–5 byte savings, such as removing a redundant <code>mov</code>, shortening operands to 32 bits where the value provably fits, and dropping a bounds check that can never fire.</li>
+<li>One large win is he77_iscube, 64 → 52 B. Search removed a loop guard (<code>r + 1 &lt;= 2642245</code>) that cannot bind for any int64 input. We checked that by hand.</li>
+<li>he24_largest_divisor, 49 → 31 B, is listed as questionable. It drops the <code>d*d &lt;= n</code> bound and tests the remainder with a 32-bit <code>testl</code>. It returns the same results on every input the emulator can reach, but it is correct only while divisors stay below 2³², and it is asymptotically slower.</li>
+<li>The 45 wins that survived the audit were also stress-tested with ints drawn mostly from the wide (31- to 62-bit) range. All passed, except one whose reference cannot run on such inputs.</li>
+</ul>
+<h3 id="s4-4"><span class="n">4.4</span>Model candidates <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h3>
+<p>There were 162 model jobs (146 held-out, 16 validation). Each used a mean of 2.93 generation calls and 55 s.</p>
+<div class="tw"><table><thead><tr><th>Outcome</th><th class="num">Count</th><th class="num">Share</th></tr></thead><tbody>
+<tr><td style="white-space:normal">Failed a test or did not assemble</td><td class="num">2,351</td><td class="num">61.9%</td></tr>
+<tr><td style="white-space:normal">Accepted (tests + checker), mostly not better than the bar</td><td class="num">1,308</td><td class="num">34.4%</td></tr>
+<tr><td style="white-space:normal">Passed all tests, failed the checker (overfit)</td><td class="num">141</td><td class="num">3.7%</td></tr>
+</tbody></table></div>
+<p>About a third of the model's rewrites are correct, but almost none of those are better than the best compiler.</p>
+<h2 id="s5"><span class="n">5</span>Re-check failures and the post-run audit <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<h3 id="s5-1"><span class="n">5.1</span>The planned 5,000-input re-check <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h3>
+<p>The summary re-checked all 64 claimed wins (57 search, 7 model) on 5,000 fresh inputs. Three failed, all search size wins, and all for the same reason: a <code>movq</code> → <code>movl</code> rewrite that truncates a 64-bit value.</p>
+<div class="tw"><table><thead><tr><th>Task</th><th>Claimed</th><th>Failure</th><th class="num" style="white-space:normal">Inputs before the first mismatch</th></tr></thead><tbody>
+<tr><td>he75_is_multiply_prime</td><td>104 → 87 B</td><td style="white-space:normal">a 32-bit <code>testl</code>/<code>movl</code> on 64-bit remainders and quotients, plus a deleted bound</td><td class="num">2,311</td></tr>
+<tr><td>mbpp151_is_coprime</td><td>48 → 47 B</td><td style="white-space:normal"><code>movl %edx, %ecx</code> on a 64-bit remainder</td><td class="num">64</td></tr>
+<tr><td>he131_odd_digit_product</td><td>65 → 61 B</td><td style="white-space:normal">32-bit copies of a 64-bit product</td><td class="num">1,183</td></tr>
+</tbody></table></div>
+<p>None of them failed the hidden tests. All three passed the full test suite, and all accepted variants pass hidden tests by construction. These failures alone make the outcome Partial under the fixed rule.</p>
+<h3 id="s5-2"><span class="n">5.2</span>The post-run audit <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h3>
+<p>The cheats that slipped through suggested a whole class of blind spots, not three bad draws. So we re-checked all 61 surviving wins on 5,000 inputs from wider families. These are <code>families="v2"</code> in <code>diff.py</code>, written after looking at the round-7 wins:</p>
+<ul>
+<li>Log-uniform float magnitudes.</li>
+<li>Newline, tab and the full printable set in strings.</li>
+<li>Equal and shared-prefix string pairs.</li>
+<li>Equal numeric buffers and scalars.</li>
+<li>Buffers resized from 0 to 700 elements together with their length argument.</li>
+<li>Tiny ints.</li>
+</ul>
+<p><strong>16 of the 61 are wrong.</strong></p>
+<div class="tw"><table><thead><tr><th style="white-space:normal">Kind of blind spot</th><th>Wins removed</th><th>Example</th></tr></thead><tbody>
+<tr><td style="white-space:normal">Constant output the generator never challenged</td><td>6</td><td style="white-space:normal">delta_AT returns 10.0 always (inputs never reach the leap-second dates); checkmd5 always returns −1 (random strings are never equal); az_paragraph_num_lines always returns 1 (no newline in the tests' alphabet)</td></tr>
+<tr><td style="white-space:normal">Length argument kept equal to the buffer length</td><td>6</td><td style="white-space:normal">ehstrnlen ignores the NUL; he85, he100, he120 and he152 fail or crash at n = 0 or small n</td></tr>
+<tr><td style="white-space:normal">Equal inputs never generated</td><td>2</td><td style="white-space:normal">CmpDoubles (model) returns −1 for equal values; ehnlc_strncmp loops when <code>max_len = 0</code> and the strings are equal</td></tr>
+<tr><td style="white-space:normal">Long arrays never generated</td><td>1</td><td style="white-space:normal">he3_below_zero (model) writes only <code>%al</code>, so it is wrong once the index passes 255</td></tr>
+<tr><td>Other edge input</td><td>1</td><td style="white-space:normal">he114 size: returns a sum for n = 0 with a non-empty buffer</td></tr>
+</tbody></table></div>
+<p>The v2 families produce no false positives on the 10 equivalent self-test pairs at 2,000 inputs each.</p>
+<p>The lesson is that the checker was blind to these mistakes, and search exploits exactly what a checker cannot see. Search accepted 40 wins that survived and 16 that did not, and it generated 850,672 candidates against our input distribution. Most of the 301,512 candidates that passed all tests were never shown to the checker, because they were not improvements.</p>
+<h3 id="s5-3"><span class="n">5.3</span>Decision <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h3>
+<p>The decision is <strong>Partial</strong>. Three accepted variants failed the pre-registered 5,000-input re-check, and the audit removed 16 more.</p>
+<p>Taken by themselves, the audited numbers would meet the other two conditions:</p>
+<ul>
+<li>27 held-out size wins against a bar of 10.</li>
+<li>3 held-out tasks where only the model wins.</li>
+</ul>
+<p>But the rule was zero failures, and the checker that produced the wins is the thing that failed.</p>
+<h2 id="s6"><span class="n">6</span>Faster C for algorithm-bound tasks <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<p>Eight held-out tasks have a pass-set C that runs more than 1.5× the reference's instructions under gcc <code>-O2</code>. They range from he75 at 34× to he120 at 1.52×. For each, the model was asked for a faster algorithm (k = 8), which was compiled with gcc <code>-O2</code>/<code>-O3</code> and clang <code>-O2</code>.</p>
+<ul>
+<li>None beat the best compiler by 10%.</li>
+<li>he114_min_subarray_sum went from 1.535× to 0.599× of gcc <code>-O2</code> on the reference, 121 instructions against a bar of 133 (0.91×). That is close, but not a win.</li>
+<li>On six of the eight tasks, no faster program passed acceptance.</li>
+</ul>
+<p>The stage took 0.04 GPU hours.</p>
+<h2 id="s7"><span class="n">7</span>Compute used <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<div class="tw"><table><thead><tr><th>Stage</th><th class="num">Hours</th><th>GPU?</th></tr></thead><tbody>
+<tr><td>0 Checker self-test</td><td class="num">0.004</td><td>no</td></tr>
+<tr><td>1 Compiler portfolio</td><td class="num">0.06</td><td>no</td></tr>
+<tr><td>3 Search (8 workers)</td><td class="num">2.04 wall (≈ 16 CPU-h)</td><td>no</td></tr>
+<tr><td>2 Model edits</td><td class="num">2.51</td><td>yes</td></tr>
+<tr><td>4 Faster C</td><td class="num">0.04</td><td>yes</td></tr>
+<tr><td>5 Re-check + summary</td><td class="num">0.06</td><td>no</td></tr>
+<tr><td><strong>GPU total</strong></td><td class="num"><strong>2.55 of 4.0</strong></td><td></td></tr>
+</tbody></table></div>
+<p>Timeline (all times PT, Thu 26 Nov 2026):</p>
+<ul>
+<li>11:14 AM: the first launch. It was stopped at 11:26 AM, with no GPU used, after two portfolio tasks showed that the checker's per-input limits were too loose.</li>
+<li>11:42 AM: the relaunch.</li>
+<li>11:46 AM to 2:19 PM: the GPU lock was held.</li>
+<li>2:22 PM: the summary finished.</li>
+<li>After the run: the audit took about 15 CPU minutes.</li>
+</ul>
+<h2 id="s8"><span class="n">8</span>Limitations and caveats <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<ul>
+<li><strong>Unequal budgets.</strong> Search had about 16 CPU-hours and 850k candidates. The model had 2.5 GPU-hours and about 3,800 candidates, and on validation it covered only 8 tasks. The comparison is "what each got for this run's budget", not a matched-compute comparison.</li>
+<li><strong>The audit is post hoc.</strong> The v2 families were written after we looked at the wins. The audited counts are therefore an upper bound on wins that a checker designed in advance would accept. They may still contain wrong programs that neither family set exercises.</li>
+<li><strong>The bars were not audited.</strong> About a quarter of the bars come from model-written C. If one of those programs is subtly wrong and smaller than a correct compile, the bar is too strict. That makes the win counts conservative, not inflated.</li>
+<li><strong>Speed is counted instructions, not cycles.</strong> <code>popcnt</code> counts as one instruction and needs POPCNT hardware; a removed <code>mov</code> counts the same as a removed <code>div</code>. A cycle model such as llvm-mca, or real timing, could reorder the speed results.</li>
+<li><strong>Small functions.</strong> Held-out functions are 10–300 bytes. A 1–5 byte saving is a real percentage, but nobody would ship it.</li>
+<li><strong>One model, untrained, no examples.</strong> The model got no worked examples of size or speed tricks, no tool use, and refinement feedback of at most two rounds.</li>
+</ul>
+<h2 id="s9"><span class="n">9</span>Proposed next steps <span class="upd" title="Section last changed">updated 26 Nov 2026</span></h2>
+<p>The results point at the checker first and the model last.</p>
+<ol>
+<li><strong>Make accepted wins stay accepted (CPU).</strong> Build a checker that the round-7 failures cannot pass:
+<ul>
+<li>Coverage-guided inputs. Mutate until the generated inputs reach every basic block of the oracle and both sides of every branch.</li>
+<li>The v2 families, plus a "held-back" family set written by someone other than the person tuning the search.</li>
+<li>Rejection of any candidate whose outputs vary less than the oracle's across the input set.</li>
+<li>Re-validate all round-7 wins and report them.</li>
+</ul></li>
+<li><strong>Scale search (CPU).</strong>
+<ul>
+<li>Run it with 16 workers for 6 hours under the new checker, starting from all five compiler listings, not only the best.</li>
+<li>Add the model's winning ideas as moves: one-operand <code>mul</code>, <code>popcnt</code>/<code>lzcnt</code>/<code>tzcnt</code> behind a flag, register reuse, and <code>push</code>/<code>pop</code> constants.</li>
+</ul></li>
+<li><strong>Use the model only where search stalls (GPU, ≤ 1 h).</strong> Ask for k = 8 proposals only on tasks where search is within a few bytes or 10% of a win. Keep this stage only if it adds at least 3 unique verified wins per GPU hour.</li>
+</ol>
+<p>The full proposal is in <code>NEXT-JOB-round8-proposal.md</code>.</p>
+
+<h2 id="cite">How to cite</h2>
+<p>This is a working paper. It is shared so others can read, discuss and cite it, and it is updated as the work moves forward. Please cite the revision you read, give its date, and say when you accessed the page. Earlier revisions are listed in the revision history. Results here have not been peer reviewed.</p>
+<p class="cite-ref">Wilson, B. (2026). <em>Beating the compiler on code that already works: blind search does most of it, and our checker needed a second look</em> (Working paper, Revision 1, 26 November 2026). Abundant Frontier Institute. <a href="https://abundantfrontier.org/lab/e2m/report-8/">https://abundantfrontier.org/lab/e2m/report-8/</a></p>
+<pre class="cite-bib"><code>@techreport{wilson2026e2mreport8,
+  author      = {Wilson, Boyd},
+  title       = {Beating the compiler on code that already works: blind search does most of it, and our checker needed a second look},
+  institution = {Abundant Frontier Institute},
+  type        = {Working paper},
+  number      = {Revision 1},
+  year        = {2026},
+  month       = {nov},
+  url         = {https://abundantfrontier.org/lab/e2m/report-8/},
+  note        = {Living document; last updated 26 November 2026. Accessed YYYY-MM-DD}
+}</code></pre>
+
+<section class="revhist" id="revhist">
+<h2>Revision history</h2>
+<ol>
+<li><b>Revision 1</b> <span class="when">26 November 2026 (America/Los_Angeles)</span><br>First version of technical report 8: round 7, with no training. A compiler portfolio (gcc <code>-O2</code>, <code>-O3</code>, <code>-Os</code>; clang <code>-O2</code>, <code>-Oz</code>) sets a best-size bar of 0.544× gcc <code>-O2</code> at the held-out median. After a post-run audit, held-out has 27 verified size wins and 3 speed wins out of 73; search found most of them, and three size or speed wins come only from the untrained 7B. Three accepted search variants failed the planned 5,000-input re-check, and the audit found 16 more of the 61 surviving wins were wrong, so the pre-registered decision is Partial. Faster C produced no verified win. Numbers come from <code>runs/round7/SUMMARY.md</code>, <code>RESULTS.json</code>, <code>audit.json</code> and related files; audited counts are published beside the run's own numbers; some counts are tallies of raw files, marked in the text.</li>
+</ol>
+</section>
+
+<footer>Living paper · Revision 1 · Last updated 26 November 2026 · Abundant Frontier Institute Lab · Working paper · <a href="../report-7/index.html">Technical report 7</a> · <a href="../report-6/index.html">Technical report 6</a> · <a href="../report-5/index.html">Technical report 5</a> · <a href="../report-4/index.html">Technical report 4</a> · <a href="../report-3/index.html">Technical report 3</a> · <a href="../report-2/index.html">Technical report 2</a> · <a href="../report-1/index.html">Technical report 1</a> · <a href="../concept/index.html">Concept paper</a></footer>
+</div>
+</main>
+</body>
+</html>
