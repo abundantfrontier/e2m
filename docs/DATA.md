@@ -30,22 +30,38 @@ Files larger than the repository limits are left out. Each can be rebuilt from t
 | `runs/loop-lora1-val/loop.jsonl` | 1.3 MB | per-task outputs; kept with the run |
 | `runs/loop-lora2-heldout/loop.jsonl` | 2.3 MB | per-task outputs; kept with the run |
 | `runs/loop-lora2-val/loop.jsonl` | 1.0 MB | per-task outputs; kept with the run |
+| `runs/loop-pipeline/stage.txt` | 19 B | pipeline resume state; not a result |
 | `runs/loop-qlora7b-v2-heldout/loop.jsonl` | 2.2 MB | per-task outputs; kept with the run |
 | `runs/loop-reject-rewritten/loop.jsonl` | 3.5 MB | per-task outputs; kept with the run |
 | `runs/loop-reject-train/loop.jsonl` | 7.3 MB | per-task outputs; kept with the run |
 | `runs/lora1/eval.jsonl` | 1.7 MB | per-task outputs; kept with the run |
+| `runs/round2/stage.txt` | 17 B | pipeline resume state; not a result |
+| `runs/round2b/stage.txt` | 24 B | pipeline resume state; not a result |
+| `runs/round3/stage.txt` | 24 B | pipeline resume state; not a result |
 | `runs/round4/hybrid.jsonl` | 3.0 MB | per-task outputs; kept with the run, available on request |
+| `runs/round4/stage.txt` | 17 B | pipeline resume state; not a result |
 | `runs/round5/distill.jsonl` | 1.1 MB | per-task outputs; kept with the run, available on request |
 | `runs/round5/embed_cache.jsonl` | 100.2 MB | per-task outputs; kept with the run, available on request |
 | `runs/round5/embed_kept.jsonl` | 7.1 MB | per-task outputs; kept with the run, available on request |
+| `runs/round5/pipeline.pid` | 8 B | pipeline resume state; not a result |
 | `runs/round5/sft.jsonl` | 5.6 MB | per-task outputs; kept with the run, available on request |
+| `runs/round5/stage.txt` | 17 B | pipeline resume state; not a result |
+| `runs/round5/state.json` | 1.4 KB | pipeline resume state; not a result |
 | `runs/round5/text_kept.jsonl` | 7.6 MB | per-task outputs; kept with the run, available on request |
 | `runs/round5b/distill.jsonl` | 1.8 MB | per-task outputs; kept with the run, available on request |
 | `runs/round5b/embed_cache.jsonl` | 101.1 MB | per-task outputs; kept with the run, available on request |
 | `runs/round5b/embed_kept.jsonl` | 7.8 MB | per-task outputs; kept with the run, available on request |
+| `runs/round5b/gate_state.json` | 80 B | pipeline resume state; not a result |
 | `runs/round5b/lower_state.json` | 46.0 KB | pipeline resume state; not a result |
+| `runs/round5b/pipeline.pid` | 8 B | pipeline resume state; not a result |
 | `runs/round5b/sft.jsonl` | 1.5 MB | per-task outputs; kept with the run, available on request |
+| `runs/round5b/stage.txt` | 17 B | pipeline resume state; not a result |
+| `runs/round5b/state.json` | 1.7 KB | pipeline resume state; not a result |
 | `runs/round5b/text_kept.jsonl` | 8.3 MB | per-task outputs; kept with the run, available on request |
+| `runs/round6/heldout_interleaved.jsonl` | 61.1 KB | derived held-out task order; rebuilt by round6_run.sh |
+| `runs/round6/heldout_order.json` | 1.7 KB | derived held-out task order; rebuilt by round6_run.sh |
+| `runs/round6/pipeline.pid` | 8 B | pipeline resume state; not a result |
+| `runs/round6/stage.txt` | 8 B | pipeline resume state; not a result |
 | `tasks/scaled.jsonl` | 5.0 MB | ExeBench/AnghaBench-derived pool; rebuild with `python -m e2m.scale` (docs/DATA.md) |
 
 ## Rebuilding

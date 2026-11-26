@@ -1,0 +1,4 @@
+{"name": "loop-c-only-7b-heldout", "seconds": 3246.36, "ok": true, "code": 0, "gpu": true, "ts": "2026-11-26T08:47:42-08:00"}
+{"name": "base7b-c-eval-heldout", "seconds": 497.34, "ok": true, "code": 0, "gpu": true, "ts": "2026-11-26T08:56:00-08:00"}
+{"name": "base7b-c-eval-val", "seconds": 354.43, "ok": true, "code": 0, "gpu": true, "ts": "2026-11-26T09:01:54-08:00"}
+{"name": "loop-c-only-7b-val", "seconds": 3098.31, "ok": true, "code": 0, "gpu": true, "ts": "2026-11-26T09:53:33-08:00"}

@@ -40,6 +40,7 @@ configs, small data and the results behind them.
 - Round 4: done ([results](results/round4/SUMMARY.md)).
 - Round 5: done ([results](results/round5/SUMMARY.md)).
 - Round 5b: done ([results](results/round5b/SUMMARY.md)).
+- Round 6: done ([results](results/round6/SUMMARY.md)).
 
 Headline (round 4, held-out, 78 tasks, greedy pass@1 unless noted):
 
@@ -57,6 +58,13 @@ of C it wrote itself (target: at least 20/78 direct assembly with no compiler).
 The target was missed: `asm-distill-7b` scores **5/78** held-out (29/90 val) and
 the distill-heavy retrain `asm-distill-7b-v2` **4/78** (22/90 val), both below
 round 4's 7/78 for direct assembly. See `results/round5b/SUMMARY.md`.
+
+Round 6 (no training, 2.0 GPU h) measured the C path's ceiling. A repair loop on
+`c-only-7b`'s C (k = 8, R = 3, visible-test feedback, gcc `-O2`) passes **64/78**
+held-out on the full tests (69/78 visible) and 76/90 val. The untrained
+Qwen2.5-Coder-7B-Instruct, writing C greedily with no loop, passes **63/78**
+(66/78 pass@5): fine-tuning on the training mix cost the C model about 17
+held-out tasks (46/78 greedy). See `results/round6/SUMMARY.md`.
 
 ## Results
 
@@ -79,6 +87,7 @@ harness.
 | base 7B (untrained) | own assembly | 2b | 78 | 0/78 | 3/78 |
 | dpo | own assembly | 3 | 78 | 0/78 | 0/78 |
 | c-then-asm | own assembly (after its C) | 4 | 78 | 7/78 | 9/78 |
+| base 7B (untrained) | its C, gcc -O2 | 6 | 78 | 63/78 | 66/78 |
 | c-only-7b | its C, gcc -O2 | 4 | 78 | 46/78 | 56/78 |
 | base 1.5B (untrained) | its C, gcc -O2 | 4 | 78 | 31/78 | 49/78 |
 | c-then-asm | hybrid: its C, gcc -O2 | 4 | 78 | 48/78 | 61/78 |
@@ -98,6 +107,7 @@ Repair loops (k = 8, R = 3) on the held-out set:
 | loop-c-then-asm-heldout | c-then-asm | 4 | 78 | 19/78 | 27/78 |
 | loop-asm-distill-7b-heldout-c-then-asm (partial, of 78) | asm-distill-7b | 5b | 20 | 8/20 | — |
 | loop-asm-distill-7b-v2-heldout-c-then-asm (partial, of 78) | asm-distill-7b-v2 | 5b | 10 | 4/10 | — |
+| loop-c-only-7b-heldout | c-only-7b | 6 | 78 | 64/78 | 69/78 |
 
 Validation (90 tasks) numbers, size and instruction ratios, and GPU hours are in
 each round's `results/<round>/SUMMARY.md` and `RESULTS.json`.

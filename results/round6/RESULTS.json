@@ -1,0 +1,332 @@
+{
+ "title": "E2M round 6",
+ "goal": "Ceiling of the C path (model writes C, gcc -O2 lowers it) with a matched repair loop; untrained 7B in C mode; size buckets; gcc -Os reference.",
+ "budget_h": 5.0,
+ "gpu_hours_used": 1.999,
+ "greedy": {
+  "c-only-7b/c/heldout/round4": {
+   "model": "c-only-7b",
+   "mode": "c",
+   "split": "heldout",
+   "n": 78,
+   "pass_at_1": 0.5897435897435898,
+   "pass_at_5": 0.717948717948718,
+   "size_ratio_vs_gcc_o2": 1.1101324054827952,
+   "insn_ratio_vs_gcc_o2": 1.8626042050935783,
+   "size_ratio_n": 46,
+   "insn_ratio_n": 46,
+   "greedy_categories": {
+    "wrong_answer": 23,
+    "pass": 46,
+    "doesnt_assemble": 7,
+    "crash": 1,
+    "timeout": 1
+   },
+   "sample_categories": {
+    "wrong_answer": 137,
+    "pass": 223,
+    "doesnt_assemble": 27,
+    "timeout": 2,
+    "crash": 1
+   },
+   "copied_from": "round 4"
+  },
+  "c-only-7b/c/val/round4": {
+   "model": "c-only-7b",
+   "mode": "c",
+   "split": "val",
+   "n": 90,
+   "pass_at_1": 0.6888888888888889,
+   "pass_at_5": 0.8,
+   "size_ratio_vs_gcc_o2": 1.088645714428937,
+   "insn_ratio_vs_gcc_o2": 1.199661025005123,
+   "size_ratio_n": 62,
+   "insn_ratio_n": 62,
+   "greedy_categories": {
+    "pass": 62,
+    "wrong_answer": 27,
+    "doesnt_assemble": 1
+   },
+   "sample_categories": {
+    "pass": 327,
+    "wrong_answer": 113,
+    "doesnt_assemble": 10
+   },
+   "copied_from": "round 4"
+  },
+  "base7b-c/c/heldout": {
+   "model": "base7b-c",
+   "mode": "c",
+   "split": "heldout",
+   "n": 78,
+   "pass_at_1": 0.8076923076923077,
+   "pass_at_5": 0.8461538461538461,
+   "size_ratio_vs_gcc_o2": 1.0730073385851693,
+   "insn_ratio_vs_gcc_o2": 1.2438515749257368,
+   "size_ratio_n": 63,
+   "insn_ratio_n": 63,
+   "greedy_categories": {
+    "wrong_answer": 7,
+    "pass": 63,
+    "doesnt_assemble": 8
+   },
+   "sample_categories": {
+    "wrong_answer": 48,
+    "pass": 288,
+    "doesnt_assemble": 53,
+    "timeout": 1
+   }
+  },
+  "base7b-c/c/val": {
+   "model": "base7b-c",
+   "mode": "c",
+   "split": "val",
+   "n": 90,
+   "pass_at_1": 0.6777777777777778,
+   "pass_at_5": 0.7222222222222222,
+   "size_ratio_vs_gcc_o2": 1.0397286246479014,
+   "insn_ratio_vs_gcc_o2": 1.170924387025039,
+   "size_ratio_n": 61,
+   "insn_ratio_n": 61,
+   "greedy_categories": {
+    "pass": 61,
+    "wrong_answer": 22,
+    "crash": 3,
+    "doesnt_assemble": 4
+   },
+   "sample_categories": {
+    "pass": 305,
+    "crash": 18,
+    "wrong_answer": 102,
+    "doesnt_assemble": 22,
+    "timeout": 3
+   }
+  }
+ },
+ "loops": {
+  "loop-c-only-7b-heldout": {
+   "model": "c-only-7b",
+   "split": "heldout",
+   "n": 78,
+   "passed_full": 64,
+   "passed_visible": 69,
+   "passed_hidden": 64,
+   "pass_full": 0.8205128205128205,
+   "pass_visible": 0.8846153846153846,
+   "pass_hidden": 0.8205128205128205,
+   "mean_calls": 8.179487179487179,
+   "budget_full": {
+    "1": 0.5769230769230769,
+    "4": 0.6153846153846154,
+    "8": 0.6923076923076923,
+    "16": 0.782051282051282,
+    "32": 0.8205128205128205
+   },
+   "budget_visible": {
+    "1": 0.6282051282051282,
+    "4": 0.6538461538461539,
+    "8": 0.7564102564102564,
+    "16": 0.8333333333333334,
+    "32": 0.8846153846153846
+   },
+   "budget_hidden": {
+    "1": 0.5769230769230769,
+    "4": 0.6153846153846154,
+    "8": 0.6923076923076923,
+    "16": 0.782051282051282,
+    "32": 0.8205128205128205
+   },
+   "size_ratio_vs_gcc_o2": 1.052441330223807,
+   "insn_ratio_vs_gcc_o2": 1.5945489041311196,
+   "size_ratio_n": 64,
+   "insn_ratio_n": 64,
+   "final_categories": {
+    "wrong_answer": 11,
+    "pass": 64,
+    "doesnt_assemble": 2,
+    "crash": 1
+   },
+   "expected": 78,
+   "partial": false,
+   "mode": "c"
+  },
+  "loop-c-only-7b-val": {
+   "model": "c-only-7b",
+   "split": "val",
+   "n": 90,
+   "passed_full": 76,
+   "passed_visible": 76,
+   "passed_hidden": 76,
+   "pass_full": 0.8444444444444444,
+   "pass_visible": 0.8444444444444444,
+   "pass_hidden": 0.8444444444444444,
+   "mean_calls": 6.7555555555555555,
+   "budget_full": {
+    "1": 0.7222222222222222,
+    "4": 0.7333333333333333,
+    "8": 0.7777777777777778,
+    "16": 0.8333333333333334,
+    "32": 0.8444444444444444
+   },
+   "budget_visible": {
+    "1": 0.7222222222222222,
+    "4": 0.7333333333333333,
+    "8": 0.7777777777777778,
+    "16": 0.8333333333333334,
+    "32": 0.8444444444444444
+   },
+   "budget_hidden": {
+    "1": 0.7222222222222222,
+    "4": 0.7333333333333333,
+    "8": 0.7777777777777778,
+    "16": 0.8333333333333334,
+    "32": 0.8444444444444444
+   },
+   "size_ratio_vs_gcc_o2": 1.041562608371051,
+   "insn_ratio_vs_gcc_o2": 1.1373132118652425,
+   "size_ratio_n": 76,
+   "insn_ratio_n": 76,
+   "final_categories": {
+    "pass": 76,
+    "wrong_answer": 13,
+    "doesnt_assemble": 1
+   },
+   "expected": 90,
+   "partial": false,
+   "mode": "c"
+  }
+ },
+ "loop_source_breakdown": {
+  "loop-c-only-7b-heldout": {
+   "MBPP_n": 23,
+   "MBPP_pass": 18,
+   "HumanEval_n": 55,
+   "HumanEval_pass": 46
+  },
+  "loop-c-only-7b-val": {
+   "ExeBench_n": 90,
+   "ExeBench_pass": 76
+  }
+ },
+ "size_buckets": {
+  "threshold_bytes_gcc_O2": 40,
+  "by_model": {
+   "c-only-7b/c": {
+    "heldout": {
+     "large_n": 64,
+     "large_pass": 34,
+     "small_n": 14,
+     "small_pass": 12
+    },
+    "val": {
+     "small_n": 59,
+     "small_pass": 49,
+     "large_n": 31,
+     "large_pass": 13
+    }
+   },
+   "asm-distill-7b/asm": {
+    "heldout": {
+     "large_n": 64,
+     "large_pass": 1,
+     "small_n": 14,
+     "small_pass": 4
+    },
+    "val": {
+     "small_n": 59,
+     "small_pass": 27,
+     "large_n": 31,
+     "large_pass": 2
+    }
+   },
+   "asm-distill-7b-v2/asm": {
+    "heldout": {
+     "large_n": 64,
+     "large_pass": 0,
+     "small_n": 14,
+     "small_pass": 4
+    },
+    "val": {
+     "small_n": 59,
+     "small_pass": 19,
+     "large_n": 31,
+     "large_pass": 3
+    }
+   },
+   "c-then-asm/c-then-asm": {
+    "heldout": {
+     "large_n": 64,
+     "large_pass": 1,
+     "small_n": 14,
+     "small_pass": 6
+    },
+    "val": {
+     "small_n": 59,
+     "small_pass": 37,
+     "large_n": 31,
+     "large_pass": 3
+    }
+   },
+   "base7b-c/c": {
+    "heldout": {
+     "large_n": 64,
+     "large_pass": 50,
+     "small_n": 14,
+     "small_pass": 13
+    },
+    "val": {
+     "small_n": 59,
+     "small_pass": 48,
+     "large_n": 31,
+     "large_pass": 13
+    }
+   }
+  }
+ },
+ "os_reference": {
+  "heldout": {
+   "n": 78,
+   "mean_os_over_o2_size": 0.6711291334001076
+  },
+  "val": {
+   "n": 90,
+   "mean_os_over_o2_size": 0.8630047165123952
+  },
+  "hybrid-Os/c-only-7b/heldout": {
+   "n": 46,
+   "mean_size_vs_ref_Os": 0.9989771676589517
+  },
+  "hybrid-Os/c-only-7b/val": {
+   "n": 62,
+   "mean_size_vs_ref_Os": 1.0416039788797518
+  },
+  "hybrid-Os/c-then-asm/heldout": {
+   "n": 48,
+   "mean_size_vs_ref_Os": 0.9749812319262691
+  },
+  "hybrid-Os/c-then-asm/val": {
+   "n": 63,
+   "mean_size_vs_ref_Os": 0.9933263349270407
+  }
+ },
+ "decision_rule": "C loop held-out >= 55/78: next round superoptimizes the hybrid's gcc output. < 50/78: next round improves the C side.",
+ "stages": {
+  "base7b-c-eval-heldout": {
+   "exit": "0",
+   "status": "ok"
+  },
+  "base7b-c-eval-val": {
+   "exit": "0",
+   "status": "ok"
+  },
+  "loop-c-only-7b-heldout": {
+   "exit": "0",
+   "status": "ok"
+  },
+  "loop-c-only-7b-val": {
+   "exit": "0",
+   "status": "ok"
+  }
+ },
+ "heldout_order": "runs/round6/heldout_order.json (MBPP and HumanEval interleaved)"
+}

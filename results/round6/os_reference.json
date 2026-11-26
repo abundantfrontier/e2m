@@ -1,0 +1,702 @@
+{
+ "summary": {
+  "heldout": {
+   "n": 78,
+   "mean_os_over_o2_size": 0.6711291334001076
+  },
+  "val": {
+   "n": 90,
+   "mean_os_over_o2_size": 0.8630047165123952
+  },
+  "hybrid-Os/c-only-7b/heldout": {
+   "n": 46,
+   "mean_size_vs_ref_Os": 0.9989771676589517
+  },
+  "hybrid-Os/c-only-7b/val": {
+   "n": 62,
+   "mean_size_vs_ref_Os": 1.0416039788797518
+  },
+  "hybrid-Os/c-then-asm/heldout": {
+   "n": 48,
+   "mean_size_vs_ref_Os": 0.9749812319262691
+  },
+  "hybrid-Os/c-then-asm/val": {
+   "n": 63,
+   "mean_size_vs_ref_Os": 0.9933263349270407
+  }
+ },
+ "per_task": {
+  "mbpp3_is_not_prime": {
+   "o2": 75,
+   "os": 52
+  },
+  "mbpp6_differ_one_bit": {
+   "o2": 21,
+   "os": 21
+  },
+  "mbpp8_square_nums": {
+   "o2": 54,
+   "os": 28
+  },
+  "mbpp14_prism_volume": {
+   "o2": 22,
+   "os": 22
+  },
+  "mbpp17_square_perimeter": {
+   "o2": 9,
+   "os": 9
+  },
+  "mbpp24_binary_to_decimal": {
+   "o2": 116,
+   "os": 46
+  },
+  "mbpp32_max_prime_factor": {
+   "o2": 134,
+   "os": 109
+  },
+  "mbpp33_decimal_to_binary": {
+   "o2": 107,
+   "os": 45
+  },
+  "mbpp45_array_gcd": {
+   "o2": 109,
+   "os": 74
+  },
+  "mbpp47_fact_div_last_digit": {
+   "o2": 167,
+   "os": 77
+  },
+  "mbpp48_set_odd_bits": {
+   "o2": 59,
+   "os": 49
+  },
+  "mbpp72_diff_of_squares": {
+   "o2": 23,
+   "os": 23
+  },
+  "mbpp76_count_squares": {
+   "o2": 85,
+   "os": 78
+  },
+  "mbpp78_odd_setbit_count": {
+   "o2": 84,
+   "os": 55
+  },
+  "mbpp100_next_palindrome": {
+   "o2": 125,
+   "os": 77
+  },
+  "mbpp151_is_coprime": {
+   "o2": 77,
+   "os": 48
+  },
+  "mbpp155_toggle_even_bits": {
+   "o2": 59,
+   "os": 49
+  },
+  "mbpp224_count_set_bits": {
+   "o2": 31,
+   "os": 27
+  },
+  "mbpp234_cube_volume": {
+   "o2": 12,
+   "os": 12
+  },
+  "mbpp244_next_square": {
+   "o2": 36,
+   "os": 28
+  },
+  "mbpp256_count_primes": {
+   "o2": 95,
+   "os": 67
+  },
+  "mbpp267_sum_odd_squares": {
+   "o2": 50,
+   "os": 37
+  },
+  "mbpp287_sum_even_squares": {
+   "o2": 47,
+   "os": 38
+  },
+  "he3_below_zero": {
+   "o2": 44,
+   "os": 29
+  },
+  "he8_sum_product": {
+   "o2": 78,
+   "os": 46
+  },
+  "he9_rolling_max": {
+   "o2": 57,
+   "os": 45
+  },
+  "he11_string_xor": {
+   "o2": 105,
+   "os": 49
+  },
+  "he13_gcd": {
+   "o2": 63,
+   "os": 39
+  },
+  "he16_count_distinct_chars": {
+   "o2": 195,
+   "os": 78
+  },
+  "he18_how_many_times": {
+   "o2": 162,
+   "os": 93
+  },
+  "he23_strlen": {
+   "o2": 33,
+   "os": 14
+  },
+  "he24_largest_divisor": {
+   "o2": 70,
+   "os": 49
+  },
+  "he25_factorize": {
+   "o2": 174,
+   "os": 115
+  },
+  "he26_remove_duplicates": {
+   "o2": 118,
+   "os": 61
+  },
+  "he27_flip_case": {
+   "o2": 94,
+   "os": 46
+  },
+  "he36_fizz_buzz": {
+   "o2": 186,
+   "os": 104
+  },
+  "he43_pairs_sum_to_zero": {
+   "o2": 59,
+   "os": 43
+  },
+  "he45_triangle_area": {
+   "o2": 13,
+   "os": 13
+  },
+  "he48_is_palindrome": {
+   "o2": 102,
+   "os": 62
+  },
+  "he49_modp": {
+   "o2": 71,
+   "os": 37
+  },
+  "he56_correct_bracketing": {
+   "o2": 79,
+   "os": 46
+  },
+  "he59_largest_prime_factor": {
+   "o2": 92,
+   "os": 46
+  },
+  "he60_sum_to_n": {
+   "o2": 19,
+   "os": 21
+  },
+  "he63_fibfib": {
+   "o2": 60,
+   "os": 52
+  },
+  "he64_vowels_count": {
+   "o2": 131,
+   "os": 77
+  },
+  "he66_digit_sum_upper": {
+   "o2": 70,
+   "os": 30
+  },
+  "he72_will_it_fly": {
+   "o2": 123,
+   "os": 60
+  },
+  "he73_smallest_change": {
+   "o2": 78,
+   "os": 52
+  },
+  "he75_is_multiply_prime": {
+   "o2": 130,
+   "os": 125
+  },
+  "he76_is_simple_power": {
+   "o2": 119,
+   "os": 85
+  },
+  "he77_iscube": {
+   "o2": 91,
+   "os": 68
+  },
+  "he78_hex_key": {
+   "o2": 118,
+   "os": 36
+  },
+  "he82_prime_length": {
+   "o2": 126,
+   "os": 65
+  },
+  "he83_starts_one_ends": {
+   "o2": 86,
+   "os": 43
+  },
+  "he85_sum_even_odd_idx": {
+   "o2": 70,
+   "os": 34
+  },
+  "he89_encrypt": {
+   "o2": 119,
+   "os": 49
+  },
+  "he92_any_int": {
+   "o2": 35,
+   "os": 35
+  },
+  "he97_multiply_units": {
+   "o2": 95,
+   "os": 47
+  },
+  "he100_make_a_pile": {
+   "o2": 87,
+   "os": 24
+  },
+  "he102_choose_num": {
+   "o2": 40,
+   "os": 43
+  },
+  "he104_unique_digits": {
+   "o2": 125,
+   "os": 82
+  },
+  "he106_f_factorial_or_sum": {
+   "o2": 127,
+   "os": 66
+  },
+  "he114_min_subarray_sum": {
+   "o2": 122,
+   "os": 84
+  },
+  "he120_k_largest": {
+   "o2": 149,
+   "os": 90
+  },
+  "he121_sum_odd_even_idx": {
+   "o2": 70,
+   "os": 42
+  },
+  "he122_add_elements": {
+   "o2": 157,
+   "os": 109
+  },
+  "he131_odd_digit_product": {
+   "o2": 126,
+   "os": 77
+  },
+  "he138_sum_of_four_evens": {
+   "o2": 16,
+   "os": 16
+  },
+  "he139_special_factorial": {
+   "o2": 65,
+   "os": 37
+  },
+  "he142_indexed_sum_squares": {
+   "o2": 142,
+   "os": 83
+  },
+  "he146_special_filter": {
+   "o2": 115,
+   "os": 75
+  },
+  "he150_x_or_y": {
+   "o2": 79,
+   "os": 54
+  },
+  "he151_double_the_difference": {
+   "o2": 110,
+   "os": 38
+  },
+  "he152_compare_scores": {
+   "o2": 64,
+   "os": 44
+  },
+  "he155_even_odd_count": {
+   "o2": 108,
+   "os": 77
+  },
+  "he157_right_angle_triangle": {
+   "o2": 47,
+   "os": 47
+  },
+  "he159_eat": {
+   "o2": 36,
+   "os": 24
+  },
+  "he163_generate_integers": {
+   "o2": 102,
+   "os": 71
+  },
+  "exebench_A_970727cd3965": {
+   "o2": 10,
+   "os": 10
+  },
+  "exebench_AddTwo_60490b376086": {
+   "o2": 4,
+   "os": 4
+  },
+  "exebench_BinSearch1_f64adf4bb5d7": {
+   "o2": 71,
+   "os": 45
+  },
+  "exebench_CINTsquare_dist_d8f2b8f9997b": {
+   "o2": 49,
+   "os": 49
+  },
+  "exebench_CircularBuffer_incr_570b8f330b69": {
+   "o2": 9,
+   "os": 9
+  },
+  "exebench_CmpDoubles_1153267d175b": {
+   "o2": 29,
+   "os": 29
+  },
+  "exebench_Cube_f7659ed4128c": {
+   "o2": 13,
+   "os": 12
+  },
+  "exebench_DivideWithCeiling_fd463ceb0431": {
+   "o2": 17,
+   "os": 17
+  },
+  "exebench_Double_0_toDouble_2_Boolean_c3764d3b3aeb": {
+   "o2": 18,
+   "os": 17
+  },
+  "exebench_EOS_T_1afe33b51737": {
+   "o2": 13,
+   "os": 13
+  },
+  "exebench_EtaNIndex_old_415792d1d30e": {
+   "o2": 66,
+   "os": 59
+  },
+  "exebench_FMod2p_88dbae089a48": {
+   "o2": 53,
+   "os": 45
+  },
+  "exebench_Function1Double_3b9c4af32f1d": {
+   "o2": 9,
+   "os": 9
+  },
+  "exebench_JHKeyframeAnimationFunctionEaseInOutQuad_6b4431db5704": {
+   "o2": 101,
+   "os": 97
+  },
+  "exebench_MAX_8ae956bfefda": {
+   "o2": 12,
+   "os": 12
+  },
+  "exebench_MUL_ASSIGN_209444b3512e": {
+   "o2": 6,
+   "os": 6
+  },
+  "exebench_MaskForNum_f7d1b44741b1": {
+   "o2": 50,
+   "os": 50
+  },
+  "exebench_Q_rsqrt_378984cfbbd5": {
+   "o2": 76,
+   "os": 77
+  },
+  "exebench_R_8cc6e1096d31": {
+   "o2": 6,
+   "os": 6
+  },
+  "exebench_ZBarcode_ValidID_984d8acf09a5": {
+   "o2": 99,
+   "os": 85
+  },
+  "exebench__get_index_char_f1c904348f5c": {
+   "o2": 4,
+   "os": 4
+  },
+  "exebench__testfunc_d_bhilfd_a1ea48389977": {
+   "o2": 42,
+   "os": 38
+  },
+  "exebench_abs_val_379abcbc0d6a": {
+   "o2": 20,
+   "os": 20
+  },
+  "exebench_add2_d788d98459b0": {
+   "o2": 28,
+   "os": 20
+  },
+  "exebench_addring_879e740c1831": {
+   "o2": 12,
+   "os": 12
+  },
+  "exebench_answer2_660700b56ed5": {
+   "o2": 28,
+   "os": 23
+  },
+  "exebench_answer_3_37050e2f29d8": {
+   "o2": 12,
+   "os": 12
+  },
+  "exebench_atan_f_fb3ee39312b6": {
+   "o2": 83,
+   "os": 73
+  },
+  "exebench_az_paragraph_num_lines_23afebeee5fd": {
+   "o2": 56,
+   "os": 24
+  },
+  "exebench_b64e_size_762243a6d5f3": {
+   "o2": 297,
+   "os": 40
+  },
+  "exebench_balanced_btree_max_nodes_723b16194229": {
+   "o2": 54,
+   "os": 106
+  },
+  "exebench_bar_c3147f1d23f5": {
+   "o2": 6,
+   "os": 6
+  },
+  "exebench_base32decsize_ddda025106ec": {
+   "o2": 24,
+   "os": 24
+  },
+  "exebench_base32encsize_a88ad611a3b9": {
+   "o2": 43,
+   "os": 27
+  },
+  "exebench_bdf_string_hash_0da437ae95c5": {
+   "o2": 70,
+   "os": 23
+  },
+  "exebench_before_878bbafd0d84": {
+   "o2": 11,
+   "os": 11
+  },
+  "exebench_bit_group_starts_uint_54be4f3ceaec": {
+   "o2": 9,
+   "os": 9
+  },
+  "exebench_bitread_9a271be25a08": {
+   "o2": 81,
+   "os": 77
+  },
+  "exebench_bits_required_unsigned_200063803eca": {
+   "o2": 33,
+   "os": 30
+  },
+  "exebench_bitscanforward_fb74b402bbd6": {
+   "o2": 38,
+   "os": 20
+  },
+  "exebench_bm_rgba_55789085024c": {
+   "o2": 29,
+   "os": 29
+  },
+  "exebench_bt_9e680b282de3": {
+   "o2": 35,
+   "os": 28
+  },
+  "exebench_bufcon_lens_09235210ff58": {
+   "o2": 35,
+   "os": 16
+  },
+  "exebench_c2f_a8c493fd93d4": {
+   "o2": 25,
+   "os": 25
+  },
+  "exebench_checkBid_1220af5db7f5": {
+   "o2": 16,
+   "os": 16
+  },
+  "exebench_checkRow_95efd43168e5": {
+   "o2": 91,
+   "os": 48
+  },
+  "exebench_checkTemplate_bf06245f69c2": {
+   "o2": 2393,
+   "os": 1574
+  },
+  "exebench_checkmd5_f5e6fad22803": {
+   "o2": 70,
+   "os": 28
+  },
+  "exebench_cl_signum_554fae4b5831": {
+   "o2": 41,
+   "os": 37
+  },
+  "exebench_compareInt_a01eca854fb2": {
+   "o2": 24,
+   "os": 24
+  },
+  "exebench_compute_midpoint_ea98fe06b2f4": {
+   "o2": 13,
+   "os": 13
+  },
+  "exebench_compute_total_credits_492de2557d72": {
+   "o2": 6,
+   "os": 6
+  },
+  "exebench_convert_to_hexa_f99e13983894": {
+   "o2": 119,
+   "os": 34
+  },
+  "exebench_cos_8ebe4439b439": {
+   "o2": 23,
+   "os": 23
+  },
+  "exebench_count_265b732dc4ac": {
+   "o2": 34,
+   "os": 21
+  },
+  "exebench_csub_df399cc82869": {
+   "o2": 4,
+   "os": 4
+  },
+  "exebench_dbl_898898854dda": {
+   "o2": 5,
+   "os": 5
+  },
+  "exebench_decisionFunc_d1689f8a43b2": {
+   "o2": 14,
+   "os": 14
+  },
+  "exebench_decodeChar_3cfd1b5dd631": {
+   "o2": 15,
+   "os": 12
+  },
+  "exebench_delta_AT_b6ca07e07493": {
+   "o2": 554,
+   "os": 542
+  },
+  "exebench_determinant2d_030170a91024": {
+   "o2": 11,
+   "os": 11
+  },
+  "exebench_digit_10_d5d63111cdfe": {
+   "o2": 180,
+   "os": 62
+  },
+  "exebench_digit_60059d0225b9": {
+   "o2": 13,
+   "os": 13
+  },
+  "exebench_digit_69249482f4c6": {
+   "o2": 11,
+   "os": 11
+  },
+  "exebench_div_0f0b601cd591": {
+   "o2": 6,
+   "os": 6
+  },
+  "exebench_dob_to_int_2aa8fea91899": {
+   "o2": 28,
+   "os": 24
+  },
+  "exebench_dobro_f5584d7594de": {
+   "o2": 4,
+   "os": 4
+  },
+  "exebench_dotProd_ba0bb06aa3d1": {
+   "o2": 73,
+   "os": 29
+  },
+  "exebench_dot_product_22e52033d170": {
+   "o2": 37,
+   "os": 37
+  },
+  "exebench_drag_cd_gi_69476b64b2cc": {
+   "o2": 145,
+   "os": 132
+  },
+  "exebench_dull_5eb08148d3a4": {
+   "o2": 21,
+   "os": 17
+  },
+  "exebench_ehnlc_strncmp_9353c4ce09ba": {
+   "o2": 82,
+   "os": 69
+  },
+  "exebench_ehstrnlen_ad3e8426bbc9": {
+   "o2": 41,
+   "os": 19
+  },
+  "exebench_f23_e9c674c8b0d8": {
+   "o2": 22,
+   "os": 22
+  },
+  "exebench_f6_4cdb87c0d946": {
+   "o2": 12,
+   "os": 12
+  },
+  "exebench_fact2_867edddca812": {
+   "o2": 33,
+   "os": 18
+  },
+  "exebench_factorial2_7706777c5a09": {
+   "o2": 6,
+   "os": 6
+  },
+  "exebench_fakt_57f76aedb35f": {
+   "o2": 31,
+   "os": 21
+  },
+  "exebench_fastAtan2_aa51da20eefc": {
+   "o2": 209,
+   "os": 168
+  },
+  "exebench_ffi_test_10_a30a09c59164": {
+   "o2": 81,
+   "os": 60
+  },
+  "exebench_fifdint_34689a4f5569": {
+   "o2": 13,
+   "os": 9
+  },
+  "exebench_findHash_b14388ac9c11": {
+   "o2": 8,
+   "os": 8
+  },
+  "exebench_findafrom_x_vi_vf_e3f4808093a3": {
+   "o2": 24,
+   "os": 24
+  },
+  "exebench_float_check_c3bf9eeb8a05": {
+   "o2": 22,
+   "os": 22
+  },
+  "exebench_fls_49f6119f1d94": {
+   "o2": 33,
+   "os": 25
+  },
+  "exebench_flt_mul_add_5c918fdb5307": {
+   "o2": 9,
+   "os": 9
+  },
+  "exebench_foo2_815cfceb8e5d": {
+   "o2": 8,
+   "os": 8
+  },
+  "exebench_foo5_e338548bedbb": {
+   "o2": 17,
+   "os": 17
+  },
+  "exebench_foo_1947adf539e7": {
+   "o2": 61,
+   "os": 31
+  },
+  "exebench_foo_23303579f55d": {
+   "o2": 54,
+   "os": 34
+  }
+ }
+}
