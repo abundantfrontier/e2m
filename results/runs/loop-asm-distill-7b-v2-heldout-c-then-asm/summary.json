@@ -1,0 +1,49 @@
+{
+  "model": "asm-distill-7b-v2",
+  "split": "heldout",
+  "n": 10,
+  "passed_full": 4,
+  "passed_visible": 5,
+  "passed_hidden": 4,
+  "pass_full": 0.4,
+  "pass_visible": 0.5,
+  "pass_hidden": 0.4,
+  "mean_calls": 19.9,
+  "budget_full": {
+    "1": 0.2,
+    "4": 0.2,
+    "8": 0.3,
+    "16": 0.4,
+    "32": 0.4
+  },
+  "budget_visible": {
+    "1": 0.2,
+    "4": 0.3,
+    "8": 0.4,
+    "16": 0.5,
+    "32": 0.5
+  },
+  "budget_hidden": {
+    "1": 0.2,
+    "4": 0.2,
+    "8": 0.3,
+    "16": 0.4,
+    "32": 0.4
+  },
+  "size_ratio_vs_gcc_o2": 1.0588888888888888,
+  "insn_ratio_vs_gcc_o2": 0.8839531680440771,
+  "size_ratio_n": 4,
+  "insn_ratio_n": 4,
+  "final_categories": {
+    "pass": 4,
+    "crash": 3,
+    "timeout": 2,
+    "wrong_answer": 1
+  },
+  "elapsed_s": 4240.0,
+  "k": 8,
+  "rounds": 3,
+  "temperature": 0.8,
+  "mode": "c-then-asm",
+  "stopped": "max-hours"
+}

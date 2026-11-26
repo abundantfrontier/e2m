@@ -1,0 +1,134 @@
+{
+  "lower": {
+    "tasks": 588,
+    "new_rows": 1220,
+    "skipped": 0
+  },
+  "leakage_text": {
+    "checked": 8001,
+    "kept_text": 6855,
+    "dropped_text": 1146,
+    "by_check": {
+      "c_ratio": 66,
+      "name": 320,
+      "word5": 652,
+      "spec_ratio": 108
+    },
+    "by_source": {
+      "sft_lora2": {
+        "checked": 6781,
+        "kept": 5635,
+        "dropped": 1146,
+        "c_ratio": 66,
+        "name": 320,
+        "word5": 652,
+        "spec_ratio": 108
+      },
+      "mbpp": {
+        "checked": 444,
+        "kept": 444
+      },
+      "synth": {
+        "checked": 137,
+        "kept": 137
+      },
+      "train": {
+        "checked": 639,
+        "kept": 639
+      }
+    },
+    "word5_rule": "word 5-grams over lowercase tokens, negation kept, no short-text fallback; a shared gram drops the row unless it is the ExeBench side-effect boilerplate listed in _BOILER_PHRASES"
+  },
+  "mix": {
+    "rows": 1614,
+    "by_origin": {
+      "mbpp": 444,
+      "synth": 137,
+      "train": 630,
+      "sft_lora2": 403
+    },
+    "by_goal": {
+      "default": 1097,
+      "size": 517
+    },
+    "proportions": {
+      "mbpp": 0.2751,
+      "synth": 0.0849,
+      "train": 0.3903,
+      "sft_lora2": 0.2497
+    },
+    "out": "runs/round5b/sft.jsonl",
+    "sft_cap": {
+      "sft_fraction_cap": 0.25,
+      "sft_origin": "sft_lora2",
+      "sft_in": 5097,
+      "distill_in": 1211,
+      "sft_kept": 403,
+      "capped": true
+    },
+    "distill_rows": 1211,
+    "distill_majority": true,
+    "auxiliary_c_to_asm": false,
+    "auxiliary_reason": "Eval uses the English-to-asm prompt (Goal: default). A C-to-asm auxiliary would train a different prompt than inference, and a row that contains both c and asm is treated as C-then-asm text by the trainer. Distill targets stay plain gcc AT&T of the teacher's passing C."
+  },
+  "train_pool": {
+    "enlarged": false,
+    "reason": "Reused runs/round5 screened_train.jsonl (346 tasks) and screened_mbpp.jsonl. The 8 h budget is reserved for Stage A eval, the k=8 top-up, training, and the v2 held-out eval."
+  },
+  "failure_v1": {
+    "model": "asm-distill-7b",
+    "split": "heldout",
+    "n": 78,
+    "pass_n": 5,
+    "tally": {
+      "doesnt_assemble": 6,
+      "logic_mismatch": 49,
+      "crash": 9,
+      "timeout": 8,
+      "abi": 1
+    },
+    "hybrid_pass_n": 48,
+    "hybrid_pass_copied_from": "runs/round4/hybrid.jsonl",
+    "overlap_pass_n": 5,
+    "overlap_pass_ids": [
+      "he138_sum_of_four_evens",
+      "he23_strlen",
+      "mbpp14_prism_volume",
+      "mbpp234_cube_volume",
+      "mbpp8_square_nums"
+    ],
+    "hybrid_fail_tally": {
+      "doesnt_assemble": 5,
+      "logic_mismatch": 31,
+      "crash": 4,
+      "timeout": 3
+    }
+  },
+  "failure_v2": {
+    "model": "asm-distill-7b-v2",
+    "split": "heldout",
+    "n": 78,
+    "pass_n": 4,
+    "tally": {
+      "logic_mismatch": 46,
+      "crash": 11,
+      "timeout": 6,
+      "doesnt_assemble": 11
+    },
+    "hybrid_pass_n": 48,
+    "hybrid_pass_copied_from": "runs/round4/hybrid.jsonl",
+    "overlap_pass_n": 4,
+    "overlap_pass_ids": [
+      "he138_sum_of_four_evens",
+      "he23_strlen",
+      "mbpp17_square_perimeter",
+      "mbpp72_diff_of_squares"
+    ],
+    "hybrid_fail_tally": {
+      "logic_mismatch": 30,
+      "crash": 7,
+      "doesnt_assemble": 6,
+      "timeout": 1
+    }
+  }
+}

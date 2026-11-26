@@ -1,0 +1,54 @@
+{
+  "remain_h": 1.0841,
+  "budget_h": 8.0,
+  "wants": {
+    "a-eval-heldout": 0.0,
+    "a-eval-val": 0.0,
+    "b-synth": 0.0,
+    "b-sample": 0.0,
+    "b-train": 0.0,
+    "b-eval-heldout": 0.0,
+    "a-loop-c-then-asm": 0.0,
+    "b-eval-val": 0.0,
+    "b-loop-c-then-asm": 5.6839,
+    "a-loop-asm": 5.6839,
+    "b-loop-val": 6.5584,
+    "a-loop-val": 6.5584
+  },
+  "allocation": {
+    "a-eval-heldout": 0.0,
+    "a-eval-val": 0.0,
+    "b-synth": 0.0,
+    "b-sample": 0.0,
+    "b-train": 0.0,
+    "b-eval-heldout": 0.0,
+    "a-loop-c-then-asm": 0.0,
+    "b-eval-val": 0.0,
+    "b-loop-c-then-asm": 1.0841,
+    "a-loop-asm": 0.0,
+    "b-loop-val": 0.0,
+    "a-loop-val": 0.0
+  },
+  "rates": {
+    "eval_s_per_task": 48.73,
+    "eval_margin_small_n_le_40": 1.55,
+    "eval_margin_large": 1.31,
+    "loop_s_per_task": 238.4872,
+    "loop_margin": 1.1,
+    "loop_source": "round 4 C-then-asm held-out loop, 18602 s / 78 tasks",
+    "not_the_round5_eval_cap_h": 0.7
+  },
+  "notes": "Stage A held-out remainder and val direct asm are funded first, then training and the v2 held-out eval are set aside, then synth and the k=8 teacher top-up, then the repair loops. Eval caps use 48.73 s/task with margin, not the round-5 0.7 h cap. The train pool stays at the round-5 screened 346 tasks so this budget still fits.",
+  "counts": {
+    "a-heldout": 78,
+    "a-val": 90,
+    "b-heldout": 78,
+    "b-val": 90,
+    "a-loop": 20,
+    "b-loop": 0,
+    "a-loop-asm": 0,
+    "b-loop-val": 0,
+    "a-loop-val": 0
+  },
+  "synth_n": 60
+}

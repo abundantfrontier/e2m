@@ -1062,8 +1062,18 @@ def lower_asm(task: dict[str, Any], c_source: str, *, opt: str) -> dict[str, Any
     }
 
 
-def distill_pairs(task: dict[str, Any], c_texts: list[str], *, origin: str) -> list[dict[str, Any]]:
-    """Keep up to two distinct verified asms (prefer -O2 then -Os of the first good C)."""
+def distill_pairs(
+    task: dict[str, Any],
+    c_texts: list[str],
+    *,
+    origin: str,
+    max_distinct: int = 2,
+) -> list[dict[str, Any]]:
+    """Keep distinct verified asms (gcc -O2, then -Os, re-checked in the harness).
+
+    ``max_distinct`` defaults to 2, which is the round-5 cap. ``max_distinct <= 0``
+    keeps every distinct asm.
+    """
     kept: list[dict[str, Any]] = []
     seen: set[str] = set()
     for c_source in c_texts:
@@ -1095,9 +1105,9 @@ def distill_pairs(task: dict[str, Any], c_texts: list[str], *, origin: str) -> l
                     "backend": lowered["backend"],
                 }
             )
-            if len(kept) >= 2:
+            if max_distinct > 0 and len(kept) >= max_distinct:
                 return kept
-        if produced and len(kept) >= 2:
+        if produced and max_distinct > 0 and len(kept) >= max_distinct:
             break
     return kept
 
@@ -1666,29 +1676,112 @@ def build_train_manifest(
     return stats
 
 
+def _apply_sft_cap(
+    rows: list[dict[str, Any]],
+    fraction: float,
+    *,
+    sft_origin: str = "sft_lora2",
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Keep every distill row and at most ``fraction`` of the mix from ``sft_origin``.
+
+    The cap is a maximum. Distill stays a strict majority when ``fraction < 0.5``
+    and at least one distill row exists. Selection is a hash round-robin over
+    task ids so a resume writes the same subset.
+    """
+    distill = [row for row in rows if str(row.get("origin") or "") != sft_origin]
+    sft = [row for row in rows if str(row.get("origin") or "") == sft_origin]
+    info: dict[str, Any] = {
+        "sft_fraction_cap": fraction,
+        "sft_origin": sft_origin,
+        "sft_in": len(sft),
+        "distill_in": len(distill),
+    }
+    if not distill:
+        info["sft_kept"] = 0
+        info["note"] = "no distill rows; dropped sft so the mix is not sft-only"
+        return [], info
+    if fraction <= 0 or not sft:
+        info["sft_kept"] = 0 if fraction <= 0 else len(sft)
+        return (distill if fraction <= 0 else distill + sft), info
+    cap_n = int((fraction * len(distill)) / (1.0 - fraction))
+    while cap_n > 0 and cap_n >= len(distill):
+        cap_n -= 1
+    if len(sft) > cap_n:
+        sft = _pick_sft_rows(sft, cap_n)
+    info["sft_kept"] = len(sft)
+    info["capped"] = info["sft_kept"] < info["sft_in"]
+    return distill + sft, info
+
+
+def _pick_sft_rows(rows: list[dict[str, Any]], n: int) -> list[dict[str, Any]]:
+    if n <= 0:
+        return []
+
+    def _key(row: dict[str, Any]) -> str:
+        raw = f"{row.get('task_id')}|{row.get('goal')}|{row.get('sha256')}"
+        return hashlib.sha256(raw.encode()).hexdigest()
+
+    buckets: dict[str, list[dict[str, Any]]] = {}
+    order: list[str] = []
+    for row in sorted(rows, key=_key):
+        tid = str(row.get("task_id") or "")
+        if tid not in buckets:
+            buckets[tid] = []
+            order.append(tid)
+        buckets[tid].append(row)
+    picked: list[dict[str, Any]] = []
+    while len(picked) < n:
+        progressed = False
+        for tid in order:
+            bucket = buckets[tid]
+            if not bucket:
+                continue
+            picked.append(bucket.pop(0))
+            progressed = True
+            if len(picked) >= n:
+                break
+        if not progressed:
+            break
+    return picked
+
+
 def write_mix(
     out_path: Path,
     *,
     kept_rows: list[dict[str, Any]],
+    sft_fraction: float | None = None,
 ) -> dict[str, Any]:
-    """Write the SFT mix. Training rows do not carry a `c` field."""
+    """Write the SFT mix. Training rows do not carry a `c` field.
+
+    ``sft_fraction`` caps rows whose origin is ``sft_lora2`` (round 5b uses 0.25).
+    The default keeps every kept row, which is the round-5 mix.
+    """
+    cap_info: dict[str, Any] = {"sft_fraction_cap": sft_fraction}
+    selected = kept_rows
+    if sft_fraction is not None and sft_fraction < 1:
+        selected, cap_info = _apply_sft_cap(kept_rows, sft_fraction)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     counts: Counter[str] = Counter()
     goals: Counter[str] = Counter()
     with out_path.open("w", encoding="utf-8") as fh:
-        for row in kept_rows:
+        for row in selected:
             origin = str(row.get("origin") or "unknown")
             goal = str(row.get("goal") or "default")
             counts[origin] += 1
             goals[goal] += 1
             fh.write(json.dumps(sft_row(row) if row.get("model_c") or row.get("origin") not in {None, "", "sft_lora2"} else _sft_base_row(row), ensure_ascii=False) + "\n")
     total = sum(counts.values()) or 1
+    n_sft = counts.get("sft_lora2", 0)
+    n_distill = total - n_sft if total else 0
     stats = {
         "rows": sum(counts.values()),
         "by_origin": dict(counts),
         "by_goal": dict(goals),
         "proportions": {key: round(val / total, 4) for key, val in counts.items()},
         "out": str(out_path),
+        "sft_cap": cap_info,
+        "distill_rows": n_distill,
+        "distill_majority": bool(n_distill > n_sft and n_distill > 0),
         "auxiliary_c_to_asm": False,
         "auxiliary_reason": (
             "Eval uses the English-to-asm prompt (Goal: default). "

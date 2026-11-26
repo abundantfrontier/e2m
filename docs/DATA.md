@@ -40,6 +40,12 @@ Files larger than the repository limits are left out. Each can be rebuilt from t
 | `runs/round5/embed_kept.jsonl` | 7.1 MB | per-task outputs; kept with the run, available on request |
 | `runs/round5/sft.jsonl` | 5.6 MB | per-task outputs; kept with the run, available on request |
 | `runs/round5/text_kept.jsonl` | 7.6 MB | per-task outputs; kept with the run, available on request |
+| `runs/round5b/distill.jsonl` | 1.8 MB | per-task outputs; kept with the run, available on request |
+| `runs/round5b/embed_cache.jsonl` | 101.1 MB | per-task outputs; kept with the run, available on request |
+| `runs/round5b/embed_kept.jsonl` | 7.8 MB | per-task outputs; kept with the run, available on request |
+| `runs/round5b/lower_state.json` | 46.0 KB | pipeline resume state; not a result |
+| `runs/round5b/sft.jsonl` | 1.5 MB | per-task outputs; kept with the run, available on request |
+| `runs/round5b/text_kept.jsonl` | 8.3 MB | per-task outputs; kept with the run, available on request |
 | `tasks/scaled.jsonl` | 5.0 MB | ExeBench/AnghaBench-derived pool; rebuild with `python -m e2m.scale` (docs/DATA.md) |
 
 ## Rebuilding

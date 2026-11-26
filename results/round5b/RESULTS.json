@@ -1,0 +1,558 @@
+{
+  "title": "E2M round 5b",
+  "target_heldout_direct_asm_pass_at_1": "20/78",
+  "target_met": false,
+  "teacher": "runs/c-only-7b/adapter",
+  "stage_a_model": "asm-distill-7b",
+  "stage_b_model": "asm-distill-7b-v2",
+  "train_out": "runs/asm-distill-7b-v2",
+  "epochs": 2,
+  "hyperparameters": {
+    "rank": 32,
+    "alpha": 64,
+    "dropout": 0.05,
+    "lr": 0.0002,
+    "batch_size": 1,
+    "grad_accum": 16,
+    "max_len": 2048,
+    "load_4bit": true,
+    "goals": [
+      "default",
+      "size"
+    ],
+    "save_steps": 100
+  },
+  "sample_k": 8,
+  "prior_k": 4,
+  "sft_fraction_cap": 0.25,
+  "max_distinct_asms": "unlimited",
+  "auxiliary_c_to_asm": false,
+  "round4": {
+    "source": "runs/round4/SUMMARY.md",
+    "heldout_direct_asm_pass_at_1": "7/78",
+    "heldout_direct_asm_pass_at_5": "9/78",
+    "heldout_c_then_asm_loop": "19/78",
+    "heldout_hybrid_o2": "48/78",
+    "heldout_c_only_pass_at_1": "46/78",
+    "heldout_c_only_pass_at_5": "56/78",
+    "note": "Copied. Round 5 does not re-score round 4."
+  },
+  "stage_a": {
+    "heldout_asm": {
+      "model": "asm-distill-7b",
+      "split": "heldout",
+      "n": 78,
+      "expected": 78,
+      "partial": false,
+      "pass_at_1_n": 5,
+      "pass_at_1": 0.0641025641025641,
+      "pass_at_1_frac": "5/78",
+      "pass_at_5": 0.10256410256410256,
+      "size_ratio_vs_gcc_o2": 0.9371212121212121,
+      "insn_ratio_vs_gcc_o2": 0.9421205186880244,
+      "size_ratio_n": 5,
+      "insn_ratio_n": 5,
+      "greedy_categories": {
+        "doesnt_assemble": 6,
+        "wrong_answer": 49,
+        "pass": 5,
+        "crash": 9,
+        "timeout": 8,
+        "abi": 1
+      }
+    },
+    "val_asm": {
+      "model": "asm-distill-7b",
+      "split": "val",
+      "n": 90,
+      "expected": 90,
+      "partial": false,
+      "pass_at_1_n": 29,
+      "pass_at_1": 0.32222222222222224,
+      "pass_at_1_frac": "29/90",
+      "pass_at_5": 0.5,
+      "size_ratio_vs_gcc_o2": 1.0678896917699636,
+      "insn_ratio_vs_gcc_o2": 1.2781692621739646,
+      "size_ratio_n": 29,
+      "insn_ratio_n": 29,
+      "greedy_categories": {
+        "pass": 29,
+        "timeout": 4,
+        "doesnt_assemble": 5,
+        "wrong_answer": 51,
+        "crash": 1
+      }
+    },
+    "loop_heldout_c_then_asm": {
+      "model": "asm-distill-7b",
+      "mode": "c-then-asm",
+      "split": "heldout",
+      "n": 20,
+      "expected": 78,
+      "partial": true,
+      "pass_n": 8,
+      "pass_rate": 0.4,
+      "size_ratio_vs_gcc_o2": 0.7801092049864841,
+      "insn_ratio_vs_gcc_o2": 0.960959315443011,
+      "final_categories": {
+        "wrong_answer": 7,
+        "pass": 8,
+        "timeout": 2,
+        "doesnt_assemble": 2,
+        "crash": 1
+      },
+      "stopped": "max-hours",
+      "path": "runs/loop-asm-distill-heldout-c-then-asm"
+    },
+    "loop_heldout_asm": {
+      "n": 0,
+      "pass_n": 0,
+      "partial": true,
+      "expected": 78,
+      "mode": "asm",
+      "note": "not started"
+    },
+    "failure": {
+      "model": "asm-distill-7b",
+      "split": "heldout",
+      "n": 78,
+      "pass_n": 5,
+      "tally": {
+        "doesnt_assemble": 6,
+        "logic_mismatch": 49,
+        "crash": 9,
+        "timeout": 8,
+        "abi": 1
+      },
+      "hybrid_pass_n": 48,
+      "hybrid_pass_copied_from": "runs/round4/hybrid.jsonl",
+      "overlap_pass_n": 5,
+      "overlap_pass_ids": [
+        "he138_sum_of_four_evens",
+        "he23_strlen",
+        "mbpp14_prism_volume",
+        "mbpp234_cube_volume",
+        "mbpp8_square_nums"
+      ],
+      "hybrid_fail_tally": {
+        "doesnt_assemble": 5,
+        "logic_mismatch": 31,
+        "crash": 4,
+        "timeout": 3
+      }
+    },
+    "partial": true
+  },
+  "heldout_asm": {
+    "model": "asm-distill-7b-v2",
+    "split": "heldout",
+    "n": 78,
+    "expected": 78,
+    "partial": false,
+    "pass_at_1_n": 4,
+    "pass_at_1": 0.05128205128205128,
+    "pass_at_1_frac": "4/78",
+    "pass_at_5": 0.08974358974358974,
+    "size_ratio_vs_gcc_o2": 0.817516194554238,
+    "insn_ratio_vs_gcc_o2": 1.1812865497076024,
+    "size_ratio_n": 4,
+    "insn_ratio_n": 4,
+    "greedy_categories": {
+      "wrong_answer": 46,
+      "crash": 11,
+      "pass": 4,
+      "timeout": 6,
+      "doesnt_assemble": 11
+    }
+  },
+  "val_asm": {
+    "model": "asm-distill-7b-v2",
+    "split": "val",
+    "n": 90,
+    "expected": 90,
+    "partial": false,
+    "pass_at_1_n": 22,
+    "pass_at_1": 0.24444444444444444,
+    "pass_at_1_frac": "22/90",
+    "pass_at_5": 0.3111111111111111,
+    "size_ratio_vs_gcc_o2": 0.961838591009877,
+    "insn_ratio_vs_gcc_o2": 1.080208270002539,
+    "size_ratio_n": 22,
+    "insn_ratio_n": 22,
+    "greedy_categories": {
+      "doesnt_assemble": 11,
+      "pass": 22,
+      "wrong_answer": 56,
+      "timeout": 1
+    }
+  },
+  "loop_heldout": {
+    "model": "asm-distill-7b-v2",
+    "mode": "c-then-asm",
+    "split": "heldout",
+    "n": 10,
+    "expected": 78,
+    "partial": true,
+    "pass_n": 4,
+    "pass_rate": 0.4,
+    "size_ratio_vs_gcc_o2": 1.0588888888888888,
+    "insn_ratio_vs_gcc_o2": 0.8839531680440771,
+    "final_categories": {
+      "pass": 4,
+      "crash": 3,
+      "timeout": 2,
+      "wrong_answer": 1
+    },
+    "stopped": "max-hours",
+    "path": "runs/loop-asm-distill-7b-v2-heldout-c-then-asm"
+  },
+  "loop_val": {
+    "n": 0,
+    "pass_n": 0,
+    "partial": true,
+    "expected": 90,
+    "mode": "c-then-asm",
+    "note": "not started"
+  },
+  "data_stats": {
+    "lower": {
+      "tasks": 588,
+      "new_rows": 1220,
+      "skipped": 0
+    },
+    "leakage_text": {
+      "checked": 8001,
+      "kept_text": 6855,
+      "dropped_text": 1146,
+      "by_check": {
+        "c_ratio": 66,
+        "name": 320,
+        "word5": 652,
+        "spec_ratio": 108
+      },
+      "by_source": {
+        "sft_lora2": {
+          "checked": 6781,
+          "kept": 5635,
+          "dropped": 1146,
+          "c_ratio": 66,
+          "name": 320,
+          "word5": 652,
+          "spec_ratio": 108
+        },
+        "mbpp": {
+          "checked": 444,
+          "kept": 444
+        },
+        "synth": {
+          "checked": 137,
+          "kept": 137
+        },
+        "train": {
+          "checked": 639,
+          "kept": 639
+        }
+      },
+      "word5_rule": "word 5-grams over lowercase tokens, negation kept, no short-text fallback; a shared gram drops the row unless it is the ExeBench side-effect boilerplate listed in _BOILER_PHRASES"
+    },
+    "mix": {
+      "rows": 1614,
+      "by_origin": {
+        "mbpp": 444,
+        "synth": 137,
+        "train": 630,
+        "sft_lora2": 403
+      },
+      "by_goal": {
+        "default": 1097,
+        "size": 517
+      },
+      "proportions": {
+        "mbpp": 0.2751,
+        "synth": 0.0849,
+        "train": 0.3903,
+        "sft_lora2": 0.2497
+      },
+      "out": "runs/round5b/sft.jsonl",
+      "sft_cap": {
+        "sft_fraction_cap": 0.25,
+        "sft_origin": "sft_lora2",
+        "sft_in": 5097,
+        "distill_in": 1211,
+        "sft_kept": 403,
+        "capped": true
+      },
+      "distill_rows": 1211,
+      "distill_majority": true,
+      "auxiliary_c_to_asm": false,
+      "auxiliary_reason": "Eval uses the English-to-asm prompt (Goal: default). A C-to-asm auxiliary would train a different prompt than inference, and a row that contains both c and asm is treated as C-then-asm text by the trainer. Distill targets stay plain gcc AT&T of the teacher's passing C."
+    },
+    "train_pool": {
+      "enlarged": false,
+      "reason": "Reused runs/round5 screened_train.jsonl (346 tasks) and screened_mbpp.jsonl. The 8 h budget is reserved for Stage A eval, the k=8 top-up, training, and the v2 held-out eval."
+    },
+    "failure_v1": {
+      "model": "asm-distill-7b",
+      "split": "heldout",
+      "n": 78,
+      "pass_n": 5,
+      "tally": {
+        "doesnt_assemble": 6,
+        "logic_mismatch": 49,
+        "crash": 9,
+        "timeout": 8,
+        "abi": 1
+      },
+      "hybrid_pass_n": 48,
+      "hybrid_pass_copied_from": "runs/round4/hybrid.jsonl",
+      "overlap_pass_n": 5,
+      "overlap_pass_ids": [
+        "he138_sum_of_four_evens",
+        "he23_strlen",
+        "mbpp14_prism_volume",
+        "mbpp234_cube_volume",
+        "mbpp8_square_nums"
+      ],
+      "hybrid_fail_tally": {
+        "doesnt_assemble": 5,
+        "logic_mismatch": 31,
+        "crash": 4,
+        "timeout": 3
+      }
+    },
+    "failure_v2": {
+      "model": "asm-distill-7b-v2",
+      "split": "heldout",
+      "n": 78,
+      "pass_n": 4,
+      "tally": {
+        "logic_mismatch": 46,
+        "crash": 11,
+        "timeout": 6,
+        "doesnt_assemble": 11
+      },
+      "hybrid_pass_n": 48,
+      "hybrid_pass_copied_from": "runs/round4/hybrid.jsonl",
+      "overlap_pass_n": 4,
+      "overlap_pass_ids": [
+        "he138_sum_of_four_evens",
+        "he23_strlen",
+        "mbpp17_square_perimeter",
+        "mbpp72_diff_of_squares"
+      ],
+      "hybrid_fail_tally": {
+        "logic_mismatch": 30,
+        "crash": 7,
+        "doesnt_assemble": 6,
+        "timeout": 1
+      }
+    }
+  },
+  "stages": {
+    "a-eval-heldout": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "a-eval-val": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "a-results": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "b-synth": {
+      "status": "ok",
+      "code": 3,
+      "reason": "max-hours"
+    },
+    "b-sample": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "b-lower": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "b-leakage-text": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "b-leakage-embed": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "b-mix": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "b-train": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "b-eval-heldout": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "a-loop-c-then-asm": {
+      "status": "ok",
+      "code": 3,
+      "reason": "max-hours"
+    },
+    "b-eval-val": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "b-loop-c-then-asm": {
+      "status": "ok",
+      "code": 3,
+      "reason": "max-hours"
+    },
+    "a-loop-asm": {
+      "status": "skipped",
+      "code": 3,
+      "reason": "gpu-hour budget"
+    },
+    "b-loop-val": {
+      "status": "skipped",
+      "code": null,
+      "reason": "gpu-hour budget"
+    },
+    "a-loop-val": {
+      "status": "skipped",
+      "code": null,
+      "reason": "gpu-hour budget"
+    },
+    "leftover-eval": {
+      "status": "skipped",
+      "code": null,
+      "reason": "gpu-hour budget"
+    },
+    "failure-analysis": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    }
+  },
+  "gpu_hours_budget": 8.0,
+  "gpu_hours_used": 8.0957,
+  "gpu_hours": [
+    {
+      "name": "a-eval-heldout",
+      "seconds": 1139.88,
+      "ok": true,
+      "gpu": true,
+      "ts": "2026-11-25T19:04:19.676364-08:00"
+    },
+    {
+      "name": "a-eval-val",
+      "seconds": 2312.93,
+      "ok": true,
+      "gpu": true,
+      "ts": "2026-11-25T19:42:52.613343-08:00"
+    },
+    {
+      "name": "a-results",
+      "seconds": 0.16,
+      "ok": true,
+      "gpu": false,
+      "ts": "2026-11-25T19:42:52.780271-08:00"
+    },
+    {
+      "name": "b-synth",
+      "seconds": 1260.93,
+      "ok": false,
+      "gpu": true,
+      "ts": "2026-11-25T20:03:54.064523-08:00"
+    },
+    {
+      "name": "b-sample",
+      "seconds": 2991.21,
+      "ok": true,
+      "gpu": true,
+      "ts": "2026-11-25T20:53:45.448219-08:00"
+    },
+    {
+      "name": "b-lower",
+      "seconds": 52.58,
+      "ok": true,
+      "gpu": false,
+      "ts": "2026-11-25T20:54:38.060711-08:00"
+    },
+    {
+      "name": "b-leakage-text",
+      "seconds": 173.71,
+      "ok": true,
+      "gpu": false,
+      "ts": "2026-11-25T20:57:31.775364-08:00"
+    },
+    {
+      "name": "b-leakage-embed",
+      "seconds": 63.99,
+      "ok": true,
+      "gpu": false,
+      "ts": "2026-11-25T20:58:35.972541-08:00"
+    },
+    {
+      "name": "b-mix",
+      "seconds": 0.07,
+      "ok": true,
+      "gpu": false,
+      "ts": "2026-11-25T20:58:36.039076-08:00"
+    },
+    {
+      "name": "b-train",
+      "seconds": 1901.78,
+      "ok": true,
+      "gpu": true,
+      "ts": "2026-11-25T21:30:17.847908-08:00"
+    },
+    {
+      "name": "b-eval-heldout",
+      "seconds": 3280.15,
+      "ok": true,
+      "gpu": true,
+      "ts": "2026-11-25T22:24:58.024911-08:00"
+    },
+    {
+      "name": "a-loop-c-then-asm",
+      "seconds": 9585.19,
+      "ok": false,
+      "gpu": true,
+      "ts": "2026-11-26T01:04:43.242006-08:00"
+    },
+    {
+      "name": "b-eval-val",
+      "seconds": 2425.05,
+      "ok": true,
+      "gpu": true,
+      "ts": "2026-11-26T01:45:08.317206-08:00"
+    },
+    {
+      "name": "b-loop-c-then-asm",
+      "seconds": 4247.52,
+      "ok": false,
+      "gpu": true,
+      "ts": "2026-11-26T02:55:55.871498-08:00"
+    },
+    {
+      "name": "failure-analysis",
+      "seconds": 0.04,
+      "ok": true,
+      "gpu": false,
+      "ts": "2026-11-26T02:55:55.920364-08:00"
+    }
+  ],
+  "halt_reason": "gpu-hour budget"
+}

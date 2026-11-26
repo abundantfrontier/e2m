@@ -1,0 +1,147 @@
+{
+  "title": "E2M round 5 full eval",
+  "model": "asm-distill-7b",
+  "adapter": "runs/asm-distill-7b/adapter",
+  "note": "Direct asm resumes runs/asm-distill-7b/eval.jsonl (append; the first 52 rows are snapshotted under runs/round5b). The C-then-asm loop is a new directory. Round 4 numbers are copied, not re-scored.",
+  "partial": true,
+  "heldout_asm": {
+    "model": "asm-distill-7b",
+    "split": "heldout",
+    "n": 78,
+    "expected": 78,
+    "partial": false,
+    "pass_at_1_n": 5,
+    "pass_at_1": 0.0641025641025641,
+    "pass_at_1_frac": "5/78",
+    "pass_at_5": 0.10256410256410256,
+    "size_ratio_vs_gcc_o2": 0.9371212121212121,
+    "insn_ratio_vs_gcc_o2": 0.9421205186880244,
+    "size_ratio_n": 5,
+    "insn_ratio_n": 5,
+    "greedy_categories": {
+      "doesnt_assemble": 6,
+      "wrong_answer": 49,
+      "pass": 5,
+      "crash": 9,
+      "timeout": 8,
+      "abi": 1
+    }
+  },
+  "val_asm": {
+    "model": "asm-distill-7b",
+    "split": "val",
+    "n": 90,
+    "expected": 90,
+    "partial": false,
+    "pass_at_1_n": 29,
+    "pass_at_1": 0.32222222222222224,
+    "pass_at_1_frac": "29/90",
+    "pass_at_5": 0.5,
+    "size_ratio_vs_gcc_o2": 1.0678896917699636,
+    "insn_ratio_vs_gcc_o2": 1.2781692621739646,
+    "size_ratio_n": 29,
+    "insn_ratio_n": 29,
+    "greedy_categories": {
+      "pass": 29,
+      "timeout": 4,
+      "doesnt_assemble": 5,
+      "wrong_answer": 51,
+      "crash": 1
+    }
+  },
+  "loop_heldout_c_then_asm": {
+    "model": "asm-distill-7b",
+    "mode": "c-then-asm",
+    "split": "heldout",
+    "n": 20,
+    "expected": 78,
+    "partial": true,
+    "pass_n": 8,
+    "pass_rate": 0.4,
+    "size_ratio_vs_gcc_o2": 0.7801092049864841,
+    "insn_ratio_vs_gcc_o2": 0.960959315443011,
+    "final_categories": {
+      "wrong_answer": 7,
+      "pass": 8,
+      "timeout": 2,
+      "doesnt_assemble": 2,
+      "crash": 1
+    },
+    "stopped": "max-hours",
+    "path": "runs/loop-asm-distill-heldout-c-then-asm"
+  },
+  "loop_heldout_asm": {
+    "n": 0,
+    "pass_n": 0,
+    "partial": true,
+    "expected": 78,
+    "mode": "asm",
+    "note": "not started"
+  },
+  "failure": {
+    "model": "asm-distill-7b",
+    "split": "heldout",
+    "n": 78,
+    "pass_n": 5,
+    "tally": {
+      "doesnt_assemble": 6,
+      "logic_mismatch": 49,
+      "crash": 9,
+      "timeout": 8,
+      "abi": 1
+    },
+    "hybrid_pass_n": 48,
+    "hybrid_pass_copied_from": "runs/round4/hybrid.jsonl",
+    "overlap_pass_n": 5,
+    "overlap_pass_ids": [
+      "he138_sum_of_four_evens",
+      "he23_strlen",
+      "mbpp14_prism_volume",
+      "mbpp234_cube_volume",
+      "mbpp8_square_nums"
+    ],
+    "hybrid_fail_tally": {
+      "doesnt_assemble": 5,
+      "logic_mismatch": 31,
+      "crash": 4,
+      "timeout": 3
+    }
+  },
+  "round4": {
+    "source": "runs/round4/SUMMARY.md",
+    "heldout_direct_asm_pass_at_1": "7/78",
+    "heldout_direct_asm_pass_at_5": "9/78",
+    "heldout_c_then_asm_loop": "19/78",
+    "heldout_hybrid_o2": "48/78",
+    "heldout_c_only_pass_at_1": "46/78",
+    "heldout_c_only_pass_at_5": "56/78",
+    "note": "Copied. Round 5 does not re-score round 4."
+  },
+  "stages": {
+    "a-eval-heldout": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "a-eval-val": {
+      "status": "ok",
+      "code": 0,
+      "reason": ""
+    },
+    "a-loop-c-then-asm": {
+      "status": "ok",
+      "code": 3,
+      "reason": "max-hours"
+    },
+    "a-loop-asm": {
+      "status": "skipped",
+      "code": 3,
+      "reason": "gpu-hour budget"
+    },
+    "a-loop-val": {
+      "status": "skipped",
+      "code": null,
+      "reason": "gpu-hour budget"
+    }
+  }
+}

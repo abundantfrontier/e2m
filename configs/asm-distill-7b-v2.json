@@ -1,0 +1,32 @@
+{
+  "syntax": "att",
+  "goal": "default",
+  "target": "asm",
+  "model": "runs/models/Qwen2.5-Coder-7B-Instruct",
+  "train_tasks": 1614,
+  "val_tasks": 0,
+  "train_examples": 1608,
+  "val_examples": 0,
+  "dropped_over_p99": 6,
+  "token_p50": 351,
+  "token_p90": 545,
+  "token_p99": 988,
+  "max_len": 2048,
+  "epochs": 2.0,
+  "lr": 0.0002,
+  "lora_r": 32,
+  "lora_alpha": 64,
+  "lora_dropout": 0.05,
+  "batch_size": 1,
+  "grad_accum": 16,
+  "load_4bit": true,
+  "max_steps": 0,
+  "limit": 0,
+  "goals": [
+    "default",
+    "size"
+  ],
+  "save_steps": 100,
+  "max_hours": 2.0,
+  "resume": true
+}

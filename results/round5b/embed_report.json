@@ -1,0 +1,11 @@
+{
+  "stopped": null,
+  "embedded": true,
+  "pending": 0,
+  "threshold": 0.85,
+  "model": "bge-m3:latest",
+  "cpu": true,
+  "kept": 6308,
+  "dropped": 547,
+  "rows": 6855
+}

@@ -1,0 +1,15 @@
+{"name": "a-eval-heldout", "seconds": 1139.88, "ok": true, "gpu": true, "ts": "2026-11-25T19:04:19.676364-08:00"}
+{"name": "a-eval-val", "seconds": 2312.93, "ok": true, "gpu": true, "ts": "2026-11-25T19:42:52.613343-08:00"}
+{"name": "a-results", "seconds": 0.16, "ok": true, "gpu": false, "ts": "2026-11-25T19:42:52.780271-08:00"}
+{"name": "b-synth", "seconds": 1260.93, "ok": false, "gpu": true, "ts": "2026-11-25T20:03:54.064523-08:00"}
+{"name": "b-sample", "seconds": 2991.21, "ok": true, "gpu": true, "ts": "2026-11-25T20:53:45.448219-08:00"}
+{"name": "b-lower", "seconds": 52.58, "ok": true, "gpu": false, "ts": "2026-11-25T20:54:38.060711-08:00"}
+{"name": "b-leakage-text", "seconds": 173.71, "ok": true, "gpu": false, "ts": "2026-11-25T20:57:31.775364-08:00"}
+{"name": "b-leakage-embed", "seconds": 63.99, "ok": true, "gpu": false, "ts": "2026-11-25T20:58:35.972541-08:00"}
+{"name": "b-mix", "seconds": 0.07, "ok": true, "gpu": false, "ts": "2026-11-25T20:58:36.039076-08:00"}
+{"name": "b-train", "seconds": 1901.78, "ok": true, "gpu": true, "ts": "2026-11-25T21:30:17.847908-08:00"}
+{"name": "b-eval-heldout", "seconds": 3280.15, "ok": true, "gpu": true, "ts": "2026-11-25T22:24:58.024911-08:00"}
+{"name": "a-loop-c-then-asm", "seconds": 9585.19, "ok": false, "gpu": true, "ts": "2026-11-26T01:04:43.242006-08:00"}
+{"name": "b-eval-val", "seconds": 2425.05, "ok": true, "gpu": true, "ts": "2026-11-26T01:45:08.317206-08:00"}
+{"name": "b-loop-c-then-asm", "seconds": 4247.52, "ok": false, "gpu": true, "ts": "2026-11-26T02:55:55.871498-08:00"}
+{"name": "failure-analysis", "seconds": 0.04, "ok": true, "gpu": false, "ts": "2026-11-26T02:55:55.920364-08:00"}

@@ -39,6 +39,7 @@ configs, small data and the results behind them.
 - Round 3: done ([results](results/round3/SUMMARY.md)).
 - Round 4: done ([results](results/round4/SUMMARY.md)).
 - Round 5: done ([results](results/round5/SUMMARY.md)).
+- Round 5b: done ([results](results/round5b/SUMMARY.md)).
 
 Headline (round 4, held-out, 78 tasks, greedy pass@1 unless noted):
 
@@ -51,8 +52,11 @@ Headline (round 4, held-out, 78 tasks, greedy pass@1 unless noted):
 
 So far the practical system is "model writes C, gcc lowers it"; the model's own
 assembly is usually well-formed and ABI-correct but does not implement its own
-C. Round 5 trains the 7B to write assembly directly from gcc lowerings of C it
-wrote itself (target: at least 20/78 direct assembly with no compiler).
+C. Rounds 5 and 5b trained the 7B to write assembly directly from gcc lowerings
+of C it wrote itself (target: at least 20/78 direct assembly with no compiler).
+The target was missed: `asm-distill-7b` scores **5/78** held-out (29/90 val) and
+the distill-heavy retrain `asm-distill-7b-v2` **4/78** (22/90 val), both below
+round 4's 7/78 for direct assembly. See `results/round5b/SUMMARY.md`.
 
 ## Results
 
@@ -66,7 +70,9 @@ harness.
 |---|---|---|---:|---:|---:|
 | qlora7b | own assembly | 2b | 78 | 5/78 | 8/78 |
 | qlora7b-v2 | own assembly | 4 | 78 | 5/78 | 12/78 |
+| asm-distill-7b | own assembly | 5b | 78 | 5/78 | 8/78 |
 | lora2 | own assembly | 4 | 78 | 4/78 | 5/78 |
+| asm-distill-7b-v2 | own assembly | 5b | 78 | 4/78 | 7/78 |
 | lora1 | own assembly | 2b | 78 | 2/78 | 5/78 |
 | dpo2 | own assembly | 3 | 78 | 2/78 | 2/78 |
 | base 1.5B (untrained) | own assembly | 1 | 78 | 0/78 | 0/78 |
@@ -90,6 +96,8 @@ Repair loops (k = 8, R = 3) on the held-out set:
 | loop-dpo-heldout | dpo | 2b | 62 | 0/62 | 0/62 |
 | loop-qlora7b-v2-heldout | qlora7b-v2 | 4 | 78 | 12/78 | 17/78 |
 | loop-c-then-asm-heldout | c-then-asm | 4 | 78 | 19/78 | 27/78 |
+| loop-asm-distill-7b-heldout-c-then-asm (partial, of 78) | asm-distill-7b | 5b | 20 | 8/20 | — |
+| loop-asm-distill-7b-v2-heldout-c-then-asm (partial, of 78) | asm-distill-7b-v2 | 5b | 10 | 4/10 | — |
 
 Validation (90 tasks) numbers, size and instruction ratios, and GPU hours are in
 each round's `results/<round>/SUMMARY.md` and `RESULTS.json`.
@@ -121,7 +129,8 @@ Adapters are not stored in git. Weights are on Hugging Face: [AbundantFrontierIn
 - **dpo2** (round 3, base `Qwen2.5-Coder-1.5B-Instruct`): DPO from lora2 with an RPO-style supervised term (beta 0.2, 1,500 steps). [weights](https://huggingface.co/AbundantFrontierInstitute/e2m/tree/main/dpo2)
 - **c-then-asm** (round 3, base `Qwen2.5-Coder-7B-Instruct`): 4-bit QLoRA that writes C, then assembly for that C. [weights](https://huggingface.co/AbundantFrontierInstitute/e2m/tree/main/c-then-asm)
 - **c-only-7b** (round 4, base `Qwen2.5-Coder-7B-Instruct`): 4-bit QLoRA that writes C only; the C model of the gcc hybrid. [weights](https://huggingface.co/AbundantFrontierInstitute/e2m/tree/main/c-only-7b)
-- **asm-distill-7b** (round 5, base `Qwen2.5-Coder-7B-Instruct`): 4-bit QLoRA, English to assembly distilled from gcc lowerings of the model's own C. Weights coming.
+- **asm-distill-7b** (round 5, base `Qwen2.5-Coder-7B-Instruct`): 4-bit QLoRA, English to assembly distilled from gcc lowerings of the model's own C. [weights](https://huggingface.co/AbundantFrontierInstitute/e2m/tree/main/asm-distill-7b)
+- **asm-distill-7b-v2** (round 5b, base `Qwen2.5-Coder-7B-Instruct`): 4-bit QLoRA, distill-heavy retrain (distilled rows in the majority, earlier pairs capped at 25%). [weights](https://huggingface.co/AbundantFrontierInstitute/e2m/tree/main/asm-distill-7b-v2)
 
 See [docs/MODELS.md](docs/MODELS.md) for base models, rounds and settings.
 
@@ -222,4 +231,4 @@ Each report has a "How to cite" section with BibTeX. For the project as a whole:
 }
 ```
 
-<sub>Last synced results as of 2026-11-25.</sub>
+<sub>Last synced results as of 2026-11-26.</sub>
