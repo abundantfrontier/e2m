@@ -22,6 +22,7 @@ Files larger than the repository limits are left out. Each can be rebuilt from t
 | `data/scaled/variants.jsonl` | 135.7 MB | training data or cache; regenerate (docs/DATA.md) |
 | `data/sweep-cache.jsonl` | 79.7 MB | starter sweep output; `python -m e2m.data.sweep` (docs/DATA.md) |
 | `data/variants.jsonl` | 19.5 MB | starter sweep output; `python -m e2m.data.sweep` (docs/DATA.md) |
+| `e2m/harness/diff_holdout.py` | 8.5 KB | round 8 held-back generator; published when round 8 ends |
 | `runs/c-then-asm/eval.jsonl` | 1.0 MB | per-task outputs; kept with the run |
 | `runs/dpo/eval.jsonl` | 1.7 MB | per-task outputs; kept with the run |
 | `runs/loop-c-then-asm-heldout/loop.jsonl` | 2.5 MB | per-task outputs; kept with the run |
@@ -72,6 +73,12 @@ Files larger than the repository limits are left out. Each can be rebuilt from t
 | `runs/round7/portfolio.jsonl` | 1.3 MB | round 7 per-task rows (assembly, counterexamples); kept with the run |
 | `runs/round7/search.jsonl` | 111.5 KB | round 7 per-task rows (assembly, counterexamples); kept with the run |
 | `runs/round7/stage.txt` | 8 B | pipeline resume state; not a result |
+| `runs/round8/bars.jsonl` | 302.3 KB | round 8 per-task rows (assembly, counterexamples); kept with the run |
+| `runs/round8/diff_selftest.json` | 25.0 KB | round 8 per-task rows (assembly, counterexamples); kept with the run |
+| `runs/round8/erratum_round7.json` | 6.3 KB | round 8 per-task rows (assembly, counterexamples); kept with the run |
+| `runs/round8/pipeline.pid` | 8 B | pipeline resume state; not a result |
+| `runs/round8/search.jsonl` | 258.2 KB | round 8 per-task rows (assembly, counterexamples); kept with the run |
+| `runs/round8/stage.txt` | 9 B | pipeline resume state; not a result |
 | `tasks/scaled.jsonl` | 5.0 MB | ExeBench/AnghaBench-derived pool; rebuild with `python -m e2m.scale` (docs/DATA.md) |
 
 ## Rebuilding

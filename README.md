@@ -42,6 +42,7 @@ configs, small data and the results behind them.
 - Round 5b: done ([results](results/round5b/SUMMARY.md)).
 - Round 6: done ([results](results/round6/SUMMARY.md)).
 - Round 7: done ([results](results/round7/SUMMARY.md)).
+- Round 8: in progress.
 
 Headline (round 4, held-out, 78 tasks, greedy pass@1 unless noted):
 
@@ -254,4 +255,4 @@ Each report has a "How to cite" section with BibTeX. For the project as a whole:
 }
 ```
 
-<sub>Last synced results as of 2026-11-26.</sub>
+<sub>Last synced results as of 2026-11-27.</sub>

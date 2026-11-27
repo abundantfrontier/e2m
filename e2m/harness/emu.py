@@ -241,8 +241,11 @@ def emulate(
     count_instructions: bool = True,
     backend: str | None = None,
     entry_noise: int | None = None,
+    coverage: set | None = None,
 ) -> EmuResult:
     """Run one function. Always returns; never raises to the caller.
+
+    ``coverage`` (round 8, unicorn only): a set that receives basic-block edges.
 
     ``entry_noise`` (round 7, unicorn only): when an int seed is given, the
     entry state is made adversarial within what the SysV ABI allows: random
@@ -279,6 +282,7 @@ def emulate(
             syntax=syntax,
             count_instructions=count_instructions,
             entry_noise=entry_noise,
+            coverage=coverage,
         )
     except Exception as exc:  # noqa: BLE001 — harness must survive any input
         return EmuResult(
@@ -300,6 +304,7 @@ def _emulate_inner(
     syntax: str,
     count_instructions: bool,
     entry_noise: int | None = None,
+    coverage: set | None = None,
 ) -> EmuResult:
     if isinstance(source, Assembled):
         image = source
@@ -440,6 +445,17 @@ def _emulate_inner(
     uc.hook_add(UC_HOOK_INSN_INVALID, on_invalid_insn)
     if count_instructions or check_abi:
         uc.hook_add(UC_HOOK_CODE, on_code)
+    if coverage is not None:
+        # round 8: record basic-block edges (prev_block_start, block_start) into the caller's set
+        from unicorn import UC_HOOK_BLOCK
+
+        cov_prev = [0]
+
+        def on_block(_uc: Uc, address: int, size: int, _user: Any) -> None:
+            coverage.add((cov_prev[0], address))
+            cov_prev[0] = address
+
+        uc.hook_add(UC_HOOK_BLOCK, on_block)
 
     timeout_us = max(1, int(timeout_s * 1_000_000))
     uc_error: UcError | None = None
