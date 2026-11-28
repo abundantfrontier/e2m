@@ -1,2 +1,5 @@
 {"name": "A-gate", "seconds": 416.0, "ok": true, "code": 0, "gpu": false, "ts": "2026-11-26T22:27:20-08:00"}
 {"name": "B-revalidate", "seconds": 1027.0, "ok": true, "code": 0, "gpu": false, "ts": "2026-11-26T22:44:27-08:00"}
+{"name": "C-search", "seconds": 7166.0, "ok": true, "code": 0, "gpu": false, "ts": "2026-11-27T14:59:48-08:00"}
+{"name": "D-model", "seconds": 3634.95, "ok": true, "code": 0, "gpu": true, "ts": "2026-11-27T16:10:23-08:00"}
+{"name": "E-summary", "seconds": 5024.0, "ok": true, "code": 0, "gpu": false, "ts": "2026-11-27T17:34:07-08:00"}

@@ -42,7 +42,7 @@ configs, small data and the results behind them.
 - Round 5b: done ([results](results/round5b/SUMMARY.md)).
 - Round 6: done ([results](results/round6/SUMMARY.md)).
 - Round 7: done ([results](results/round7/SUMMARY.md)).
-- Round 8: in progress.
+- Round 8: done ([results](results/round8/SUMMARY.md)).
 
 Headline (round 4, held-out, 78 tasks, greedy pass@1 unless noted):
 
@@ -111,14 +111,14 @@ Repair loops (k = 8, R = 3) on the held-out set:
 | loop-asm-distill-7b-v2-heldout-c-then-asm (partial, of 78) | asm-distill-7b-v2 | 5b | 10 | 4/10 | — |
 | loop-c-only-7b-heldout | c-only-7b | 6 | 78 | 64/78 | 69/78 |
 
-Beating the best of five compiler settings on programs that already pass (round 7; decision: Partial). Size wins are strictly smaller; speed wins are at most 0.9x the executed instructions. Counts are after the post-run audit, which re-checked every win on wider input families and removed 16 of 61 as wrong (the run's own counts are in its SUMMARY.md).
+Beating the best of five compiler settings on programs that already pass (round 8; decision: Partial). Size wins are strictly smaller; speed wins are at most 0.9x the executed instructions. Counts are after the post-run audit, which re-checked every win on wider input families and removed 2 of 68 as wrong (the run's own counts are in its SUMMARY.md).
 
 | Set | Goal | Tasks | Model wins | Search wins | Either | Median ratio of the wins |
 |---|---|---:|---:|---:|---:|---:|
-| heldout | size | 73 | 3 | 25 | 27 | 0.923 |
-| heldout | speed | 73 | 2 | 2 | 3 | 0.883 |
-| val | size | 77 | 0 | 7 | 7 | 0.897 |
-| val | speed | 77 | 0 | 6 | 6 | 0.817 |
+| heldout | size | 73 | 2 | 36 | 38 | 0.915 |
+| heldout | speed | 73 | 1 | 3 | 4 | 0.877 |
+| val | size | 77 | 0 | 12 | 12 | 0.911 |
+| val | speed | 77 | 0 | 1 | 1 | 0.705 |
 
 Validation (90 tasks) numbers, size and instruction ratios, and GPU hours are in
 each round's `results/<round>/SUMMARY.md` and `RESULTS.json`.

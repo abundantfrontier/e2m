@@ -1,0 +1,452 @@
+{
+ "round": 8,
+ "generated": "2026-11-27T17:34:07.695488-08:00",
+ "checker": "v3",
+ "recheck_n": 5000,
+ "selftest": {
+  "known_wrong_rejected": 19,
+  "n_known_wrong": 19,
+  "equivalent_agreed": 10,
+  "n_equivalent": 10,
+  "audited_wins_accepted": 43,
+  "n_audited_wins": 45,
+  "pass": true
+ },
+ "erratum_round7": {
+  "tasks": 150,
+  "r7_wins": {
+   "heldout/size": {
+    "claimed_task_goals": 31,
+    "stand_under_v3": 25,
+    "tasks": [
+     "he106_f_factorial_or_sum",
+     "he120_k_largest",
+     "he131_odd_digit_product",
+     "he138_sum_of_four_evens",
+     "he142_indexed_sum_squares",
+     "he152_compare_scores",
+     "he155_even_odd_count",
+     "he18_how_many_times",
+     "he26_remove_duplicates",
+     "he27_flip_case",
+     "he36_fizz_buzz",
+     "he43_pairs_sum_to_zero",
+     "he56_correct_bracketing",
+     "he63_fibfib",
+     "he66_digit_sum_upper",
+     "he73_smallest_change",
+     "he77_iscube",
+     "he8_sum_product",
+     "he9_rolling_max",
+     "mbpp234_cube_volume",
+     "mbpp244_next_square",
+     "mbpp256_count_primes",
+     "mbpp32_max_prime_factor",
+     "mbpp33_decimal_to_binary",
+     "mbpp8_square_nums"
+    ],
+    "v3_rejects": [
+     "model:he3_below_zero",
+     "search:he114_min_subarray_sum",
+     "search:he131_odd_digit_product",
+     "search:he24_largest_divisor",
+     "search:he75_is_multiply_prime",
+     "search:mbpp100_next_palindrome",
+     "search:mbpp151_is_coprime"
+    ]
+   },
+   "heldout/speed": {
+    "claimed_task_goals": 7,
+    "stand_under_v3": 3,
+    "tasks": [
+     "he121_sum_odd_even_idx",
+     "mbpp224_count_set_bits",
+     "mbpp33_decimal_to_binary"
+    ],
+    "v3_rejects": [
+     "search:he100_make_a_pile",
+     "search:he120_k_largest",
+     "search:he152_compare_scores",
+     "search:he85_sum_even_odd_idx"
+    ]
+   },
+   "val/size": {
+    "claimed_task_goals": 11,
+    "stand_under_v3": 7,
+    "tasks": [
+     "exebench_CINTsquare_dist_d8f2b8f9997b",
+     "exebench_Double_0_toDouble_2_Boolean_c3764d3b3aeb",
+     "exebench_FMod2p_88dbae089a48",
+     "exebench_balanced_btree_max_nodes_723b16194229",
+     "exebench_checkRow_95efd43168e5",
+     "exebench_cl_signum_554fae4b5831",
+     "exebench_dotProd_ba0bb06aa3d1"
+    ],
+    "v3_rejects": [
+     "search:exebench_az_paragraph_num_lines_23afebeee5fd",
+     "search:exebench_checkmd5_f5e6fad22803",
+     "search:exebench_delta_AT_b6ca07e07493",
+     "search:exebench_ehstrnlen_ad3e8426bbc9"
+    ]
+   },
+   "val/speed": {
+    "claimed_task_goals": 12,
+    "stand_under_v3": 6,
+    "tasks": [
+     "exebench__testfunc_d_bhilfd_a1ea48389977",
+     "exebench_answer2_660700b56ed5",
+     "exebench_balanced_btree_max_nodes_723b16194229",
+     "exebench_cl_signum_554fae4b5831",
+     "exebench_dob_to_int_2aa8fea91899",
+     "exebench_ffi_test_10_a30a09c59164"
+    ],
+    "v3_rejects": [
+     "model:exebench_CmpDoubles_1153267d175b",
+     "search:exebench_az_paragraph_num_lines_23afebeee5fd",
+     "search:exebench_checkmd5_f5e6fad22803",
+     "search:exebench_delta_AT_b6ca07e07493",
+     "search:exebench_ehnlc_strncmp_9353c4ce09ba",
+     "search:exebench_ehstrnlen_ad3e8426bbc9"
+    ]
+   }
+  },
+  "bars_replaced": 9
+ },
+ "compiler_beat": {
+  "heldout": {
+   "pass_set_tasks": 73,
+   "size": {
+    "wins": {
+     "model": 2,
+     "search": 36,
+     "both": 38
+    },
+    "claimed": {
+     "model": 2,
+     "search": 38
+    },
+    "win_tasks": {
+     "model": [
+      "he24_largest_divisor",
+      "he77_iscube"
+     ],
+     "search": [
+      "he102_choose_num",
+      "he106_f_factorial_or_sum",
+      "he122_add_elements",
+      "he131_odd_digit_product",
+      "he139_special_factorial",
+      "he142_indexed_sum_squares",
+      "he146_special_filter",
+      "he150_x_or_y",
+      "he25_factorize",
+      "he3_below_zero",
+      "he43_pairs_sum_to_zero",
+      "he48_is_palindrome",
+      "he49_modp",
+      "he59_largest_prime_factor",
+      "he60_sum_to_n",
+      "he63_fibfib",
+      "he64_vowels_count",
+      "he72_will_it_fly",
+      "he73_smallest_change",
+      "he75_is_multiply_prime",
+      "he76_is_simple_power",
+      "he82_prime_length",
+      "he83_starts_one_ends",
+      "he85_sum_even_odd_idx",
+      "he92_any_int",
+      "mbpp100_next_palindrome",
+      "mbpp14_prism_volume",
+      "mbpp244_next_square",
+      "mbpp24_binary_to_decimal",
+      "mbpp267_sum_odd_squares",
+      "mbpp287_sum_even_squares",
+      "mbpp33_decimal_to_binary",
+      "mbpp3_is_not_prime",
+      "mbpp45_array_gcd",
+      "mbpp47_fact_div_last_digit",
+      "mbpp76_count_squares"
+     ],
+     "both": [
+      "he102_choose_num",
+      "he106_f_factorial_or_sum",
+      "he122_add_elements",
+      "he131_odd_digit_product",
+      "he139_special_factorial",
+      "he142_indexed_sum_squares",
+      "he146_special_filter",
+      "he150_x_or_y",
+      "he24_largest_divisor",
+      "he25_factorize",
+      "he3_below_zero",
+      "he43_pairs_sum_to_zero",
+      "he48_is_palindrome",
+      "he49_modp",
+      "he59_largest_prime_factor",
+      "he60_sum_to_n",
+      "he63_fibfib",
+      "he64_vowels_count",
+      "he72_will_it_fly",
+      "he73_smallest_change",
+      "he75_is_multiply_prime",
+      "he76_is_simple_power",
+      "he77_iscube",
+      "he82_prime_length",
+      "he83_starts_one_ends",
+      "he85_sum_even_odd_idx",
+      "he92_any_int",
+      "mbpp100_next_palindrome",
+      "mbpp14_prism_volume",
+      "mbpp244_next_square",
+      "mbpp24_binary_to_decimal",
+      "mbpp267_sum_odd_squares",
+      "mbpp287_sum_even_squares",
+      "mbpp33_decimal_to_binary",
+      "mbpp3_is_not_prime",
+      "mbpp45_array_gcd",
+      "mbpp47_fact_div_last_digit",
+      "mbpp76_count_squares"
+     ]
+    },
+    "median_ratio": {
+     "both": 0.915
+    },
+    "model_unique": [
+     "he24_largest_divisor",
+     "he77_iscube"
+    ],
+    "mca_improved_both_cpus": [
+     "he102_choose_num",
+     "he131_odd_digit_product",
+     "he76_is_simple_power"
+    ]
+   },
+   "speed": {
+    "wins": {
+     "model": 1,
+     "search": 3,
+     "both": 4
+    },
+    "claimed": {
+     "model": 1,
+     "search": 3
+    },
+    "win_tasks": {
+     "model": [
+      "he60_sum_to_n"
+     ],
+     "search": [
+      "he100_make_a_pile",
+      "he64_vowels_count",
+      "mbpp100_next_palindrome"
+     ],
+     "both": [
+      "he100_make_a_pile",
+      "he60_sum_to_n",
+      "he64_vowels_count",
+      "mbpp100_next_palindrome"
+     ]
+    },
+    "median_ratio": {
+     "both": 0.877
+    },
+    "model_unique": [
+     "he60_sum_to_n"
+    ],
+    "mca_improved_both_cpus": [
+     "he100_make_a_pile",
+     "he64_vowels_count"
+    ]
+   }
+  },
+  "val": {
+   "pass_set_tasks": 77,
+   "size": {
+    "wins": {
+     "model": 0,
+     "search": 12,
+     "both": 12
+    },
+    "claimed": {
+     "model": 0,
+     "search": 12
+    },
+    "win_tasks": {
+     "model": [],
+     "search": [
+      "exebench_BinSearch1_f64adf4bb5d7",
+      "exebench_JHKeyframeAnimationFunctionEaseInOutQuad_6b4431db5704",
+      "exebench_MUL_ASSIGN_209444b3512e",
+      "exebench_answer2_660700b56ed5",
+      "exebench_checkRow_95efd43168e5",
+      "exebench_cl_signum_554fae4b5831",
+      "exebench_delta_AT_b6ca07e07493",
+      "exebench_f23_e9c674c8b0d8",
+      "exebench_fact2_867edddca812",
+      "exebench_fakt_57f76aedb35f",
+      "exebench_fls_49f6119f1d94",
+      "exebench_foo_1947adf539e7"
+     ],
+     "both": [
+      "exebench_BinSearch1_f64adf4bb5d7",
+      "exebench_JHKeyframeAnimationFunctionEaseInOutQuad_6b4431db5704",
+      "exebench_MUL_ASSIGN_209444b3512e",
+      "exebench_answer2_660700b56ed5",
+      "exebench_checkRow_95efd43168e5",
+      "exebench_cl_signum_554fae4b5831",
+      "exebench_delta_AT_b6ca07e07493",
+      "exebench_f23_e9c674c8b0d8",
+      "exebench_fact2_867edddca812",
+      "exebench_fakt_57f76aedb35f",
+      "exebench_fls_49f6119f1d94",
+      "exebench_foo_1947adf539e7"
+     ]
+    },
+    "median_ratio": {
+     "both": 0.911
+    },
+    "model_unique": [],
+    "mca_improved_both_cpus": [
+     "exebench_BinSearch1_f64adf4bb5d7",
+     "exebench_cl_signum_554fae4b5831",
+     "exebench_delta_AT_b6ca07e07493"
+    ]
+   },
+   "speed": {
+    "wins": {
+     "model": 0,
+     "search": 1,
+     "both": 1
+    },
+    "claimed": {
+     "model": 0,
+     "search": 1
+    },
+    "win_tasks": {
+     "model": [],
+     "search": [
+      "exebench_foo_23303579f55d"
+     ],
+     "both": [
+      "exebench_foo_23303579f55d"
+     ]
+    },
+    "median_ratio": {
+     "both": 0.705
+    },
+    "model_unique": [],
+    "mca_improved_both_cpus": []
+   }
+  }
+ },
+ "isa_extension": {
+  "flags": [
+   "-mpopcnt",
+   "-mlzcnt",
+   "-mbmi"
+  ],
+  "claimed": 11,
+  "verified": 11,
+  "tasks": [
+   "he100_make_a_pile:size",
+   "he122_add_elements:size",
+   "he146_special_filter:size",
+   "he152_compare_scores:size",
+   "he26_remove_duplicates:size",
+   "he72_will_it_fly:size",
+   "he8_sum_product:size",
+   "he9_rolling_max:size",
+   "mbpp6_differ_one_bit:size",
+   "mbpp6_differ_one_bit:speed",
+   "mbpp8_square_nums:size"
+  ]
+ },
+ "gpu_hours": 1.01,
+ "audit": {
+  "what": "held-back audit (round 8 stage E): every claimed win re-checked on 5,000 v3 inputs (fresh seed) and 5,000 inputs from the held-back generator e2m/harness/diff_holdout.py, written before any round-8 candidate and used only here; UB inputs (compilers of the reference C disagree) skipped.",
+  "checked": 68,
+  "failed": 2,
+  "failures": [
+   {
+    "src": "search",
+    "split": "heldout",
+    "task_id": "he114_min_subarray_sum",
+    "goal": "size",
+    "recheck_detail": "",
+    "holdout_detail": "holdout mismatch: ref ret=7 cand ret=-9223372036854775808 status=ok"
+   },
+   {
+    "src": "search",
+    "split": "heldout",
+    "task_id": "mbpp256_count_primes",
+    "goal": "size",
+    "recheck_detail": "",
+    "holdout_detail": "holdout mismatch: ref ret=172 cand ret=None status=timeout"
+   }
+  ],
+  "compiler_beat_audited": {
+   "heldout": {
+    "size": {
+     "model": 2,
+     "search": 36,
+     "either": 38,
+     "model_only": [
+      "he24_largest_divisor",
+      "he77_iscube"
+     ],
+     "both": [],
+     "median_ratio_of_wins": 0.915,
+     "mca_improved_both_cpus": 3
+    },
+    "speed": {
+     "model": 1,
+     "search": 3,
+     "either": 4,
+     "model_only": [
+      "he60_sum_to_n"
+     ],
+     "both": [],
+     "median_ratio_of_wins": 0.877,
+     "mca_improved_both_cpus": 2
+    }
+   },
+   "val": {
+    "size": {
+     "model": 0,
+     "search": 12,
+     "either": 12,
+     "model_only": [],
+     "both": [],
+     "median_ratio_of_wins": 0.911,
+     "mca_improved_both_cpus": 3
+    },
+    "speed": {
+     "model": 0,
+     "search": 1,
+     "either": 1,
+     "model_only": [],
+     "both": [],
+     "median_ratio_of_wins": 0.705,
+     "mca_improved_both_cpus": 0
+    }
+   }
+  }
+ },
+ "decision": {
+  "outcome": "Partial",
+  "heldout_verified_wins": 42,
+  "heldout_claims_failed": 2,
+  "heldout_speed_wins_mca_both": 2,
+  "model_unique_wins": 3,
+  "model_unique_per_gpu_h": 2.97,
+  "model_worth_keeping": false,
+  "checker_gate": true
+ },
+ "search_stats": {
+  "jobs": 300,
+  "tried": 2988963,
+  "near_miss_heldout": 85,
+  "v3_rejects": 187602
+ }
+}
